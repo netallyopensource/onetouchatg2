@@ -1,0 +1,11 @@
+diff -Naur attr-2.4.46.orig/include/buildrules attr-2.4.46/include/buildrules
+--- attr-2.4.46.orig/include/buildrules	2011-10-27 10:41:16.000000000 -0400
++++ attr-2.4.46/include/buildrules	2011-10-27 10:48:11.000000000 -0400
+@@ -47,6 +47,7 @@
+ ifdef LTLIBRARY
+ $(LTLIBRARY) : $(SUBDIRS) $(LTOBJECTS)
+ 	$(LTLINK) $(LTLDFLAGS) -o $(LTLIBRARY) $(LTOBJECTS) $(LTLIBS)
++	if [ -f .libs/$(LIBNAME).a ]; then $(RANLIB) .libs/$(LIBNAME).a;fi
+ 
+ %.lo: %.c
+ 	$(LTCOMPILE) -c $<

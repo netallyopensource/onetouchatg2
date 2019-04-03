@@ -1,0 +1,15 @@
+diff --git a/Makefile b/Makefile
+index 60aa677..1e6f4c3 100644
+--- a/Makefile.org
++++ b/Makefile.org
+@@ -227,6 +227,7 @@ BUILDENV=	PLATFORM='${PLATFORM}' PROCESSOR='${PROCESSOR}' \
+ 		FIPSCANLIB="$${FIPSCANLIB:-$(FIPSCANLIB)}"	\
+ 		FIPSCANISTERINTERNAL='${FIPSCANISTERINTERNAL}'	\
+ 		FIPS_EX_OBJ='${FIPS_EX_OBJ}'	\
++		CROSS_COMPILE='${CROSS_COMPILE}' \
+ 		THIS=$${THIS:-$@} MAKEFILE=Makefile MAKEOVERRIDES=
+ # MAKEOVERRIDES= effectively "equalizes" GNU-ish and SysV-ish make flavors,
+ # which in turn eliminates ambiguities in variable treatment with -e.
+-- 
+1.7.0.4
+

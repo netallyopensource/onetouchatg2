@@ -1,0 +1,22 @@
+--- glib-2.26.1/gio/Makefile.am	2010-11-23 11:36:42.283787886 -0500
++++ glib-2.26.1/gio/Makefile.am	2010-11-23 11:36:34.122537275 -0500
+@@ -568,7 +568,7 @@
+ 	libgio-2.0.la					\
+ 	$(NULL)
+ 
+-glib_compile_schemas_LDADD = $(top_builddir)/glib/libglib-2.0.la
++glib_compile_schemas_LDADD = $(top_builddir)/glib/libglib-2.0.la $(glib_compile_schemas_HOST_STATIC)
+ glib_compile_schemas_SOURCES = \
+ 	gvdb/gvdb-format.h		\
+ 	gvdb/gvdb-builder.h		\
+--- glib-2.26.1/gio/Makefile.in	2010-11-23 11:37:05.992537517 -0500
++++ glib-2.26.1/gio/Makefile.in	2010-11-23 11:37:01.762537170 -0500
+@@ -1010,7 +1010,7 @@
+ 	libgio-2.0.la					\
+ 	$(NULL)
+ 
+-glib_compile_schemas_LDADD = $(top_builddir)/glib/libglib-2.0.la
++glib_compile_schemas_LDADD = $(top_builddir)/glib/libglib-2.0.la $(glib_compile_schemas_HOST_STATIC)
+ glib_compile_schemas_SOURCES = \
+ 	gvdb/gvdb-format.h		\
+ 	gvdb/gvdb-builder.h		\

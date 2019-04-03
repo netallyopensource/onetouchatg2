@@ -1,0 +1,22 @@
+--- tcp_wrappers_7.6/Makefile	2011-02-04 14:49:19.000000000 -0500
++++ tcp_wrappers_7.6/Makefile	2011-02-04 14:49:22.000000000 -0500
+@@ -152,7 +152,7 @@
+ 	@make REAL_DAEMON_DIR=$(REAL_DAEMON_DIR) STYLE=$(STYLE) \
+ 	LIBS=-lnsl ARFLAGS=rv AUX_OBJ=weak_symbols.o \
+ 	NETGROUP="-DNETGROUP" TLI= VSYSLOG= BUGS= \
+-	EXTRA_CFLAGS="-DSYS_ERRLIST_DEFINED -DHAVE_STRERROR -DHAVE_WEAKSYMS -D_REENTRANT -DINET6=1 -Dss_family=__ss_family -Dss_len=__ss_len" all
++	EXTRA_CFLAGS="-DSYS_ERRLIST_DEFINED -DHAVE_STRERROR -DHAVE_WEAKSYMS -D_REENTRANT -Dss_family=__ss_family -Dss_len=__ss_len" all
+ 
+ gnu:
+ 	@make REAL_DAEMON_DIR=$(REAL_DAEMON_DIR) STYLE=$(STYLE) \
+--- tcp_wrappers_7.6/scaffold.c	2011-02-04 14:48:53.000000000 -0500
++++ tcp_wrappers_7.6/scaffold.c	2011-02-04 14:46:21.000000000 -0500
+@@ -27,7 +27,7 @@
+ #endif
+ 
+ #ifndef INET6
+-extern char *malloc();
++/* extern char *malloc(); */
+ #endif
+ 
+ /* Application-specific. */

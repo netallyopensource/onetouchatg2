@@ -1,0 +1,73 @@
+diff -Naur glib-2.30.2.orig/configure glib-2.30.2/configure
+--- glib-2.30.2.orig/configure	2011-12-19 10:51:19.000000000 -0500
++++ glib-2.30.2/configure	2011-12-19 10:52:07.000000000 -0500
+@@ -2542,6 +2542,46 @@
+   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+ 
+ } # ac_fn_c_check_member
++
++# ac_fn_c_check_decl LINENO SYMBOL VAR
++# ------------------------------------
++# Tests whether SYMBOL is declared, setting cache variable VAR accordingly.
++ac_fn_c_check_decl ()
++{
++  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $2 is declared" >&5
++$as_echo_n "checking whether $2 is declared... " >&6; }
++if { as_var=$3; eval "test \"\${$as_var+set}\" = set"; }; then :
++  $as_echo_n "(cached) " >&6
++else
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++$4
++int
++main ()
++{
++#ifndef $2
++  (void) $2;
++#endif
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  eval "$3=yes"
++else
++  eval "$3=no"
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++fi
++eval ac_res=\$$3
++	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
++$as_echo "$ac_res" >&6; }
++  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
++
++} # ac_fn_c_check_decl
++
+ cat >config.log <<_ACEOF
+ This file contains any messages produced by compilers while
+ running configure, to aid debugging if configure makes a mistake.
+@@ -27373,6 +27413,22 @@
+ 
+ fi
+ 
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we are coldfire and have 16bit GOT offsets" >&5
++$as_echo_n "checking whether we are coldfire and have 16bit GOT offsets... " >&6; }
++    case $host_cpu in
++      m68k*)
++	      ac_fn_c_check_decl "$LINENO" "__mcoldfire__" "ac_cv_have_decl___mcoldfire__" "$ac_includes_default"
++if test "x$ac_cv_have_decl___mcoldfire__" = x""yes; then :
++  CFLAGS="$CFLAGS -mxgot"; { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
++$as_echo "yes" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++        ;;
++    esac
++
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for futex(2) system call" >&5
+ $as_echo_n "checking for futex(2) system call... " >&6; }
+ if ${glib_cv_futex+:} false; then :

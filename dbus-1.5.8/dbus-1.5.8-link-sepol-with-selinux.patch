@@ -1,0 +1,11 @@
+--- dbus-1.5.8/configure	2011-10-05 16:49:49.238050241 -0400
++++ dbus-1.5.8/configure	2011-10-05 16:50:01.928051781 -0400
+@@ -19739,7 +19739,7 @@
+ fi
+ 
+ 
+-    SELINUX_LIBS="-lselinux $SELINUX_THREAD_LIBS"
++    SELINUX_LIBS="-lselinux -lsepol $SELINUX_THREAD_LIBS"
+ 
+ $as_echo "#define HAVE_SELINUX 1" >>confdefs.h
+ 

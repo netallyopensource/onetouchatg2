@@ -1,0 +1,12 @@
+diff -Naur attr-2.4.43.orig/include/buildmacros attr-2.4.43/include/buildmacros
+--- attr-2.4.43.orig/include/buildmacros	2010-08-03 14:00:33.638952473 -0400
++++ attr-2.4.43/include/buildmacros	2010-08-03 14:00:57.288950699 -0400
+@@ -27,7 +27,7 @@
+ 	  $(LFILES:.l=.o) \
+ 	  $(YFILES:%.y=%.tab.o)
+ 
+-INSTALL	= $(TOPDIR)/install-sh -o $(PKG_USER) -g $(PKG_GROUP)
++INSTALL	= $(TOPDIR)/install-sh
+ 
+ SHELL = /bin/sh
+ IMAGES_DIR = $(TOPDIR)/all-images

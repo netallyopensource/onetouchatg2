@@ -1,0 +1,89 @@
+#!/bin/sh
+# chkconfig: 2345 85 15
+### BEGIN INIT INFO
+# Provides:          cupsd
+# Required-Start:    $local_fs
+# Required-Stop:     
+# Should-Start:      $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start cupsd at boot time
+# Description:       Enable service provided by cupsd.
+# X-Start-Before:    
+# X-Stop-After:      
+# X-Timesys-Start-Number:  85
+# X-Timesys-Stop-Number:  15
+### END INIT INFO
+
+PATH="/bin:/usr/bin:/sbin:/usr/sbin"
+
+. /etc/timezone
+
+if test "x$ZONE" != x; then
+	TZ="$ZONE"
+fi
+if test "x$TIMEZONE" != x; then
+	TZ="$TIMEZONE"
+fi
+if test "x$TZ" != x; then
+	export TZ
+fi
+
+pid=`pidof cupsd`
+
+case $1 in
+	start | restart | reload)
+
+    if [ -z "$(grep ^lp /etc/passwd 2>/dev/null)" ]; then
+        echo "$0: Creating system user 'lp' with generic settings.  Review and modify as required."
+        yes '' | adduser lp >/dev/null 2>&1 || yes '' | useradd lp >/dev/null 2>&1
+    fi
+    if [ -z "$(grep ^lp /etc/group 2>/dev/null)" ]; then
+        echo "$0: Creating system group 'lp' with generic settings.  Review and modify as required."
+        yes '' | addgroup lp >/dev/null 2>&1 || yes '' | groupadd lp >/dev/null 2>&1
+    fi
+
+    if test "$pid" != ""; then
+      kill -HUP $pid
+    fi
+
+    echo -n "cups: starting scheduler..."
+    cupsd
+    if test $? != 0; then
+      echo '[FAIL]'
+      exit 1
+    else
+      echo '[OK]'
+    fi
+
+		;;
+
+	stop)
+		if test "$pid" != ""; then
+		  echo -n "cups: stopping scheduler..."
+			if kill $pid; then
+			  echo "[OK]"
+      else
+			  echo "[FAIL]"
+      fi
+    else
+			  echo "cups: scheduler is not running."
+		fi
+		;;
+
+	status)
+		if test "$pid" != ""; then
+			echo "cups: scheduler is running."
+		else
+			echo "cups: scheduler is not running."
+		fi
+		;;
+	*)
+		echo "Usage: cups {reload|restart|start|status|stop}"
+		exit 1
+		;;
+esac
+
+exit 0
+
+

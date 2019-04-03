@@ -1,0 +1,24 @@
+diff -Naur ncurses-5.9.orig/Makefile.in ncurses-5.9/Makefile.in
+--- ncurses-5.9.orig/Makefile.in	2011-07-13 10:20:04.441172140 -0400
++++ ncurses-5.9/Makefile.in	2011-07-13 10:32:33.136433670 -0400
+@@ -63,7 +63,7 @@
+ all ::	$(DIRS_TO_MAKE)
+ 
+ $(DIRS_TO_MAKE) :
+-	mkdir $@
++	mkdir -p $@
+ 
+ preinstall :
+ 	@ echo ''
+diff -Naur ncurses-5.9.orig/ncurses/Makefile.in ncurses-5.9/ncurses/Makefile.in
+--- ncurses-5.9.orig/ncurses/Makefile.in	2011-07-13 10:20:04.441172140 -0400
++++ ncurses-5.9/ncurses/Makefile.in	2011-07-13 10:32:42.517683229 -0400
+@@ -202,7 +202,7 @@
+ $(DESTDIR)$(libdir) :
+ 	mkdir -p $@
+ 
+-../lib : ; mkdir $@
++../lib : ; mkdir -p $@
+ 
+ ./fallback.c : $(tinfo)/MKfallback.sh
+ 	sh -e $(tinfo)/MKfallback.sh $(TERMINFO) $(TERMINFO_SRC) $(TIC_PATH) $(FALLBACK_LIST) >$@

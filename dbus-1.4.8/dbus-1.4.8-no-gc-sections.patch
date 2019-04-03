@@ -1,0 +1,18 @@
+diff -Naur dbus-1.4.8.orig/configure dbus-1.4.8/configure
+--- dbus-1.4.8.orig/configure	2011-04-11 10:48:22.000000000 -0400
++++ dbus-1.4.8/configure	2011-04-11 10:54:55.000000000 -0400
+@@ -19586,10 +19586,10 @@
+ 
+ 
+ 
+-if ld_supports_flag --gc-sections; then
+-  SECTION_LDFLAGS="-Wl,--gc-sections $SECTION_LDFLAGS"
+-  CFLAGS="-ffunction-sections -fdata-sections $CFLAGS"
+-fi
++#if ld_supports_flag --gc-sections; then
++#  SECTION_LDFLAGS="-Wl,--gc-sections $SECTION_LDFLAGS"
++#  CFLAGS="-ffunction-sections -fdata-sections $CFLAGS"
++#fi
+ 
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_gcsections" >&5

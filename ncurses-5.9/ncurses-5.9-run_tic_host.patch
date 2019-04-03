@@ -1,0 +1,12 @@
+diff -Naur ncurses-5.9.orig/misc/run_tic.in ncurses-5.9/misc/run_tic.in
+--- ncurses-5.9.orig/misc/run_tic.in	2011-04-06 12:36:55.000000000 -0400
++++ ncurses-5.9/misc/run_tic.in	2011-04-06 12:37:21.000000000 -0400
+@@ -91,6 +91,8 @@
+ 	SHLIB=
+ 	# reset $suffix, since it applies to the target, not the build platform.
+ 	suffix=
++	export PATH=../progs.native:$PATH
++	TIC_PATH="../progs.native/tic"
+ fi
+ 
+ 

@@ -1,0 +1,52 @@
+diff -Naur vsftpd-2.3.5.orig/postlogin.c vsftpd-2.3.5/postlogin.c
+--- vsftpd-2.3.5.orig/postlogin.c	2012-01-16 17:59:45.000000000 -0500
++++ vsftpd-2.3.5/postlogin.c	2012-01-16 18:01:00.000000000 -0500
+@@ -1044,13 +1044,19 @@
+   }
+   created = 1;
+   vsf_sysutil_fstat(new_file_fd, &s_p_statbuf);
+-  if (vsf_sysutil_statbuf_is_regfile(s_p_statbuf))
++  /* no truncate on fifo/pipe */
++  if (vsf_sysutil_statbuf_is_fifo(s_p_statbuf))
++  {
++    do_truncate = 0;
++  }
++  else if (vsf_sysutil_statbuf_is_regfile(s_p_statbuf))
+   {
+     /* Now deactive O_NONBLOCK, otherwise we have a problem on DMAPI filesystems
+      * such as XFS DMAPI.
+      */
+     vsf_sysutil_deactivate_noblock(new_file_fd);
+   }
++
+   /* Are we required to chown() this file for security? */
+   if (p_sess->is_anonymous && tunable_chown_uploads)
+   {
+diff -Naur vsftpd-2.3.5.orig/sysutil.c vsftpd-2.3.5/sysutil.c
+--- vsftpd-2.3.5.orig/sysutil.c	2012-01-16 18:00:15.000000000 -0500
++++ vsftpd-2.3.5/sysutil.c	2012-01-16 18:01:00.000000000 -0500
+@@ -1331,6 +1331,13 @@
+   return S_ISDIR(p_realstat->st_mode);
+ }
+ 
++int
++vsf_sysutil_statbuf_is_fifo(const struct vsf_sysutil_statbuf* p_stat)
++{
++  const struct stat* p_realstat = (const struct stat*) p_stat;
++  return S_ISFIFO(p_realstat->st_mode);
++}
++
+ const char*
+ vsf_sysutil_statbuf_get_perms(const struct vsf_sysutil_statbuf* p_statbuf)
+ {
+diff -Naur vsftpd-2.3.5.orig/sysutil.h vsftpd-2.3.5/sysutil.h
+--- vsftpd-2.3.5.orig/sysutil.h	2012-01-16 17:59:45.000000000 -0500
++++ vsftpd-2.3.5/sysutil.h	2012-01-16 18:01:00.000000000 -0500
+@@ -118,6 +118,7 @@
+ int vsf_sysutil_statbuf_is_symlink(const struct vsf_sysutil_statbuf* p_stat);
+ int vsf_sysutil_statbuf_is_socket(const struct vsf_sysutil_statbuf* p_stat);
+ int vsf_sysutil_statbuf_is_dir(const struct vsf_sysutil_statbuf* p_stat);
++int vsf_sysutil_statbuf_is_fifo(const struct vsf_sysutil_statbuf* p_stat);
+ filesize_t vsf_sysutil_statbuf_get_size(
+   const struct vsf_sysutil_statbuf* p_stat);
+ const char* vsf_sysutil_statbuf_get_perms(

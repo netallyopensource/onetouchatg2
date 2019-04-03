@@ -1,0 +1,29 @@
+#!/bin/sh
+# chkconfig: 2345 01 99
+### BEGIN INIT INFO
+# Provides:          create-devices
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start create-devices at boot time
+# Description:       Enable service provided by create-devices.
+# X-Start-Before:    
+# X-Stop-After:      
+# X-Timesys-Start-Number:  01
+# X-Timesys-Stop-Number:  99
+### END INIT INFO
+
+# create various device files at boot time
+
+export HOME=/root
+
+case "$1" in
+	start)
+		echo -n "Creating device files: "
+		touch /etc/mdev.conf # keep mdev from complaining
+		mdev -s > /tmp/`basename $0`.log 2>&1 && echo '[ OK ]' || echo '[FAIL]'
+	;;
+	*)
+	;;
+esac

@@ -1,0 +1,12 @@
+diff -Naur e2fsprogs-1.42.1.orig/lib/ext2fs/unix_io.c e2fsprogs-1.42.1/lib/ext2fs/unix_io.c
+--- e2fsprogs-1.42.1.orig/lib/ext2fs/unix_io.c	2012-02-20 15:47:39.000000000 -0500
++++ e2fsprogs-1.42.1/lib/ext2fs/unix_io.c	2012-02-20 15:49:58.000000000 -0500
+@@ -895,7 +895,7 @@
+ 		goto unimplemented;
+ #endif
+ 	} else {
+-#ifdef FALLOC_FL_PUNCH_HOLE
++#if defined(HAVE_FALLOCATE) && defined(FALLOC_FL_PUNCH_HOLE)
+ 		/*
+ 		 * If we are not on block device, try to use punch hole
+ 		 * to reclaim free space.

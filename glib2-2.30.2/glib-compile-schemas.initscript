@@ -1,0 +1,28 @@
+#!/bin/sh
+# chkconfig: 2345 71 29
+### BEGIN INIT INFO
+# Provides:          glib-compile-schemas
+# Required-Start:    $local_fs
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start glib-compile-schemas at boot time
+# Description:       Enable service provided by glib-compile-schemas.
+# X-Start-Before:    x
+# X-Stop-After:      
+# X-Timesys-Start-Number:  71
+# X-Timesys-Stop-Number:  29
+### END INIT INFO
+
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+case "$1" in
+	start)
+		glib-compile-schemas /usr/share/glib-2.0/schemas >/dev/null 2>&1
+	;;
+	stop)
+	;;
+	*)
+		echo "$0 [start|stop]"
+	;;
+esac

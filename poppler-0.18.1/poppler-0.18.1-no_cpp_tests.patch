@@ -1,0 +1,24 @@
+diff -Naur poppler-0.18.1.orig/cpp/Makefile.am poppler-0.18.1/cpp/Makefile.am
+--- poppler-0.18.1.orig/cpp/Makefile.am	2011-10-31 14:49:55.000000000 -0500
++++ poppler-0.18.1/cpp/Makefile.am	2011-10-31 14:50:10.000000000 -0500
+@@ -3,7 +3,7 @@
+ 	-I$(top_srcdir)/goo			\
+ 	-I$(top_srcdir)/poppler
+ 
+-SUBDIRS = . tests
++SUBDIRS = . 
+ 
+ poppler_includedir = $(includedir)/poppler/cpp
+ poppler_include_HEADERS =			\
+diff -Naur poppler-0.18.1.orig/cpp/Makefile.in poppler-0.18.1/cpp/Makefile.in
+--- poppler-0.18.1.orig/cpp/Makefile.in	2011-10-31 14:49:55.000000000 -0500
++++ poppler-0.18.1/cpp/Makefile.in	2011-10-31 14:50:10.000000000 -0500
+@@ -384,7 +384,7 @@
+ 	-I$(top_srcdir)/goo			\
+ 	-I$(top_srcdir)/poppler
+ 
+-SUBDIRS = . tests
++SUBDIRS = . 
+ poppler_includedir = $(includedir)/poppler/cpp
+ poppler_include_HEADERS = \
+ 	poppler-document.h			\

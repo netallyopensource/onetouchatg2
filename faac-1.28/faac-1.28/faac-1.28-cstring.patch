@@ -1,0 +1,15 @@
+--- faac-1.28/common/mp4v2/mpeg4ip.h	2011-10-11 11:45:16.750133795 -0400
++++ faac-1.28/common/mp4v2/mpeg4ip.h	2011-10-11 11:44:15.030134054 -0400
+@@ -121,11 +121,7 @@
+ #include <sys/param.h>
+ 
+ #ifdef __cplusplus
+-extern "C" {
+-#endif
+-char *strcasestr(const char *haystack, const char *needle);
+-#ifdef __cplusplus
+-}
++#include <cstring>
+ #endif
+ 
+ #define OPEN_RDWR O_RDWR

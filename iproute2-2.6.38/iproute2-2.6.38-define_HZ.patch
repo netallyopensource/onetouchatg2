@@ -1,0 +1,14 @@
+diff -Naur iproute2-2.6.38.orig/lib/utils.c iproute2-2.6.38/lib/utils.c
+--- iproute2-2.6.38.orig/lib/utils.c	2011-03-30 09:19:38.000000000 -0400
++++ iproute2-2.6.38/lib/utils.c	2011-03-30 09:19:53.000000000 -0400
+@@ -29,6 +29,10 @@
+ 
+ #include "utils.h"
+ 
++#ifndef HZ
++  #define HZ 100
++#endif
++
+ int get_integer(int *val, const char *arg, int base)
+ {
+ 	long res;

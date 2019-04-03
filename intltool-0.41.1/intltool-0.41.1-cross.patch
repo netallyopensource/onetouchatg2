@@ -1,0 +1,45 @@
+--- intltool-0.41.1/configure	2010-05-27 12:16:21.000000000 -0400
++++ intltool-0.41.1/configure	2010-05-27 12:16:16.000000000 -0400
+@@ -2213,23 +2213,25 @@
+ if test -z "$PERL"; then
+    as_fn_error "perl not found" "$LINENO" 5
+ fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for perl >= 5.8.1" >&5
+-$as_echo_n "checking for perl >= 5.8.1... " >&6; }
+-$PERL -e "use 5.8.1;" > /dev/null 2>&1
+-if test $? -ne 0; then
+-   as_fn_error "perl 5.8.1 is required for intltool" "$LINENO" 5
+-else
+-   PERL_VERSION="`$PERL -e \"printf '%vd', $^V\"`"
+-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PERL_VERSION" >&5
+-$as_echo "$PERL_VERSION" >&6; }
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for XML::Parser" >&5
+-$as_echo_n "checking for XML::Parser... " >&6; }
+-if `$PERL -e "require XML::Parser" 2>/dev/null`; then
+-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
+-$as_echo "ok" >&6; }
+-else
+-   as_fn_error "XML::Parser perl module is required for intltool" "$LINENO" 5
++if test -z "$XMLPARSER" ; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for perl >= 5.8.1" >&5
++  $as_echo_n "checking for perl >= 5.8.1... " >&6; }
++  $PERL -e "use 5.8.1;" > /dev/null 2>&1
++  if test $? -ne 0; then
++     as_fn_error "perl 5.8.1 is required for intltool" "$LINENO" 5
++  else
++     PERL_VERSION="`$PERL -e \"printf '%vd', $^V\"`"
++     { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PERL_VERSION" >&5
++  $as_echo "$PERL_VERSION" >&6; }
++  fi
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for XML::Parser" >&5
++  $as_echo_n "checking for XML::Parser... " >&6; }
++  if `$PERL -e "require XML::Parser" 2>/dev/null`; then
++     { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
++  $as_echo "ok" >&6; }
++  else
++     as_fn_error "XML::Parser perl module is required for intltool" "$LINENO" 5
++  fi
+ fi
+ 
+ ac_config_files="$ac_config_files Makefile doc/Makefile intltoolize tests/Makefile tests/cases/Makefile tests/results/Makefile tests/selftest.pl"

@@ -1,0 +1,10 @@
+--- openssl-0.9.8r/Configure.orig	2011-02-10 14:21:06.000000000 -0500
++++ openssl-0.9.8r/Configure	2011-02-10 14:21:03.000000000 -0500
+@@ -860,7 +860,6 @@
+ 			$fips = 1;
+ 			$nofipscanistercheck = 1;
+ 			$fipslibdir="";
+-			$fipscanisterinternal="y";
+ 			$fipsdso = 1;
+ 			}
+ 		elsif (/^[-+]/)

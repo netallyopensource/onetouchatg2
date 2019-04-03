@@ -1,0 +1,13 @@
+diff -Naur dbus-1.4.6.orig/bus/bus.c dbus-1.4.6/bus/bus.c
+--- dbus-1.4.6.orig/bus/bus.c	2011-02-21 12:36:47.000000000 -0500
++++ dbus-1.4.6/bus/bus.c	2011-02-21 12:38:46.000000000 -0500
+@@ -693,7 +693,9 @@
+       return FALSE;
+     }
+ 
++#ifdef DBUS_BUS_ENABLE_INOTIFY
+   bus_set_watched_dirs (context, &watched_dirs);
++#endif
+ 
+   _dbus_list_clear (&watched_dirs);
+ 

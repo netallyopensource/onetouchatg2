@@ -1,0 +1,17 @@
+diff -Naur e2fsprogs-1.41.11.orig/lib/ss/mk_cmds.sh.in e2fsprogs-1.41.11/lib/ss/mk_cmds.sh.in
+--- e2fsprogs-1.41.11.orig/lib/ss/mk_cmds.sh.in	2010-03-25 10:54:26.000000000 -0400
++++ e2fsprogs-1.41.11/lib/ss/mk_cmds.sh.in	2010-03-25 10:54:35.000000000 -0400
+@@ -4,9 +4,10 @@
+ 
+ datarootdir=@datarootdir@
+ DIR="${DIR-@datadir@/ss}"
+-SS_DIR="@SS_DIR@"
+-AWK=@AWK@
+-SED=@SED@
++SS_DIR="/usr/share/ss"
++AWK=awk
++SED=sed
++PATH=/usr/bin:/bin
+ 
+ for as_var in \
+   LANG LANGUAGE LC_ADDRESS LC_ALL LC_COLLATE LC_CTYPE LC_IDENTIFICATION \

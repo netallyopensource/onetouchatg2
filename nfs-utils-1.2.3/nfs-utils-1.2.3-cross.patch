@@ -1,0 +1,36 @@
+diff -Naur nfs-utils-1.2.3.orig/tools/locktest/Makefile.in nfs-utils-1.2.3/tools/locktest/Makefile.in
+--- nfs-utils-1.2.3.orig/tools/locktest/Makefile.in	2011-01-31 16:24:02.000000000 -0500
++++ nfs-utils-1.2.3/tools/locktest/Makefile.in	2011-01-31 16:24:28.000000000 -0500
+@@ -98,7 +98,7 @@
+ AUTOHEADER = @AUTOHEADER@
+ AUTOMAKE = @AUTOMAKE@
+ AWK = @AWK@
+-CC = $(CC_FOR_BUILD)
++CC = @CC@
+ CCDEPMODE = @CCDEPMODE@
+ CC_FOR_BUILD = @CC_FOR_BUILD@
+ CFLAGS = @CFLAGS@
+diff -Naur nfs-utils-1.2.3.orig/tools/rpcdebug/Makefile.in nfs-utils-1.2.3/tools/rpcdebug/Makefile.in
+--- nfs-utils-1.2.3.orig/tools/rpcdebug/Makefile.in	2011-01-31 16:24:02.000000000 -0500
++++ nfs-utils-1.2.3/tools/rpcdebug/Makefile.in	2011-01-31 16:24:28.000000000 -0500
+@@ -123,7 +123,7 @@
+ AUTOHEADER = @AUTOHEADER@
+ AUTOMAKE = @AUTOMAKE@
+ AWK = @AWK@
+-CC = $(CC_FOR_BUILD)
++CC = @CC@
+ CCDEPMODE = @CCDEPMODE@
+ CC_FOR_BUILD = @CC_FOR_BUILD@
+ CFLAGS = @CFLAGS@
+diff -Naur nfs-utils-1.2.3.orig/tools/rpcgen/Makefile.in nfs-utils-1.2.3/tools/rpcgen/Makefile.in
+--- nfs-utils-1.2.3.orig/tools/rpcgen/Makefile.in	2011-01-31 16:24:02.000000000 -0500
++++ nfs-utils-1.2.3/tools/rpcgen/Makefile.in	2011-01-31 16:24:28.000000000 -0500
+@@ -103,7 +103,7 @@
+ AUTOHEADER = @AUTOHEADER@
+ AUTOMAKE = @AUTOMAKE@
+ AWK = @AWK@
+-CC = $(CC_FOR_BUILD)
++CC = @CC@
+ CCDEPMODE = @CCDEPMODE@
+ CC_FOR_BUILD = @CC_FOR_BUILD@
+ CFLAGS = @CFLAGS@

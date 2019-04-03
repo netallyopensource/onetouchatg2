@@ -1,0 +1,12 @@
+diff -Naur cups-1.5.0.orig/configure cups-1.5.0/configure
+--- cups-1.5.0.orig/configure	2011-10-31 15:48:51.000000000 -0500
++++ cups-1.5.0/configure	2011-10-31 15:52:44.000000000 -0500
+@@ -11399,7 +11399,7 @@
+ 
+ case "$COMPONENTS" in
+ 	all)
+-		BUILDDIRS="filter backend berkeley cgi-bin driver monitor notifier ppdc scheduler systemv conf data desktop locale man doc examples templates"
++		BUILDDIRS="filter backend berkeley cgi-bin driver monitor notifier ppdc scheduler systemv conf data desktop locale examples templates"
+ 		;;
+ 
+ 	core)

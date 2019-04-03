@@ -1,0 +1,53 @@
+diff -Naur libpcap-1.1.1.orig/Makefile.in libpcap-1.1.1/Makefile.in
+--- libpcap-1.1.1.orig/Makefile.in	2010-07-15 16:24:27.000000000 -0400
++++ libpcap-1.1.1/Makefile.in	2010-07-15 16:25:51.000000000 -0400
+@@ -464,7 +464,7 @@
+ 
+ bpf_filter.c: $(srcdir)/bpf/net/bpf_filter.c
+ 	rm -f bpf_filter.c
+-	ln -s $(srcdir)/bpf/net/bpf_filter.c bpf_filter.c
++	ln -sf $(srcdir)/bpf/net/bpf_filter.c bpf_filter.c
+ 
+ bpf_filter.o: bpf_filter.c
+ 	$(CC) $(CFLAGS) -c bpf_filter.c
+@@ -528,31 +528,31 @@
+ 		$(INSTALL_DATA) $$i \
+ 		    $(DESTDIR)$(mandir)/man3/$$i; done
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_description.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_name.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_name.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_description.3pcap
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_dump_fopen.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_dump_open.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_dump_open.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_dump_fopen.3pcap
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_perror.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_geterr.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_geterr.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_perror.3pcap
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_sendpacket.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_inject.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_inject.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_sendpacket.3pcap
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_dispatch.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_loop.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_loop.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_dispatch.3pcap
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_minor_version.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_major_version.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_major_version.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_minor_version.3pcap
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_next.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_next_ex.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_next_ex.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_next.3pcap
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_fopen_offline.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_open_offline.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_open_offline.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_fopen_offline.3pcap
+ 	rm -f $(DESTDIR)$(mandir)/man3/pcap_getnonblock.3pcap
+-	ln $(DESTDIR)$(mandir)/man3/pcap_setnonblock.3pcap \
++	ln -f $(DESTDIR)$(mandir)/man3/pcap_setnonblock.3pcap \
+ 		 $(DESTDIR)$(mandir)/man3/pcap_getnonblock.3pcap
+ 	for i in $(MANFILE); do \
+ 		$(INSTALL_DATA) `echo $$i | sed 's/.manfile.in/.manfile/'` \

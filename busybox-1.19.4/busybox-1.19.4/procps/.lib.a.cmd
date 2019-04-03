@@ -1,0 +1,1 @@
+cmd_procps/lib.a := rm -f procps/lib.a; powerpc-timesys-linux-gnuspe-ar  rcs procps/lib.a procps/free.o procps/iostat.o procps/kill.o procps/mpstat.o procps/nmeter.o procps/pidof.o procps/pmap.o procps/powertop.o procps/ps.o procps/pstree.o procps/pwdx.o procps/renice.o procps/smemcap.o procps/sysctl.o procps/top.o procps/uptime.o

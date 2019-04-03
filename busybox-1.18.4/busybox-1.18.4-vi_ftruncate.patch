@@ -1,0 +1,21 @@
+diff -Naur busybox-1.18.4.orig/editors/vi.c busybox-1.18.4/editors/vi.c
+--- busybox-1.18.4.orig/editors/vi.c	2011-03-14 16:43:44.000000000 -0400
++++ busybox-1.18.4/editors/vi.c	2011-03-14 16:47:49.000000000 -0400
+@@ -2385,16 +2385,11 @@
+ 		status_line_bold("No current filename");
+ 		return -2;
+ 	}
+-	/* By popular request we do not open file with O_TRUNC,
+-	 * but instead ftruncate() it _after_ successful write.
+-	 * Might reduce amount of data lost on power fail etc.
+-	 */
+-	fd = open(fn, (O_WRONLY | O_CREAT), 0666);
++	fd = open(fn, (O_WRONLY | O_CREAT | O_TRUNC), 0666);
+ 	if (fd < 0)
+ 		return -1;
+ 	cnt = last - first + 1;
+ 	charcnt = full_write(fd, first, cnt);
+-	ftruncate(fd, charcnt);
+ 	if (charcnt == cnt) {
+ 		// good write
+ 		//file_modified = FALSE;

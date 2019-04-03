@@ -1,0 +1,24 @@
+diff -Naur fontconfig-2.8.0.orig/doc/Makefile.am fontconfig-2.8.0/doc/Makefile.am
+--- fontconfig-2.8.0.orig/doc/Makefile.am	2010-02-10 12:32:34.000000000 -0500
++++ fontconfig-2.8.0/doc/Makefile.am	2010-02-10 12:33:00.000000000 -0500
+@@ -122,7 +122,7 @@
+ 	mv devel-man/manpage.refs func.refs && \
+ 	mv devel-man/*.3 . && \
+ 	$(RM) devel-man/manpage.* && \
+-	rmdir devel-man
++	rm -rf devel-man
+ 
+ local-fontconfig-devel.sgml: fontconfig-devel.sgml
+ 	$(LN_S) $< $@
+diff -Naur fontconfig-2.8.0.orig/doc/Makefile.in fontconfig-2.8.0/doc/Makefile.in
+--- fontconfig-2.8.0.orig/doc/Makefile.in	2010-02-10 12:32:34.000000000 -0500
++++ fontconfig-2.8.0/doc/Makefile.in	2010-02-10 12:33:00.000000000 -0500
+@@ -883,7 +883,7 @@
+ @USEDOCBOOK_TRUE@	mv devel-man/manpage.refs func.refs && \
+ @USEDOCBOOK_TRUE@	mv devel-man/*.3 . && \
+ @USEDOCBOOK_TRUE@	$(RM) devel-man/manpage.* && \
+-@USEDOCBOOK_TRUE@	rmdir devel-man
++@USEDOCBOOK_TRUE@	rm -rf devel-man
+ 
+ @USEDOCBOOK_TRUE@local-fontconfig-devel.sgml: fontconfig-devel.sgml
+ @USEDOCBOOK_TRUE@	$(LN_S) $< $@

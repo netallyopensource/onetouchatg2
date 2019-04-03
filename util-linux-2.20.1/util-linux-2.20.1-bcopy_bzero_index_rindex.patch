@@ -1,0 +1,14 @@
+diff -Naur util-linux-2.20.1.orig/fdisk/fdiskbsdlabel.c util-linux-2.20.1/fdisk/fdiskbsdlabel.c
+--- util-linux-2.20.1.orig/fdisk/fdiskbsdlabel.c	2011-12-12 12:27:26.000000000 -0500
++++ util-linux-2.20.1/fdisk/fdiskbsdlabel.c	2011-12-12 12:27:39.000000000 -0500
+@@ -61,6 +61,10 @@
+ #define DKTYPENAMES
+ #include "fdiskbsdlabel.h"
+ 
++#ifndef bzero
++#define bzero(a, b) memset((a), 0, (b))
++#endif
++
+ static void xbsd_delete_part (void);
+ static void xbsd_new_part (void);
+ static void xbsd_write_disklabel (void);

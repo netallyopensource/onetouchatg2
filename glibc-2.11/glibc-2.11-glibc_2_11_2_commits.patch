@@ -1,0 +1,2899 @@
+diff --git a/ChangeLog b/ChangeLog
+index 25b96ae..bb4e4d5 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,313 @@
++2010-05-12  Andrew Stubbs  <ams@codesourcery.com>
++
++	* sysdeps/sh/sh4/fpu/feholdexcpt.c (feholdexcept): Really disable all
++	exceptions.  Return 0.
++
++2010-05-07  Roland McGrath  <roland@redhat.com>
++
++	* elf/ldconfig.c (main): Add a const.
++
++2010-05-04  Andreas Schwab  <schwab@redhat.com>
++
++	* posix/regexec.c (find_collation_sequence_value): Fix skipping
++	the wide char sequence of the collating element.
++
++2010-05-03  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11149]
++	* elf/ldconfig.c (search_dir): Fix handling of symlinks in chroot.
++
++	* elf/chroot_canon.c (chroot_canon): Use xmalloc and xrealloc.
++
++	* elf/ldconfig.c (parse_conf_include): Don't fall back to
++	directories named in config file outside the chroot.
++
++2010-05-02  Ulrich Drepper  <drepper@redhat.com>
++
++	* misc/mntent_r.c (encode_name): The slow loop handles newlines so we
++	should recognize them as an abort condition.
++	Patch by Jan Lieskovsky <jlieskov@redhat.com>.
++
++2010-04-25  Bruno Haible  <bruno@clisp.org>
++
++	[BZ #11538]
++	* sysdeps/unix/bsd/ptsname.c (__ptsname_r): Use __ttyname_r's return
++	value instead of errno.
++	* sysdeps/unix/getlogin.c (getlogin): Likewise.
++
++	[BZ #11537]
++	* sysdeps/mach/hurd/ttyname_r.c (__ttyname_r): Upon failure, return
++	errno, not -1.
++
++2010-04-24  Emilio Pozuelo Monfort  <pochu27@gmail.com>
++
++	* hurd/lookup-at.c (__file_name_lookup_at): Fix error return value.
++
++2010-04-14  Andreas Schwab  <schwab@redhat.com>
++
++	* elf/dl-version.c (_dl_check_map_versions): Avoid index overflow
++	when dependencies are missing.
++
++2010-04-09  Ulrich Drepper  <drepper@redhat.com>
++
++	* nscd/aicache.c (addhstaiX): Correct passing memory to address
++	list to gethostbyname4_r functions.
++
++	* resolv/nss_dns/dns-host.c (gaih_getanswer_slice): Optimize
++	copying of h_name.
++
++2010-04-07  Andreas Schwab  <schwab@redhat.com>
++
++	* sysdeps/unix/sysv/linux/i386/fallocate.c: Set errno on error.
++	* sysdeps/unix/sysv/linux/i386/fallocate64.c: Likewise.
++
++2009-12-01  Eric Blake  <ebb9@byu.net>
++
++	[BZ #11039]
++	* posix/getopt.c (_getopt_internal_r): Skip optional - or + before
++	checking lead byte of optstring for :.
++
++	[BZ #11040]
++	* posix/getopt.c (_getopt_internal_r): Reject '-;' as short
++	option, since it conflicts with "W;" optstring extension.
++
++2009-12-02  Eric Blake  <ebb9@byu.net>
++
++	[BZ #11041]
++	* posix/getopt.c (_getopt_internal_r): Handle '-Wfoo' identically
++	to '--foo', with optional argument or non-ambiguous prefix.
++
++2010-04-05  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11010]
++	* resolv/nss_dns/dns-host.c (_nss_dns_gethostbyname3_r): Handle
++	timeouts from servers.
++
++	[BZ #11149]
++	* elf/ldconfig.c (main): Respect chroot setting when looking for
++	the aux cache.
++
++2010-04-04  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11043]
++	* posix/getopt.c (_getopt_internal_r): Fix arguments printed in error
++	messages.
++
++	[BZ #11070]
++	* resolv/netdb.h: Declare iruserok and iruserok_af.
++
++	* argp/Makefile: Add rules to build and run bug-argp2.
++	* argp/bug-argp2.c: New file.
++
++2010-02-05  Sergey Poznyakoff  <gray@gnu.org.ua>
++
++	[BZ #11254]
++	* argp/argp-parse.c (convert_options): Fix improper use of `|'
++	between character values.
++
++2010-04-04  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11287]
++	* csu/Makefile ($(objpfx)version-info.h): Handle newer kernel headers
++	which don't define UTS_RELEASE.
++
++2010-04-04  H.J. Lu  <hongjiu.lu@intel.com>
++	    Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11292]
++	* sysdeps/x86_64/multiarch/init-arch.c (__init_cpu_features): Allow
++	concurrent initialization and use of __cpu_features.
++
++2010-04-04  Ulrich Drepper  <drepper@redhat.com>
++
++	* sysdeps/x86_64/multiarch/init-arch.h (cpu_features): Add tag to
++	the enum.
++
++2010-04-03  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11333]
++	* sysdeps/unix/readdir_r.c (__READDIR_R): Add support for platforms
++	which include unnecessary padding in d_reclen.
++	* sysdeps/unix/sysv/linux/i386/readdir64_r.c: Select work-around for
++	unnecessary padding.
++
++	[BZ #11387]
++	* sysdeps/unix/sysv/linux/ifaddrs.c (map_newlin): Don't abort on
++	unknown interface, return -1.
++	(getifaddrs_internal): Rename from getifaddrs.  Handle errors in
++	map_newlink be returning -EAGAIN.
++	(getifaddrs): If -EAGAIN is returned from getifaddrs_internal try
++	again.
++
++2010-04-03  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11438]
++	* posix/gai.conf: Document problems with IPv4 site-local addresses and
++	NATs.
++
++	[BZ #11449]
++	* crypt/crypt_util.c (__init_des_r): Add memory barrier before setting
++	small_tables_initialized.
++
++	* malloc/malloc.c (set_max_fast): Fix computation of the value.
++
++2010-03-25  Andreas Schwab  <schwab@redhat.com>
++
++	* sysdeps/posix/getaddrinfo.c (gaih_inet): Reset no_data before
++	each action.
++
++2010-03-25  Andreas Schwab  <schwab@redhat.com>
++
++	* sysdeps/posix/cuserid.c: Fix typo.
++
++2010-03-24  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11397]
++	* sysdeps/posix/cuserid.c (cuserid): Make sure the returned string
++	is NUL terminated.
++	Patch by Jonathan Geisler <jgeisler@cse.taylor.edu>.
++
++2010-03-02  Richard Guenther  <rguenther@suse.de>
++
++	* sysdeps/x86_64/dl-machine.h (elf_machine_rela): R_X86_64_PC32
++	is sign-extending.
++
++2010-02-24  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11319]
++	* libio/iovdprintf.c (_IO_vdprintf): Explicitly flush stream before
++	undoing the stream because _IO_FINISH doesn't report failures.
++
++	[BZ #5553]
++	* malloc/malloc.c (public_vALLOc): Set ar_ptr when trying main_arena.
++	(public_pVALLOc): Likewise.
++	Patch by Petr Baudis.
++
++2010-02-22  Jim Meyering  <meyering@redhat.com>
++
++	* manual/math.texi (BSD Random): Fix a typo: s/are/is/
++
++	* manual/charset.texi: Adjust grammar.
++
++	* manual/errno.texi (Error Messages): Fix doubled-words and typos.
++	* manual/charset.texi (Selecting the Conversion): Likewise.
++	* manual/getopt.texi (Getopt Long Options): Likewise.
++	* manual/memory.texi (Resizing the Data Segment): Likewise.
++	* manual/message.texi (GUI program problems): Likewise.
++	* manual/resource.texi (CPU Affinity): Likewise.
++	* manual/stdio.texi (Streams and Threads): Likewise.
++	* manual/time.texi (High Accuracy Clock): Likewise.
++
++2010-02-11  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
++
++	* sysdeps/s390/s390-64/utf8-utf16-z9.c: Disable hardware
++	instructions cu21 and cu24.  Add well-formedness checking
++	parameter and adjust the software implementation.
++	* sysdeps/s390/s390-64/utf16-utf32-z9.c: Likewise.
++
++2010-02-10  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11271]
++	* io/ftw.c (ftw_startup): Close	descriptor for initial directory
++	after changing back to it.
++
++2010-02-09  Ulrich Drepper  <drepper@redhat.com>
++
++	* sysdeps/i386/lshift.S: Fix unwind information.
++
++2010-02-03  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11242]
++	* misc/getusershell.c (initshells): Allocate one more byte in input
++	buffer so that fgets doesn't loop undefinitely.
++
++2010-01-25  Andreas Schwab  <schwab@redhat.com>
++
++	* iconv/iconv_prog.c (write_output): Fix check for open failure.
++
++2010-01-22  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11200]
++	* locale/loadlocale.c (_nl_load_locale): Fix recognition of genuine
++	mmap resource problem.  Patch by Joe Landers <jlanders@vmware.com>.
++
++2010-01-22  Jim Meyering  <jim@meyering.net>
++
++	[BZ #11184]
++	* posix/regex_internal.c (re_dfa_add_node): Extend the overflow
++	detection test.  Patch by Paul Eggert.
++
++	[BZ #11183]
++	* posix/regex_internal.c (re_string_realloc_buffers):
++	Detect and handle internal overflow.  Patch by Paul Eggert
++
++2010-01-20  Andreas Schwab  <schwab@redhat.com>
++
++	* sysdeps/unix/sysv/linux/s390/s390-32/____longjmp_chk.c
++	(CHECK_SP): Fix check for alternate stack.
++	* sysdeps/unix/sysv/linux/s390/s390-64/____longjmp_chk.c
++	(CHECK_SP): Likewise.
++
++2010-01-19  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11194]
++	* misc/bits/syslog.h (syslog, vsyslog): Remove unnecessary return.
++
++2010-01-18  Andreas Schwab  <schwab@redhat.com>
++
++	* elf/dynamic-link.h (elf_get_dynamic_info): Use correct type when
++	casting d_tag.
++
++	* elf/dynamic-link.h (elf_get_dynamic_info): Ignore negative
++	dynamic entry types.
++
++2010-01-14  Ulrich Drepper  <drepper@redhat.com>
++
++	* bits/confname.h: Make pre-C99-safe.
++
++2010-02-05  H.J. Lu  <hongjiu.lu@intel.com>
++
++	[BZ #11230]
++	* sysdeps/ia64/memchr.S: Don't read beyond the last byte
++	during recovery.
++
++2010-03-25  Ryan S. Arnold  <rsa@us.ibm.com>
++
++	* sysdeps/unix/sysv/linux/getsysstats.c (next_line): Remove
++	redundant and incorrect else block which overwrites current line
++	with the partial next line.
++
++2010-01-14  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11127]
++	* posix/regcomp.c (alc_eclosure_iter): Do not ignore
++	re_node_set_insert failure; return REG_ESPACE.
++	Patch by Paul Eggert.
++
++2010-01-06  Ulrich Drepper  <drepper@redhat.com>
++
++	* dirent/dirent.h: Fix typo in feature selection macro use.
++
++2009-12-15  Ulrich Drepper  <drepper@redhat.com>
++
++	* include/link.h (struct link_map): Move l_used into its own word.
++	* elf/dl-lookup.c (_dl_lookup_symbol_x): Only update l_used when it is
++	still zero.
++	* elf/dl-object.c (_dl_new_object): Set dl_used if we know it is
++	never really used.
++
++2009-12-10  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #11000]
++	* nis/nss_nis/nis-hosts.c (_nss_nis_gethostbyname4_r): Always set
++	*herrnop before returning.
++	* nis/nss_nisplus/nisplus-hosts.c (internal_gethostbyname2_r):
++	Likewise.
++	* nss/nss_files/files-hosts.c (_nss_files_gethostbyname4_r): Handle
++	TRYAGAIN errors separately.
++	* sysdeps/posix/getaddrinfo.c (gaih_inet): Fix error handling of
++	*name4_r after functions.
++
+ 2009-11-24  Ulrich Drepper  <drepper@redhat.com>
+ 
+ 	* sysdeps/unix/grantpt.c (grantpt): Use CLOSE_ALL_FDS is available
+diff --git a/argp/Makefile b/argp/Makefile
+index b8c9fca..caa95db 100644
+--- a/argp/Makefile
++++ b/argp/Makefile
+@@ -1,4 +1,4 @@
+-# Copyright (C) 1997, 2002, 2003, 2006, 2007 Free Software Foundation, Inc.
++# Copyright (C) 1997,2002,2003,2006,2007,2010 Free Software Foundation, Inc.
+ # This file is part of the GNU C Library.
+ 
+ # The GNU C Library is free software; you can redistribute it and/or
+@@ -26,12 +26,13 @@ distribute	= argp-fmtstream.h argp-namefrob.h
+ routines	= $(addprefix argp-, ba fmtstream fs-xinl help parse pv \
+ 				     pvh xinl eexst)
+ 
+-tests		= argp-test tst-argp1 bug-argp1 tst-argp2
++tests		= argp-test tst-argp1 bug-argp1 tst-argp2 bug-argp2
+ 
+ CFLAGS-argp-help.c = $(uses-callbacks) -fexceptions
+ CFLAGS-argp-parse.c = $(uses-callbacks)
+ CFLAGS-argp-fmtstream.c = -fexceptions
+ 
+ bug-argp1-ARGS = -- --help
++bug-argp2-ARGS = -- -d 111 --dstaddr 222 -p 333 --peer 444
+ 
+ include ../Rules
+diff --git a/argp/argp-parse.c b/argp/argp-parse.c
+index 4718ced..604fcf0 100644
+--- a/argp/argp-parse.c
++++ b/argp/argp-parse.c
+@@ -1,5 +1,5 @@
+ /* Hierarchial argument parsing, layered over getopt
+-   Copyright (C) 1995-2000, 2002, 2003, 2004 Free Software Foundation, Inc.
++   Copyright (C) 1995-2000, 2002, 2003, 2004, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Written by Miles Bader <miles@gnu.ai.mit.edu>.
+ 
+@@ -99,7 +99,7 @@ static volatile int _argp_hang;
+ 
+ static const struct argp_option argp_default_options[] =
+ {
+-  {"help",	  '?',    	0, 0,  N_("Give this help list"), -1},
++  {"help",	  '?',	  	0, 0,  N_("Give this help list"), -1},
+   {"usage",	  OPT_USAGE,	0, 0,  N_("Give a short usage message")},
+   {"program-name",OPT_PROGNAME,"NAME", OPTION_HIDDEN, N_("Set the program name")},
+   {"HANG",	  OPT_HANG,    "SECS", OPTION_ARG_OPTIONAL | OPTION_HIDDEN,
+@@ -164,7 +164,7 @@ static const struct argp argp_default_argp =
+ 
+ static const struct argp_option argp_version_options[] =
+ {
+-  {"version",	  'V',    	0, 0,  N_("Print program version"), -1},
++  {"version",	  'V',	  	0, 0,  N_("Print program version"), -1},
+   {0, 0}
+ };
+ 
+@@ -364,7 +364,7 @@ convert_options (const struct argp *argp,
+ 		       values (the sign of the lower bits is preserved
+ 		       however)...  */
+ 		    cvt->long_end->val =
+-		      ((opt->key | real->key) & USER_MASK)
++		      ((opt->key ? opt->key : real->key) & USER_MASK)
+ 		      + (((group - cvt->parser->groups) + 1) << USER_BITS);
+ 
+ 		    /* Keep the LONG_OPTS list terminated.  */
+@@ -385,7 +385,7 @@ convert_options (const struct argp *argp,
+ 
+       if (children)
+ 	/* Assign GROUP's CHILD_INPUTS field some space from
+-           CVT->child_inputs_end.*/
++	   CVT->child_inputs_end.*/
+ 	{
+ 	  unsigned num_children = 0;
+ 	  while (children[num_children].argp)
+@@ -823,7 +823,7 @@ parser_parse_next (struct parser *parser, int *arg_ebadkey)
+ 	  parser->try_getopt = 0;
+ 	  if (parser->state.next > 1
+ 	      && strcmp (parser->state.argv[parser->state.next - 1], QUOTE)
+-	           == 0)
++		   == 0)
+ 	    /* Not only is this the end of the options, but it's a
+ 	       `quoted' region, which may have args that *look* like
+ 	       options, so we definitely shouldn't try to use getopt past
+diff --git a/argp/bug-argp2.c b/argp/bug-argp2.c
+new file mode 100644
+index 0000000..133e5cf
+--- /dev/null
++++ b/argp/bug-argp2.c
+@@ -0,0 +1,55 @@
++#include <argp.h>
++#include <stdio.h>
++#include <stdlib.h>
++
++static struct argp_option argp_options[] = {
++  { "dstaddr", 'd', "ADDR", 0,
++    "set destination (peer) address to ADDR" },
++  { "peer", 'p', "ADDR", OPTION_ALIAS },
++  { NULL }
++};
++
++static error_t parse_opt (int key, char *arg, struct argp_state *state);
++
++static struct argp argp =
++{
++  argp_options, parse_opt
++};
++
++static int cnt;
++
++static int
++do_test (int argc, char *argv[])
++{
++  int remaining;
++  argp_parse (&argp, argc, argv, 0, &remaining, NULL);
++  return cnt != 4;
++}
++
++static error_t
++parse_opt (int key, char *arg, struct argp_state *state)
++{
++  switch (key)
++  {
++  case 'd':
++  case 'p':
++    printf ("got '%c' with argument '%s'\n", key, arg);
++    ++cnt;
++    break;
++  case 0:
++  case ARGP_KEY_END:
++  case ARGP_KEY_NO_ARGS:
++  case ARGP_KEY_INIT:
++  case ARGP_KEY_SUCCESS:
++  case ARGP_KEY_FINI:
++    // Ignore.
++    return ARGP_ERR_UNKNOWN;
++  default:
++    printf ("invalid key '%x'\n", key);
++    exit (1);
++  }
++  return 0;
++}
++
++#define TEST_FUNCTION do_test (argc, argv)
++#include "../test-skeleton.c"
+diff --git a/bits/confname.h b/bits/confname.h
+index 757ed4f..085c385 100644
+--- a/bits/confname.h
++++ b/bits/confname.h
+@@ -527,7 +527,7 @@ enum
+ 
+     _SC_THREAD_ROBUST_PRIO_INHERIT,
+ #define _SC_THREAD_ROBUST_PRIO_INHERIT	_SC_THREAD_ROBUST_PRIO_INHERIT
+-    _SC_THREAD_ROBUST_PRIO_PROTECT,
++    _SC_THREAD_ROBUST_PRIO_PROTECT
+ #define _SC_THREAD_ROBUST_PRIO_PROTECT	_SC_THREAD_ROBUST_PRIO_PROTECT
+   };
+ 
+diff --git a/crypt/crypt_util.c b/crypt/crypt_util.c
+index 0db5be7..7999a30 100644
+--- a/crypt/crypt_util.c
++++ b/crypt/crypt_util.c
+@@ -1,7 +1,7 @@
+ /*
+  * UFC-crypt: ultra fast crypt(3) implementation
+  *
+- * Copyright (C) 1991, 92, 93, 96, 97, 98, 2000 Free Software Foundation, Inc.
++ * Copyright (C) 1991-1993,1996-1998,2000,2010 Free Software Foundation, Inc.
+  *
+  * This library is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU Lesser General Public
+@@ -27,6 +27,7 @@
+ #ifdef DEBUG
+ #include <stdio.h>
+ #endif
++#include <atomic.h>
+ #include <string.h>
+ 
+ #ifndef STATIC
+@@ -114,53 +115,53 @@ static const int perm32[32] = {
+  * The sboxes
+  */
+ static const int sbox[8][4][16]= {
+-        { { 14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7 },
+-          {  0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8 },
+-          {  4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0 },
+-          { 15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0,  6, 13 }
+-        },
+-
+-        { { 15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10 },
+-          {  3, 13,  4,  7, 15,  2,  8, 14, 12,  0,  1, 10,  6,  9, 11,  5 },
+-          {  0, 14,  7, 11, 10,  4, 13,  1,  5,  8, 12,  6,  9,  3,  2, 15 },
+-          { 13,  8, 10,  1,  3, 15,  4,  2, 11,  6,  7, 12,  0,  5, 14,  9 }
+-        },
+-
+-        { { 10,  0,  9, 14,  6,  3, 15,  5,  1, 13, 12,  7, 11,  4,  2,  8 },
+-          { 13,  7,  0,  9,  3,  4,  6, 10,  2,  8,  5, 14, 12, 11, 15,  1 },
+-          { 13,  6,  4,  9,  8, 15,  3,  0, 11,  1,  2, 12,  5, 10, 14,  7 },
+-          {  1, 10, 13,  0,  6,  9,  8,  7,  4, 15, 14,  3, 11,  5,  2, 12 }
+-        },
+-
+-        { {  7, 13, 14,  3,  0,  6,  9, 10,  1,  2,  8,  5, 11, 12,  4, 15 },
+-          { 13,  8, 11,  5,  6, 15,  0,  3,  4,  7,  2, 12,  1, 10, 14,  9 },
+-          { 10,  6,  9,  0, 12, 11,  7, 13, 15,  1,  3, 14,  5,  2,  8,  4 },
+-          {  3, 15,  0,  6, 10,  1, 13,  8,  9,  4,  5, 11, 12,  7,  2, 14 }
+-        },
+-
+-        { {  2, 12,  4,  1,  7, 10, 11,  6,  8,  5,  3, 15, 13,  0, 14,  9 },
+-          { 14, 11,  2, 12,  4,  7, 13,  1,  5,  0, 15, 10,  3,  9,  8,  6 },
+-          {  4,  2,  1, 11, 10, 13,  7,  8, 15,  9, 12,  5,  6,  3,  0, 14 },
+-          { 11,  8, 12,  7,  1, 14,  2, 13,  6, 15,  0,  9, 10,  4,  5,  3 }
+-        },
+-
+-        { { 12,  1, 10, 15,  9,  2,  6,  8,  0, 13,  3,  4, 14,  7,  5, 11 },
+-          { 10, 15,  4,  2,  7, 12,  9,  5,  6,  1, 13, 14,  0, 11,  3,  8 },
+-          {  9, 14, 15,  5,  2,  8, 12,  3,  7,  0,  4, 10,  1, 13, 11,  6 },
+-          {  4,  3,  2, 12,  9,  5, 15, 10, 11, 14,  1,  7,  6,  0,  8, 13 }
+-        },
+-
+-        { {  4, 11,  2, 14, 15,  0,  8, 13,  3, 12,  9,  7,  5, 10,  6,  1 },
+-          { 13,  0, 11,  7,  4,  9,  1, 10, 14,  3,  5, 12,  2, 15,  8,  6 },
+-          {  1,  4, 11, 13, 12,  3,  7, 14, 10, 15,  6,  8,  0,  5,  9,  2 },
+-          {  6, 11, 13,  8,  1,  4, 10,  7,  9,  5,  0, 15, 14,  2,  3, 12 }
+-        },
+-
+-        { { 13,  2,  8,  4,  6, 15, 11,  1, 10,  9,  3, 14,  5,  0, 12,  7 },
+-          {  1, 15, 13,  8, 10,  3,  7,  4, 12,  5,  6, 11,  0, 14,  9,  2 },
+-          {  7, 11,  4,  1,  9, 12, 14,  2,  0,  6, 10, 13, 15,  3,  5,  8 },
+-          {  2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11 }
+-        }
++	{ { 14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7 },
++	  {  0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8 },
++	  {  4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0 },
++	  { 15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0,  6, 13 }
++	},
++
++	{ { 15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10 },
++	  {  3, 13,  4,  7, 15,  2,  8, 14, 12,  0,  1, 10,  6,  9, 11,  5 },
++	  {  0, 14,  7, 11, 10,  4, 13,  1,  5,  8, 12,  6,  9,  3,  2, 15 },
++	  { 13,  8, 10,  1,  3, 15,  4,  2, 11,  6,  7, 12,  0,  5, 14,  9 }
++	},
++
++	{ { 10,  0,  9, 14,  6,  3, 15,  5,  1, 13, 12,  7, 11,  4,  2,  8 },
++	  { 13,  7,  0,  9,  3,  4,  6, 10,  2,  8,  5, 14, 12, 11, 15,  1 },
++	  { 13,  6,  4,  9,  8, 15,  3,  0, 11,  1,  2, 12,  5, 10, 14,  7 },
++	  {  1, 10, 13,  0,  6,  9,  8,  7,  4, 15, 14,  3, 11,  5,  2, 12 }
++	},
++
++	{ {  7, 13, 14,  3,  0,  6,  9, 10,  1,  2,  8,  5, 11, 12,  4, 15 },
++	  { 13,  8, 11,  5,  6, 15,  0,  3,  4,  7,  2, 12,  1, 10, 14,  9 },
++	  { 10,  6,  9,  0, 12, 11,  7, 13, 15,  1,  3, 14,  5,  2,  8,  4 },
++	  {  3, 15,  0,  6, 10,  1, 13,  8,  9,  4,  5, 11, 12,  7,  2, 14 }
++	},
++
++	{ {  2, 12,  4,  1,  7, 10, 11,  6,  8,  5,  3, 15, 13,  0, 14,  9 },
++	  { 14, 11,  2, 12,  4,  7, 13,  1,  5,  0, 15, 10,  3,  9,  8,  6 },
++	  {  4,  2,  1, 11, 10, 13,  7,  8, 15,  9, 12,  5,  6,  3,  0, 14 },
++	  { 11,  8, 12,  7,  1, 14,  2, 13,  6, 15,  0,  9, 10,  4,  5,  3 }
++	},
++
++	{ { 12,  1, 10, 15,  9,  2,  6,  8,  0, 13,  3,  4, 14,  7,  5, 11 },
++	  { 10, 15,  4,  2,  7, 12,  9,  5,  6,  1, 13, 14,  0, 11,  3,  8 },
++	  {  9, 14, 15,  5,  2,  8, 12,  3,  7,  0,  4, 10,  1, 13, 11,  6 },
++	  {  4,  3,  2, 12,  9,  5, 15, 10, 11, 14,  1,  7,  6,  0,  8, 13 }
++	},
++
++	{ {  4, 11,  2, 14, 15,  0,  8, 13,  3, 12,  9,  7,  5, 10,  6,  1 },
++	  { 13,  0, 11,  7,  4,  9,  1, 10, 14,  3,  5, 12,  2, 15,  8,  6 },
++	  {  1,  4, 11, 13, 12,  3,  7, 14, 10, 15,  6,  8,  0,  5,  9,  2 },
++	  {  6, 11, 13,  8,  1,  4, 10,  7,  9,  5,  0, 15, 14,  2,  3, 12 }
++	},
++
++	{ { 13,  2,  8,  4,  6, 15, 11,  1, 10,  9,  3, 14,  5,  0, 12,  7 },
++	  {  1, 15, 13,  8, 10,  3,  7,  4, 12,  5,  6, 11,  0, 14,  9,  2 },
++	  {  7, 11,  4,  1,  9, 12, 14,  2,  0,  6, 10, 13, 15,  3,  5,  8 },
++	  {  2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11 }
++	}
+ };
+ 
+ /*
+@@ -468,6 +469,7 @@ __init_des_r(__data)
+ 	  efp[comes_from_word][word_value][o_long] |= mask2;
+       }
+     }
++    atomic_write_barrier ();
+     small_tables_initialized = 1;
+ #ifdef __GNU_LIBRARY__
+ small_tables_done:
+diff --git a/csu/Makefile b/csu/Makefile
+index 0e2ae07..69e07c7 100644
+--- a/csu/Makefile
++++ b/csu/Makefile
+@@ -1,5 +1,5 @@
+ # Makefile for csu code for GNU C library.
+-# Copyright (C) 1995-2004, 2005, 2006 Free Software Foundation, Inc.
++# Copyright (C) 1995-2004, 2005, 2006, 2010 Free Software Foundation, Inc.
+ # This file is part of the GNU C Library.
+ 
+ # The GNU C Library is free software; you can redistribute it and/or
+@@ -209,9 +209,20 @@ $(objpfx)version-info.h: $(common-objpfx)config.make $(all-Banner-files)
+ 	   linux*) version=`(printf '%s\n%s\n' \
+ 				    '#include <linux/version.h>' \
+ 				    UTS_RELEASE \
+-			     | $(CC) $(CPPFLAGS) -E -P - -DNOT_IN_libc=1 | \
++			     | $(CC) $(CPPFLAGS) -O -E -P - -DNOT_IN_libc=1 | \
+ 			     sed -e 's/"\([^"]*\)".*/\1/p' -e d) 2>/dev/null`;\
+ 		   if [ -z "$$version" ]; then \
++		     version=`(printf '%s\n%s\n' \
++				      '#include <linux/version.h>' \
++				       LINUX_VERSION_CODE \
++			       | $(CC) $(CPPFLAGS) -O -E -P - -DNOT_IN_libc=1 \
++			       | sed -n -e '/^[123456789].*/p' \
++			       | awk '{v=$$1; \
++				       printf("%d.%d.%d\n", \
++					      v/65535, v/256%256, v%256)}') \
++				2>/dev/null`; \
++		   fi; \
++		   if [ -z "$$version" ]; then \
+ 		     if [ -r /proc/version ]; then \
+ 		       version=`sed 's/.*Linux version \([^ ]*\) .*/>>\1<</' \
+ 				< /proc/version`; \
+diff --git a/dirent/dirent.h b/dirent/dirent.h
+index 369ccdc..675deae 100644
+--- a/dirent/dirent.h
++++ b/dirent/dirent.h
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1991-2000, 2003-2005, 2009 Free Software Foundation, Inc.
++/* Copyright (C) 1991-2000,2003-2005,2009,2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -218,7 +218,7 @@ extern void seekdir (DIR *__dirp, long int __pos) __THROW __nonnull ((1));
+ extern long int telldir (DIR *__dirp) __THROW __nonnull ((1));
+ #endif
+ 
+-#if defined __USE_BSD || defined __USE_MISC || defined __XOPEN_2K8
++#if defined __USE_BSD || defined __USE_MISC || defined __XOPEN2K8
+ 
+ /* Return the file descriptor used by DIRP.  */
+ extern int dirfd (DIR *__dirp) __THROW __nonnull ((1));
+diff --git a/elf/chroot_canon.c b/elf/chroot_canon.c
+index 3c16a43..54a6a4c 100644
+--- a/elf/chroot_canon.c
++++ b/elf/chroot_canon.c
+@@ -1,5 +1,5 @@
+ /* Return the canonical absolute name of a given file inside chroot.
+-   Copyright (C) 1996,1997,1998,1999,2000,2001,2004,2005
++   Copyright (C) 1996,1997,1998,1999,2000,2001,2004,2005,2010
+ 	Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+@@ -58,9 +58,7 @@ chroot_canon (const char *chroot, const char *name)
+       return NULL;
+     }
+ 
+-  rpath = malloc (chroot_len + PATH_MAX);
+-  if (rpath == NULL)
+-    return NULL;
++  rpath = xmalloc (chroot_len + PATH_MAX);
+ 
+   rpath_limit = rpath + chroot_len + PATH_MAX;
+ 
+@@ -109,9 +107,7 @@ chroot_canon (const char *chroot, const char *name)
+ 		new_size += end - start + 1;
+ 	      else
+ 		new_size += PATH_MAX;
+-	      new_rpath = (char *) realloc (rpath, new_size);
+-	      if (new_rpath == NULL)
+-		goto error;
++	      new_rpath = (char *) xrealloc (rpath, new_size);
+ 	      rpath = new_rpath;
+ 	      rpath_limit = rpath + new_size;
+ 
+diff --git a/elf/dl-lookup.c b/elf/dl-lookup.c
+index c1a1366..763ec16 100644
+--- a/elf/dl-lookup.c
++++ b/elf/dl-lookup.c
+@@ -777,7 +777,7 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
+   if (__builtin_expect (protected != 0, 0))
+     {
+       /* It is very tricky.  We need to figure out what value to
+-         return for the protected symbol.  */
++	 return for the protected symbol.  */
+       if (type_class == ELF_RTYPE_CLASS_PLT)
+ 	{
+ 	  if (current_value.s != NULL && current_value.m != undef_map)
+@@ -822,7 +822,8 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
+ 				  version, type_class, flags, skip_map);
+ 
+   /* The object is used.  */
+-  current_value.m->l_used = 1;
++  if (__builtin_expect (current_value.m->l_used == 0, 0))
++    current_value.m->l_used = 1;
+ 
+   if (__builtin_expect (GLRO(dl_debug_mask)
+ 			& (DL_DEBUG_BINDINGS|DL_DEBUG_PRELINK), 0))
+@@ -844,7 +845,7 @@ _dl_setup_hash (struct link_map *map)
+   Elf_Symndx nchain;
+ 
+   if (__builtin_expect (map->l_info[DT_ADDRTAGIDX (DT_GNU_HASH) + DT_NUM
+-  				    + DT_THISPROCNUM + DT_VERSIONTAGNUM
++				    + DT_THISPROCNUM + DT_VERSIONTAGNUM
+ 				    + DT_EXTRANUM + DT_VALNUM] != NULL, 1))
+     {
+       Elf32_Word *hash32
+diff --git a/elf/dl-object.c b/elf/dl-object.c
+index be4ea38..788e2c0 100644
+--- a/elf/dl-object.c
++++ b/elf/dl-object.c
+@@ -1,5 +1,5 @@
+ /* Storage management for the chain of loaded shared objects.
+-   Copyright (C) 1995-2002,2004,2006,2007,2008 Free Software Foundation, Inc.
++   Copyright (C) 1995-2002,2004,2006-2008,2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -67,6 +67,10 @@ _dl_new_object (char *realname, const char *libname, int type,
+ 
+   new->l_name = realname;
+   new->l_type = type;
++  /* If we set the bit now since we know it is never used we avoid
++     dirtying the cache line later.  */
++  if ((GLRO(dl_debug_mask) & DL_DEBUG_UNUSED) == 0)
++    new->l_used = 1;
+   new->l_loader = loader;
+ #if NO_TLS_OFFSET != 0
+   new->l_tls_offset = NO_TLS_OFFSET;
+@@ -174,7 +178,7 @@ _dl_new_object (char *realname, const char *libname, int type,
+ 	  if (result == NULL)
+ 	    {
+ 	      /* We were not able to determine the current directory.
+-	         Note that free(origin) is OK if origin == NULL.  */
++		 Note that free(origin) is OK if origin == NULL.  */
+ 	      free (origin);
+ 	      origin = (char *) -1;
+ 	      goto out;
+diff --git a/elf/dl-version.c b/elf/dl-version.c
+index 9e88116..c59a6c3 100644
+--- a/elf/dl-version.c
++++ b/elf/dl-version.c
+@@ -322,10 +322,14 @@ _dl_check_map_versions (struct link_map *map, int verbose, int trace_mode)
+ 	      while (1)
+ 		{
+ 		  ElfW(Half) ndx = aux->vna_other & 0x7fff;
+-		  map->l_versions[ndx].hash = aux->vna_hash;
+-		  map->l_versions[ndx].hidden = aux->vna_other & 0x8000;
+-		  map->l_versions[ndx].name = &strtab[aux->vna_name];
+-		  map->l_versions[ndx].filename = &strtab[ent->vn_file];
++		  /* In trace mode, dependencies may be missing.  */
++		  if (__builtin_expect (ndx < map->l_nversions, 1))
++		    {
++		      map->l_versions[ndx].hash = aux->vna_hash;
++		      map->l_versions[ndx].hidden = aux->vna_other & 0x8000;
++		      map->l_versions[ndx].name = &strtab[aux->vna_name];
++		      map->l_versions[ndx].filename = &strtab[ent->vn_file];
++		    }
+ 
+ 		  if (aux->vna_next == 0)
+ 		    /* No more symbols.  */
+diff --git a/elf/dynamic-link.h b/elf/dynamic-link.h
+index c34cbcd..6d7e142 100644
+--- a/elf/dynamic-link.h
++++ b/elf/dynamic-link.h
+@@ -103,6 +103,11 @@ elf_get_dynamic_info (struct link_map *l, ElfW(Dyn) *temp)
+ {
+   ElfW(Dyn) *dyn = l->l_ld;
+   ElfW(Dyn) **info;
++#if __ELF_NATIVE_CLASS == 32
++  typedef Elf32_Word d_tag_utype;
++#elif __ELF_NATIVE_CLASS == 64
++  typedef Elf64_Xword d_tag_utype;
++#endif
+ 
+ #ifndef RTLD_BOOTSTRAP
+   if (dyn == NULL)
+@@ -113,20 +118,20 @@ elf_get_dynamic_info (struct link_map *l, ElfW(Dyn) *temp)
+ 
+   while (dyn->d_tag != DT_NULL)
+     {
+-      if (dyn->d_tag < DT_NUM)
++      if ((d_tag_utype) dyn->d_tag < DT_NUM)
+ 	info[dyn->d_tag] = dyn;
+       else if (dyn->d_tag >= DT_LOPROC &&
+ 	       dyn->d_tag < DT_LOPROC + DT_THISPROCNUM)
+ 	info[dyn->d_tag - DT_LOPROC + DT_NUM] = dyn;
+-      else if ((Elf32_Word) DT_VERSIONTAGIDX (dyn->d_tag) < DT_VERSIONTAGNUM)
++      else if ((d_tag_utype) DT_VERSIONTAGIDX (dyn->d_tag) < DT_VERSIONTAGNUM)
+ 	info[VERSYMIDX (dyn->d_tag)] = dyn;
+-      else if ((Elf32_Word) DT_EXTRATAGIDX (dyn->d_tag) < DT_EXTRANUM)
++      else if ((d_tag_utype) DT_EXTRATAGIDX (dyn->d_tag) < DT_EXTRANUM)
+ 	info[DT_EXTRATAGIDX (dyn->d_tag) + DT_NUM + DT_THISPROCNUM
+ 	     + DT_VERSIONTAGNUM] = dyn;
+-      else if ((Elf32_Word) DT_VALTAGIDX (dyn->d_tag) < DT_VALNUM)
++      else if ((d_tag_utype) DT_VALTAGIDX (dyn->d_tag) < DT_VALNUM)
+ 	info[DT_VALTAGIDX (dyn->d_tag) + DT_NUM + DT_THISPROCNUM
+ 	     + DT_VERSIONTAGNUM + DT_EXTRANUM] = dyn;
+-      else if ((Elf32_Word) DT_ADDRTAGIDX (dyn->d_tag) < DT_ADDRNUM)
++      else if ((d_tag_utype) DT_ADDRTAGIDX (dyn->d_tag) < DT_ADDRNUM)
+ 	info[DT_ADDRTAGIDX (dyn->d_tag) + DT_NUM + DT_THISPROCNUM
+ 	     + DT_VERSIONTAGNUM + DT_EXTRANUM + DT_VALNUM] = dyn;
+       ++dyn;
+diff --git a/elf/ldconfig.c b/elf/ldconfig.c
+index 78a0f0c..6e71b09 100644
+--- a/elf/ldconfig.c
++++ b/elf/ldconfig.c
+@@ -773,7 +773,18 @@ search_dir (const struct dir_entry *entry)
+ 	{
+ 	  /* In case of symlink, we check if the symlink refers to
+ 	     a directory. */
+-	  if (__builtin_expect (stat64 (real_file_name, &stat_buf), 0))
++	  char *target_name = real_file_name;
++	  if (opt_chroot)
++	    {
++	      target_name = chroot_canon (opt_chroot, file_name);
++	      if (target_name == NULL)
++		{
++		  if (strstr (file_name, ".so") == NULL)
++		    error (0, 0, _("Input file %s not found.\n"), file_name);
++		  continue;
++		}
++	    }
++	  if (__builtin_expect (stat64 (target_name, &stat_buf), 0))
+ 	    {
+ 	      if (opt_verbose)
+ 		error (0, errno, _("Cannot stat %s"), file_name);
+@@ -1174,7 +1185,9 @@ parse_conf_include (const char *config_file, unsigned int lineno,
+   if (do_chroot && opt_chroot)
+     {
+       char *canon = chroot_canon (opt_chroot, pattern);
+-      result = glob64 (canon ?: pattern, 0, NULL, &gl);
++      if (canon == NULL)
++	return;
++      result = glob64 (canon, 0, NULL, &gl);
+       free (canon);
+     }
+   else
+@@ -1305,11 +1318,9 @@ main (int argc, char **argv)
+ 				  p ? (*p = '\0', cache_file) : "/");
+ 
+       if (canon == NULL)
+-	{
+-	  error (EXIT_FAILURE, errno,
+-		 _("Can't open cache file directory %s\n"),
+-		 p ? cache_file : "/");
+-	}
++	error (EXIT_FAILURE, errno,
++	       _("Can't open cache file directory %s\n"),
++	       p ? cache_file : "/");
+ 
+       if (p)
+ 	++p;
+@@ -1346,8 +1357,17 @@ main (int argc, char **argv)
+ 	add_system_dir (LIBDIR);
+     }
+ 
++  const char *aux_cache_file = _PATH_LDCONFIG_AUX_CACHE;
++  if (opt_chroot)
++    {
++      aux_cache_file = chroot_canon (opt_chroot, aux_cache_file);
++      if (aux_cache_file == NULL)
++	error (EXIT_FAILURE, errno, _("Can't open cache file %s\n"),
++	       _PATH_LDCONFIG_AUX_CACHE);
++    }
++
+   if (! opt_ignore_aux_cache)
+-    load_aux_cache (_PATH_LDCONFIG_AUX_CACHE);
++    load_aux_cache (aux_cache_file);
+   else
+     init_aux_cache ();
+ 
+@@ -1356,7 +1376,7 @@ main (int argc, char **argv)
+   if (opt_build_cache)
+     {
+       save_cache (cache_file);
+-      save_aux_cache (_PATH_LDCONFIG_AUX_CACHE);
++      save_aux_cache (aux_cache_file);
+     }
+ 
+   return 0;
+diff --git a/hurd/lookup-at.c b/hurd/lookup-at.c
+index a2d50cb..7f55527 100644
+--- a/hurd/lookup-at.c
++++ b/hurd/lookup-at.c
+@@ -1,5 +1,5 @@
+ /* Lookup helper function for Hurd implementation of *at functions.
+-   Copyright (C) 2006 Free Software Foundation, Inc.
++   Copyright (C) 2006,2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -33,7 +33,7 @@ __file_name_lookup_at (int fd, int at_flags,
+   flags |= (at_flags & AT_SYMLINK_NOFOLLOW) ? O_NOLINK : 0;
+   at_flags &= ~AT_SYMLINK_NOFOLLOW;
+   if (at_flags != 0)
+-    return __hurd_fail (EINVAL);
++    return (__hurd_fail (EINVAL), MACH_PORT_NULL);
+ 
+   if (fd == AT_FDCWD || file_name[0] == '/')
+     return __file_name_lookup (file_name, flags, mode);
+diff --git a/iconv/iconv_prog.c b/iconv/iconv_prog.c
+index a1ca05f..3bcb9b4 100644
+--- a/iconv/iconv_prog.c
++++ b/iconv/iconv_prog.c
+@@ -442,7 +442,7 @@ write_output (const char *outbuf, const char *outptr, FILE **output,
+       if (output_file != NULL && strcmp (output_file, "-") != 0)
+ 	{
+ 	  *output = fopen (output_file, "w");
+-	  if (output == NULL)
++	  if (*output == NULL)
+ 	    error (EXIT_FAILURE, errno, _("cannot open output file"));
+ 	}
+       else
+diff --git a/include/link.h b/include/link.h
+index 4b9978a..26c6743 100644
+--- a/include/link.h
++++ b/include/link.h
+@@ -1,6 +1,6 @@
+ /* Data structure for communication from the run-time dynamic linker for
+    loaded ELF shared objects.
+-   Copyright (C) 1995-2006, 2007 Free Software Foundation, Inc.
++   Copyright (C) 1995-2006, 2007, 2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -180,7 +180,6 @@ struct link_map
+     unsigned int l_need_tls_init:1; /* Nonzero if GL(dl_init_static_tls)
+ 				       should be called on this link map
+ 				       when relocation finishes.  */
+-    unsigned int l_used:1;	/* Nonzero if the DSO is used.  */
+     unsigned int l_auditing:1;	/* Nonzero if the DSO is used in auditing.  */
+     unsigned int l_audit_any_plt:1; /* Nonzero if at least one audit module
+ 				       is interested in the PLT interception.*/
+@@ -239,12 +238,15 @@ struct link_map
+     struct link_map **l_initfini;
+ 
+     /* List of the dependencies introduced through symbol binding.  */
+-    unsigned int l_reldepsmax;
+     struct link_map_reldeps
+       {
+ 	unsigned int act;
+ 	struct link_map *list[];
+       } *l_reldeps;
++    unsigned int l_reldepsmax;
++
++    /* Nonzero if the DSO is used.  */
++    unsigned int l_used;
+ 
+     /* Various flag words.  */
+     ElfW(Word) l_feature_1;
+diff --git a/io/ftw.c b/io/ftw.c
+index 9cc0907..bb7dba8 100644
+--- a/io/ftw.c
++++ b/io/ftw.c
+@@ -1,5 +1,5 @@
+ /* File tree walker functions.
+-   Copyright (C) 1996-2004, 2006, 2007, 2008 Free Software Foundation, Inc.
++   Copyright (C) 1996-2004, 2006-2008, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
+ 
+@@ -790,6 +790,7 @@ ftw_startup (const char *dir, int is_nftw, void *func, int descriptors,
+     {
+       int save_err = errno;
+       __fchdir (cwdfd);
++      close_not_cancel_no_status (cwdfd);
+       __set_errno (save_err);
+     }
+   else if (cwd != NULL)
+diff --git a/libio/iovdprintf.c b/libio/iovdprintf.c
+index edab849..5284ff8 100644
+--- a/libio/iovdprintf.c
++++ b/libio/iovdprintf.c
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1995, 1997-2000, 2001, 2002, 2003, 2006
++/* Copyright (C) 1995, 1997-2000, 2001, 2002, 2003, 2006, 2010
+    Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+@@ -60,6 +60,9 @@ _IO_vdprintf (d, format, arg)
+ 
+   done = INTUSE(_IO_vfprintf) (&tmpfil.file, format, arg);
+ 
++  if (done != EOF && _IO_do_flush (&tmpfil.file) == EOF)
++    done = EOF;
++
+   _IO_FINISH (&tmpfil.file);
+ 
+   return done;
+diff --git a/locale/loadlocale.c b/locale/loadlocale.c
+index 467dff1..b91941e 100644
+--- a/locale/loadlocale.c
++++ b/locale/loadlocale.c
+@@ -224,6 +224,7 @@ _nl_load_locale (struct loaded_l10nfile *file, int category)
+ 		     PROT_READ, MAP_FILE|MAP_COPY, fd, 0);
+   if (__builtin_expect (filedata == MAP_FAILED, 0))
+     {
++      filedata = NULL;
+       if (__builtin_expect (errno, ENOSYS) == ENOSYS)
+ 	{
+ #endif	/* _POSIX_MAPPED_FILES */
+diff --git a/localedata/ChangeLog b/localedata/ChangeLog
+index 8828426..4cb9e61 100644
+--- a/localedata/ChangeLog
++++ b/localedata/ChangeLog
+@@ -1,3 +1,11 @@
++2010-02-16  Paul Pluzhnikov  <ppluzhnikov@google.com>
++
++	* Makefile: Add missing gconv-modules dependency.
++
++2010-01-25  Andreas Schwab  <schwab@redhat.com>
++
++	* locales/i18n: Don't map U00DF to U1E9E in toupper table.
++
+ 2009-11-24  Ulrich Drepper  <drepper@redhat.com>
+ 
+ 	* locales/hsb_DE: Define week, first_weekday, and first_workday.
+diff --git a/localedata/Makefile b/localedata/Makefile
+index d364001..8f356ec 100644
+--- a/localedata/Makefile
++++ b/localedata/Makefile
+@@ -107,6 +107,8 @@ install-others := $(addprefix $(inst_i18ndir)/, \
+ 			      $(addsuffix .gz, $(charmaps)) \
+ 			      $(locales))
+ 
++tests: $(objdir)/iconvdata/gconv-modules
++
+ include ../Rules
+ 
+ # Install the charmap files in gzipped format.
+@@ -298,3 +300,6 @@ tst-leaks-ENV = MALLOC_TRACE=$(objpfx)tst-leaks.mtrace \
+ 		LOCPATH=$(common-objpfx)localedata
+ $(objpfx)mtrace-tst-leaks: $(objpfx)tst-leaks.out
+ 	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks.mtrace > $@
++
++$(objdir)/iconvdata/gconv-modules:
++	$(MAKE) -C ../iconvdata subdir=iconvdata $@
+diff --git a/localedata/locales/i18n b/localedata/locales/i18n
+index 8afbb71..4f8b9e1 100644
+--- a/localedata/locales/i18n
++++ b/localedata/locales/i18n
+@@ -928,8 +928,7 @@ toupper /
+    (<U006D>,<U004D>);(<U006E>,<U004E>);(<U006F>,<U004F>);(<U0070>,<U0050>);/
+    (<U0071>,<U0051>);(<U0072>,<U0052>);(<U0073>,<U0053>);(<U0074>,<U0054>);/
+    (<U0075>,<U0055>);(<U0076>,<U0056>);(<U0077>,<U0057>);(<U0078>,<U0058>);/
+-   (<U0079>,<U0059>);(<U007A>,<U005A>);(<U00B5>,<U039C>);(<U00DF>,<U1E9E>);/
+-   (<U00E0>,<U00C0>);/
++   (<U0079>,<U0059>);(<U007A>,<U005A>);(<U00B5>,<U039C>);(<U00E0>,<U00C0>);/
+    (<U00E1>,<U00C1>);(<U00E2>,<U00C2>);(<U00E3>,<U00C3>);(<U00E4>,<U00C4>);/
+    (<U00E5>,<U00C5>);(<U00E6>,<U00C6>);(<U00E7>,<U00C7>);(<U00E8>,<U00C8>);/
+    (<U00E9>,<U00C9>);(<U00EA>,<U00CA>);(<U00EB>,<U00CB>);(<U00EC>,<U00CC>);/
+diff --git a/malloc/malloc.c b/malloc/malloc.c
+index ea10d17..b1d43c6 100644
+--- a/malloc/malloc.c
++++ b/malloc/malloc.c
+@@ -1,5 +1,5 @@
+ /* Malloc implementation for multiple threads without lock contention.
+-   Copyright (C) 1996-2006, 2007, 2008, 2009 Free Software Foundation, Inc.
++   Copyright (C) 1996-2009, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Wolfram Gloger <wg@malloc.de>
+    and Doug Lea <dl@cs.oswego.edu>, 2001.
+@@ -2351,7 +2351,8 @@ typedef struct malloc_chunk* mfastbinptr;
+ */
+ 
+ #define set_max_fast(s) \
+-  global_max_fast = ((s) == 0)? SMALLBIN_WIDTH: request2size(s)
++  global_max_fast = (((s) == 0)						      \
++		     ? SMALLBIN_WIDTH: ((s + SIZE_SZ) & ~MALLOC_ALIGN_MASK))
+ #define get_max_fast() global_max_fast
+ 
+ 
+@@ -3933,9 +3934,10 @@ public_vALLOc(size_t bytes)
+   if(!p) {
+     /* Maybe the failure is due to running out of mmapped areas. */
+     if(ar_ptr != &main_arena) {
+-      (void)mutex_lock(&main_arena.mutex);
+-      p = _int_memalign(&main_arena, pagesz, bytes);
+-      (void)mutex_unlock(&main_arena.mutex);
++      ar_ptr = &main_arena;
++      (void)mutex_lock(&ar_ptr->mutex);
++      p = _int_memalign(ar_ptr, pagesz, bytes);
++      (void)mutex_unlock(&ar_ptr->mutex);
+     } else {
+ #if USE_ARENAS
+       /* ... or sbrk() has failed and there is still a chance to mmap() */
+@@ -3978,9 +3980,10 @@ public_pVALLOc(size_t bytes)
+   if(!p) {
+     /* Maybe the failure is due to running out of mmapped areas. */
+     if(ar_ptr != &main_arena) {
+-      (void)mutex_lock(&main_arena.mutex);
+-      p = _int_memalign(&main_arena, pagesz, rounded_bytes);
+-      (void)mutex_unlock(&main_arena.mutex);
++      ar_ptr = &main_arena;
++      (void)mutex_lock(&ar_ptr->mutex);
++      p = _int_memalign(ar_ptr, pagesz, rounded_bytes);
++      (void)mutex_unlock(&ar_ptr->mutex);
+     } else {
+ #if USE_ARENAS
+       /* ... or sbrk() has failed and there is still a chance to mmap() */
+diff --git a/manual/charset.texi b/manual/charset.texi
+index 79854e5..808469b 100644
+--- a/manual/charset.texi
++++ b/manual/charset.texi
+@@ -393,7 +393,7 @@ We already said above that the currently selected locale for the
+ by the functions we are about to describe.  Each locale uses its own
+ character set (given as an argument to @code{localedef}) and this is the
+ one assumed as the external multibyte encoding.  The wide character
+-character set always is UCS-4, at least on GNU systems.
++set is always UCS-4, at least on GNU systems.
+ 
+ A characteristic of each multibyte character set is the maximum number
+ of bytes that can be necessary to represent one character.  This
+@@ -577,8 +577,8 @@ The @code{btowc} function was introduced in @w{Amendment 1} to @w{ISO C90}
+ and is declared in @file{wchar.h}.
+ @end deftypefun
+ 
+-Despite the limitation that the single byte value always is interpreted
+-in the initial state this function is actually useful most of the time.
++Despite the limitation that the single byte value is always interpreted
++in the initial state, this function is actually useful most of the time.
+ Most characters are either entirely single-byte character sets or they
+ are extension to ASCII.  But then it is possible to write code like this
+ (not that this specific example is very useful):
+@@ -607,10 +607,10 @@ that there is no guarantee that one can perform this kind of arithmetic
+ on the character of the character set used for @code{wchar_t}
+ representation.  In other situations the bytes are not constant at
+ compile time and so the compiler cannot do the work.  In situations like
+-this it is necessary @code{btowc}.
++this, using @code{btowc} is required.
+ 
+ @noindent
+-There also is a function for the conversion in the other direction.
++There is also a function for the conversion in the other direction.
+ 
+ @comment wchar.h
+ @comment ISO
+diff --git a/manual/errno.texi b/manual/errno.texi
+index fcba267..253e7b0 100644
+--- a/manual/errno.texi
++++ b/manual/errno.texi
+@@ -1419,7 +1419,7 @@ available on all systems implementing @w{ISO C}.  But often the text
+ @code{perror} generates is not what is wanted and there is no way to
+ extend or change what @code{perror} does.  The GNU coding standard, for
+ instance, requires error messages to be preceded by the program name and
+-programs which read some input files should should provide information
++programs which read some input files should provide information
+ about the input file name and the line number in case an error is
+ encountered while reading the file.  For these occasions there are two
+ functions available which are widely used throughout the GNU project.
+diff --git a/manual/getopt.texi b/manual/getopt.texi
+index 8c9bd20..7704515 100644
+--- a/manual/getopt.texi
++++ b/manual/getopt.texi
+@@ -269,7 +269,7 @@ When @code{getopt_long} has no more options to handle, it returns
+ @var{argv} of the next remaining argument.
+ @end deftypefun
+ 
+-Since long option names were used before before the @code{getopt_long}
++Since long option names were used before the @code{getopt_long}
+ options was invented there are program interfaces which require programs
+ to recognize options like @w{@samp{-option value}} instead of
+ @w{@samp{--option value}}.  To enable these programs to use the GNU
+diff --git a/manual/math.texi b/manual/math.texi
+index 50e087c..95e3378 100644
+--- a/manual/math.texi
++++ b/manual/math.texi
+@@ -1421,7 +1421,7 @@ pseudo-random number generator.
+ 
+ The GNU C library contains four additional functions which contain the
+ state as an explicit parameter and therefore make it possible to handle
+-thread-local PRNGs.  Beside this there are no difference.  In fact, the
++thread-local PRNGs.  Beside this there is no difference.  In fact, the
+ four functions already discussed are implemented internally using the
+ following interfaces.
+ 
+diff --git a/manual/memory.texi b/manual/memory.texi
+index 43afc7b..59ea1ee 100644
+--- a/manual/memory.texi
++++ b/manual/memory.texi
+@@ -2379,7 +2379,7 @@ exceed the process' data storage limit.
+ @c The Brk system call in Linux (as opposed to the GNU C Library function)
+ @c is considerably different.  It always returns the new end of the data
+ @c segment, whether it succeeds or fails.  The GNU C library Brk determines
+-@c it's a failure if and only if if the system call returns an address less
++@c it's a failure if and only if the system call returns an address less
+ @c than the address requested.
+ 
+ @end deftypefun
+diff --git a/manual/message.texi b/manual/message.texi
+index e772b2d..e44545a 100644
+--- a/manual/message.texi
++++ b/manual/message.texi
+@@ -1466,7 +1466,7 @@ have this problem.  But there is a very simple and powerful method to
+ handle these kind of problems with the @code{gettext} functions.
+ 
+ @noindent
+-As as example consider the following fictional situation.  A GUI program
++As an example consider the following fictional situation.  A GUI program
+ has a menu bar with the following entries:
+ 
+ @smallexample
+diff --git a/manual/resource.texi b/manual/resource.texi
+index 4a814c9..0549572 100644
+--- a/manual/resource.texi
++++ b/manual/resource.texi
+@@ -1288,7 +1288,7 @@ protected from concurrent accesses from different processors.
+ The POSIX standard up to this date is of not much help to solve this
+ problem.  The Linux kernel provides a set of interfaces to allow
+ specifying @emph{affinity sets} for a process.  The scheduler will
+-schedule the thread or process on on CPUs specified by the affinity
++schedule the thread or process on CPUs specified by the affinity
+ masks.  The interfaces which the GNU C library define follow to some
+ extend the Linux kernel interface.
+ 
+diff --git a/manual/stdio.texi b/manual/stdio.texi
+index 6748513..9fb209a 100644
+--- a/manual/stdio.texi
++++ b/manual/stdio.texi
+@@ -574,7 +574,7 @@ operation itself is avoided.  More importantly, functions like
+ introduction of threads) were implemented as macros which are very fast
+ if the buffer is not empty.  With the addition of locking requirements
+ these functions are no longer implemented as macros since they would
+-would expand to too much code.
++expand to too much code.
+ But these macros are still available with the same functionality under the new
+ names @code{putc_unlocked} and @code{getc_unlocked}.  This possibly huge
+ difference of speed also suggests the use of the @code{_unlocked}
+diff --git a/manual/time.texi b/manual/time.texi
+index 393bccd..f1f4254 100644
+--- a/manual/time.texi
++++ b/manual/time.texi
+@@ -972,7 +972,7 @@ This counter represents the number of calibration errors (caused by
+ large offsets or jitter).
+ 
+ @item long int stbcnt
+-This counter denotes the number of of calibrations where the stability
++This counter denotes the number of calibrations where the stability
+ exceeded the threshold.
+ @end table
+ @end deftp
+diff --git a/misc/bits/syslog.h b/misc/bits/syslog.h
+index 853b30c..5d64d7a 100644
+--- a/misc/bits/syslog.h
++++ b/misc/bits/syslog.h
+@@ -1,5 +1,5 @@
+ /* Checking macros for syslog functions.
+-   Copyright (C) 2005, 2007 Free Software Foundation, Inc.
++   Copyright (C) 2005, 2007, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -29,7 +29,7 @@ extern void __syslog_chk (int __pri, int __flag, __const char *__fmt, ...)
+ __extern_always_inline void
+ syslog (int __pri, __const char *__fmt, ...)
+ {
+-  return __syslog_chk (__pri, __USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
++  __syslog_chk (__pri, __USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+ }
+ #elif !defined __cplusplus
+ # define syslog(pri, ...) \
+@@ -45,6 +45,6 @@ extern void __vsyslog_chk (int __pri, int __flag, __const char *__fmt,
+ __extern_always_inline void
+ vsyslog (int __pri, __const char *__fmt, __gnuc_va_list __ap)
+ {
+-  return __vsyslog_chk (__pri,  __USE_FORTIFY_LEVEL - 1, __fmt, __ap);
++  __vsyslog_chk (__pri,  __USE_FORTIFY_LEVEL - 1, __fmt, __ap);
+ }
+ #endif
+diff --git a/misc/getusershell.c b/misc/getusershell.c
+index 636da32..0e4f796 100644
+--- a/misc/getusershell.c
++++ b/misc/getusershell.c
+@@ -116,7 +116,8 @@ initshells()
+ 	}
+ 	if (statb.st_size > ~(size_t)0 / sizeof (char *) * 3)
+ 		goto init_okshells;
+-	if ((strings = malloc(statb.st_size + 2)) == NULL)
++	flen = statb.st_size + 3;
++	if ((strings = malloc(flen)) == NULL)
+ 		goto init_okshells;
+ 	shells = malloc(statb.st_size / 3 * sizeof (char *));
+ 	if (shells == NULL) {
+@@ -126,7 +127,6 @@ initshells()
+ 	}
+ 	sp = shells;
+ 	cp = strings;
+-	flen = statb.st_size + 2;
+ 	while (fgets_unlocked(cp, flen - (cp - strings), fp) != NULL) {
+ 		while (*cp != '#' && *cp != '/' && *cp != '\0')
+ 			cp++;
+diff --git a/misc/mntent_r.c b/misc/mntent_r.c
+index 829750b..9598528 100644
+--- a/misc/mntent_r.c
++++ b/misc/mntent_r.c
+@@ -1,5 +1,5 @@
+ /* Utilities for reading/writing fstab, mtab, etc.
+-   Copyright (C) 1995-2000, 2001, 2002, 2003, 2006
++   Copyright (C) 1995-2000, 2001, 2002, 2003, 2006, 2010
+    Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+@@ -194,7 +194,7 @@ weak_alias (__getmntent_r, getmntent_r)
+     const char *rp = name;						      \
+ 									      \
+     while (*rp != '\0')							      \
+-      if (*rp == ' ' || *rp == '\t' || *rp == '\\')			      \
++      if (*rp == ' ' || *rp == '\t' || *rp == '\n' || *rp == '\\')	      \
+ 	break;								      \
+       else								      \
+ 	++rp;								      \
+@@ -202,7 +202,7 @@ weak_alias (__getmntent_r, getmntent_r)
+     if (*rp != '\0')							      \
+       {									      \
+ 	/* In the worst case the length of the string can increase to	      \
+-	   founr times the current length.  */				      \
++	   four times the current length.  */				      \
+ 	char *wp;							      \
+ 									      \
+ 	rp = name;							      \
+diff --git a/nis/nss_nis/nis-hosts.c b/nis/nss_nis/nis-hosts.c
+index e1db5f5..18bc773 100644
+--- a/nis/nss_nis/nis-hosts.c
++++ b/nis/nss_nis/nis-hosts.c
+@@ -70,20 +70,20 @@ LINE_PARSER
+      {
+        assert ((flags & AI_V4MAPPED) == 0 || af != AF_UNSPEC);
+        if (flags & AI_V4MAPPED)
+-         {
+-           map_v4v6_address ((char *) entdata->host_addr,
+-                             (char *) entdata->host_addr);
+-           result->h_addrtype = AF_INET6;
+-           result->h_length = IN6ADDRSZ;
+-         }
++	 {
++	   map_v4v6_address ((char *) entdata->host_addr,
++			     (char *) entdata->host_addr);
++	   result->h_addrtype = AF_INET6;
++	   result->h_length = IN6ADDRSZ;
++	 }
+        else
+-         {
+-           result->h_addrtype = AF_INET;
+-           result->h_length = INADDRSZ;
+-         }
++	 {
++	   result->h_addrtype = AF_INET;
++	   result->h_length = INADDRSZ;
++	 }
+      }
+    else if (af != AF_INET
+-            && inet_pton (AF_INET6, addr, entdata->host_addr) > 0)
++	    && inet_pton (AF_INET6, addr, entdata->host_addr) > 0)
+      {
+        result->h_addrtype = AF_INET6;
+        result->h_length = IN6ADDRSZ;
+@@ -164,14 +164,14 @@ internal_nis_gethostent_r (struct hostent *host, char *buffer,
+       int keylen;
+       int yperr;
+       if (new_start)
+-        yperr = yp_first (domain, "hosts.byname", &outkey, &keylen, &result,
++	yperr = yp_first (domain, "hosts.byname", &outkey, &keylen, &result,
+ 			  &len);
+       else
+-        yperr = yp_next (domain, "hosts.byname", oldkey, oldkeylen, &outkey,
++	yperr = yp_next (domain, "hosts.byname", oldkey, oldkeylen, &outkey,
+ 			 &keylen, &result, &len);
+ 
+       if (__builtin_expect (yperr != YPERR_SUCCESS, 0))
+-        {
++	{
+ 	  enum nss_status retval = yperr2nss (yperr);
+ 
+ 	  switch (retval)
+@@ -191,12 +191,12 @@ internal_nis_gethostent_r (struct hostent *host, char *buffer,
+ 	}
+ 
+       if (__builtin_expect ((size_t) (len + 1) > linebuflen, 0))
+-        {
+-          free (result);
++	{
++	  free (result);
+ 	  *h_errnop = NETDB_INTERNAL;
+-          *errnop = ERANGE;
+-          return NSS_STATUS_TRYAGAIN;
+-        }
++	  *errnop = ERANGE;
++	  return NSS_STATUS_TRYAGAIN;
++	}
+ 
+       char *p = strncpy (data->linebuffer, result, len);
+       data->linebuffer[len] = '\0';
+@@ -233,7 +233,7 @@ _nss_nis_gethostent_r (struct hostent *host, char *buffer, size_t buflen,
+   __libc_lock_lock (lock);
+ 
+   status = internal_nis_gethostent_r (host, buffer, buflen, errnop, h_errnop,
+-		        ((_res.options & RES_USE_INET6) ? AF_INET6 : AF_INET),
++			((_res.options & RES_USE_INET6) ? AF_INET6 : AF_INET),
+ 			((_res.options & RES_USE_INET6) ? AI_V4MAPPED : 0 ));
+ 
+   __libc_lock_unlock (lock);
+@@ -346,7 +346,7 @@ _nss_nis_gethostbyname2_r (const char *name, int af, struct hostent *host,
+ 
+   return internal_gethostbyname2_r (name, af, host, buffer, buflen, errnop,
+ 				    h_errnop,
+-		        ((_res.options & RES_USE_INET6) ? AI_V4MAPPED : 0));
++			((_res.options & RES_USE_INET6) ? AI_V4MAPPED : 0));
+ }
+ 
+ 
+@@ -456,7 +456,10 @@ _nss_nis_gethostbyname4_r (const char *name, struct gaih_addrtuple **pat,
+ {
+   char *domain;
+   if (yp_get_default_domain (&domain))
+-    return NSS_STATUS_UNAVAIL;
++    {
++      *herrnop = NO_DATA;
++      return NSS_STATUS_UNAVAIL;
++    }
+ 
+   /* Convert name to lowercase.  */
+   size_t namlen = strlen (name);
+diff --git a/nis/nss_nisplus/nisplus-hosts.c b/nis/nss_nisplus/nisplus-hosts.c
+index 37d4477..eca64c9 100644
+--- a/nis/nss_nisplus/nisplus-hosts.c
++++ b/nis/nss_nisplus/nisplus-hosts.c
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1997-2003, 2005, 2006, 2008 Free Software Foundation, Inc.
++/* Copyright (C) 1997-2003, 2005, 2006, 2008, 2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Thorsten Kukuk <kukuk@suse.de>, 1997.
+ 
+@@ -38,10 +38,10 @@ static nis_name tablename_val;
+ static u_long tablename_len;
+ 
+ #define NISENTRYVAL(idx, col, res) \
+-        (NIS_RES_OBJECT (res)[idx].EN_data.en_cols.en_cols_val[col].ec_value.ec_value_val)
++	(NIS_RES_OBJECT (res)[idx].EN_data.en_cols.en_cols_val[col].ec_value.ec_value_val)
+ 
+ #define NISENTRYLEN(idx, col, res) \
+-        (NIS_RES_OBJECT (res)[idx].EN_data.en_cols.en_cols_val[col].ec_value.ec_value_len)
++	(NIS_RES_OBJECT (res)[idx].EN_data.en_cols.en_cols_val[col].ec_value.ec_value_len)
+ 
+ /* Get implementation for some internal functions. */
+ #include <resolv/mapv4v6addr.h>
+@@ -287,15 +287,15 @@ internal_nisplus_gethostent_r (struct hostent *host, char *buffer,
+ 	      return NSS_STATUS_TRYAGAIN;
+ 	    }
+ 	  if (niserr2nss (result->status) != NSS_STATUS_SUCCESS)
+-            {
+-              enum nss_status retval = niserr2nss (result->status);
+-              if (retval == NSS_STATUS_TRYAGAIN)
+-                {
+-                  *herrnop = NETDB_INTERNAL;
+-                  *errnop = errno;
+-                }
+-              return retval;
+-            }
++	    {
++	      enum nss_status retval = niserr2nss (result->status);
++	      if (retval == NSS_STATUS_TRYAGAIN)
++		{
++		  *herrnop = NETDB_INTERNAL;
++		  *errnop = errno;
++		}
++	      return retval;
++	    }
+ 
+ 	}
+       else
+@@ -308,18 +308,18 @@ internal_nisplus_gethostent_r (struct hostent *host, char *buffer,
+ 	      return NSS_STATUS_TRYAGAIN;
+ 	    }
+ 	  if (niserr2nss (result->status) != NSS_STATUS_SUCCESS)
+-            {
+-              enum nss_status retval= niserr2nss (result->status);
++	    {
++	      enum nss_status retval= niserr2nss (result->status);
+ 
+ 	      nis_freeresult (result);
+ 	      result = saved_res;
+-              if (retval == NSS_STATUS_TRYAGAIN)
+-                {
+-                  *herrnop = NETDB_INTERNAL;
++	      if (retval == NSS_STATUS_TRYAGAIN)
++		{
++		  *herrnop = NETDB_INTERNAL;
+ 		  *errnop = errno;
+-                }
+-              return retval;
+-            }
++		}
++	      return retval;
++	    }
+ 	}
+ 
+       if (_res.options & RES_USE_INET6)
+@@ -330,13 +330,13 @@ internal_nisplus_gethostent_r (struct hostent *host, char *buffer,
+ 						buflen, errnop, 0);
+ 
+       if (parse_res == -1)
+-        {
++	{
+ 	  nis_freeresult (result);
+ 	  result = saved_res;
+-          *herrnop = NETDB_INTERNAL;
++	  *herrnop = NETDB_INTERNAL;
+ 	  *errnop = ERANGE;
+-          return NSS_STATUS_TRYAGAIN;
+-        }
++	  return NSS_STATUS_TRYAGAIN;
++	}
+       if (saved_res != NULL)
+ 	nis_freeresult (saved_res);
+ 
+@@ -435,6 +435,7 @@ internal_gethostbyname2_r (const char *name, int af, struct hostent *host,
+   if (result == NULL)
+     {
+       *errnop = ENOMEM;
++      *herrnop = NETDB_INTERNAL;
+       return NSS_STATUS_TRYAGAIN;
+     }
+ 
+@@ -444,10 +445,13 @@ internal_gethostbyname2_r (const char *name, int af, struct hostent *host,
+       if (retval == NSS_STATUS_TRYAGAIN)
+ 	{
+ 	  *errnop = errno;
+-	  *herrnop = NETDB_INTERNAL;
++	  *herrnop = TRY_AGAIN;
+ 	}
+       else
+-	__set_errno (olderr);
++	{
++	  __set_errno (olderr);
++	  *herrnop = NETDB_INTERNAL;
++	}
+       nis_freeresult (result);
+       return retval;
+     }
+@@ -502,7 +506,7 @@ _nss_nisplus_gethostbyname_r (const char *name, struct hostent *host,
+ 					  buflen, errnop, h_errnop,
+ 					  AI_V4MAPPED);
+       if (status == NSS_STATUS_SUCCESS)
+-        return status;
++	return status;
+     }
+ 
+   return internal_gethostbyname2_r (name, AF_INET, host, buffer,
+diff --git a/nscd/aicache.c b/nscd/aicache.c
+index 992357d..3cb2208 100644
+--- a/nscd/aicache.c
++++ b/nscd/aicache.c
+@@ -1,5 +1,5 @@
+ /* Cache handling for host lookup.
+-   Copyright (C) 2004-2008, 2009 Free Software Foundation, Inc.
++   Copyright (C) 2004-2008, 2009, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@redhat.com>, 2004.
+ 
+@@ -111,7 +111,7 @@ addhstaiX (struct database_dyn *db, int fd, request_header *req,
+   int old_res_options = _res.options;
+   _res.options &= ~RES_USE_INET6;
+ 
+-  size_t tmpbuf6len = 512;
++  size_t tmpbuf6len = 1024;
+   char *tmpbuf6 = alloca (tmpbuf6len);
+   size_t tmpbuf4len = 0;
+   char *tmpbuf4 = NULL;
+@@ -133,9 +133,11 @@ addhstaiX (struct database_dyn *db, int fd, request_header *req,
+ 							 "gethostbyname4_r");
+       if (fct4 != NULL)
+ 	{
+-	  struct gaih_addrtuple *at = NULL;
++	  struct gaih_addrtuple atmem;
++	  struct gaih_addrtuple *at;
+ 	  while (1)
+ 	    {
++	      at = &atmem;
+ 	      rc6 = 0;
+ 	      herrno = 0;
+ 	      status[1] = DL_CALL_FCT (fct4, (key, &at, tmpbuf6, tmpbuf6len,
+@@ -153,7 +155,7 @@ addhstaiX (struct database_dyn *db, int fd, request_header *req,
+ 	    goto next_nip;
+ 
+ 	  /* We found the data.  Count the addresses and the size.  */
+-	  for (const struct gaih_addrtuple *at2 = at; at2 != NULL;
++	  for (const struct gaih_addrtuple *at2 = at = &atmem; at2 != NULL;
+ 	       at2 = at2->next)
+ 	    {
+ 	      ++naddrs;
+diff --git a/nss/nss_files/files-hosts.c b/nss/nss_files/files-hosts.c
+index 68fb969..e5f5b48 100644
+--- a/nss/nss_files/files-hosts.c
++++ b/nss/nss_files/files-hosts.c
+@@ -423,6 +423,11 @@ _nss_files_gethostbyname4_r (const char *name, struct gaih_addrtuple **pat,
+       if (! keep_stream)
+ 	internal_endent ();
+     }
++  else if (status == NSS_STATUS_TRYAGAIN)
++    {
++      *errnop = errno;
++      *herrnop = TRY_AGAIN;
++    }
+   else
+     {
+       *errnop = errno;
+diff --git a/posix/gai.conf b/posix/gai.conf
+index 3dba1a9..195287e 100644
+--- a/posix/gai.conf
++++ b/posix/gai.conf
+@@ -66,3 +66,12 @@
+ #scopev4 ::ffff:172.16.0.0/108   5
+ #scopev4 ::ffff:192.168.0.0/112  5
+ #scopev4 ::ffff:0.0.0.0/96       14
++#
++#    For sites which use site-local IPv4 addresses behind NAT there is
++#    the problem that even if IPv4 addresses are preferred they do not
++#    have the same scope and are therefore not sorted first.  To change
++#    this use only these rules:
++#
++#scopev4 ::ffff:169.254.0.0/112  2
++#scopev4 ::ffff:127.0.0.0/104    2
++#scopev4 ::ffff:0.0.0.0/96       14
+diff --git a/posix/getopt.c b/posix/getopt.c
+index a7f0b54..2746364 100644
+--- a/posix/getopt.c
++++ b/posix/getopt.c
+@@ -2,7 +2,8 @@
+    NOTE: getopt is part of the C library, so if you don't know what
+    "Keep this file name-space clean" means, talk to drepper@gnu.org
+    before changing it!
+-   Copyright (C) 1987-1996,1998-2004,2008,2009 Free Software Foundation, Inc.
++   Copyright (C) 1987-1996,1998-2004,2008,2009,2010
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -394,8 +395,6 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 		    int long_only, struct _getopt_data *d, int posixly_correct)
+ {
+   int print_errors = d->opterr;
+-  if (optstring[0] == ':')
+-    print_errors = 0;
+ 
+   if (argc < 1)
+     return -1;
+@@ -410,6 +409,10 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 				      posixly_correct);
+       d->__initialized = 1;
+     }
++  else if (optstring[0] == '-' || optstring[0] == '+')
++    optstring++;
++  if (optstring[0] == ':')
++    print_errors = 0;
+ 
+   /* Test whether ARGV[optind] points to a non-option argument.
+      Either it does not have option syntax, or there is an environment flag
+@@ -679,8 +682,8 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 		      char *buf;
+ 
+ 		      if (__asprintf (&buf, _("\
+-%s: option '%s' requires an argument\n"),
+-				      argv[0], argv[d->optind - 1]) >= 0)
++%s: option '--%s' requires an argument\n"),
++				      argv[0], pfound->name) >= 0)
+ 			{
+ 			  _IO_flockfile (stderr);
+ 
+@@ -697,8 +700,8 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 			}
+ #else
+ 		      fprintf (stderr,
+-			       _("%s: option '%s' requires an argument\n"),
+-			       argv[0], argv[d->optind - 1]);
++			       _("%s: option '--%s' requires an argument\n"),
++			       argv[0], pfound->name);
+ #endif
+ 		    }
+ 		  d->__nextchar += strlen (d->__nextchar);
+@@ -788,7 +791,7 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+     if (*d->__nextchar == '\0')
+       ++d->optind;
+ 
+-    if (temp == NULL || c == ':')
++    if (temp == NULL || c == ':' || c == ';')
+       {
+ 	if (print_errors)
+ 	  {
+@@ -910,7 +913,10 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 		  pfound = p;
+ 		  indfound = option_index;
+ 		}
+-	      else
++	      else if (long_only
++		       || pfound->has_arg != p->has_arg
++		       || pfound->flag != p->flag
++		       || pfound->val != p->val)
+ 		/* Second or later nonexact match found.  */
+ 		ambig = 1;
+ 	    }
+@@ -922,7 +928,7 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 		char *buf;
+ 
+ 		if (__asprintf (&buf, _("%s: option '-W %s' is ambiguous\n"),
+-				argv[0], argv[d->optind]) >= 0)
++				argv[0], d->optarg) >= 0)
+ 		  {
+ 		    _IO_flockfile (stderr);
+ 
+@@ -938,7 +944,7 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 		  }
+ #else
+ 		fprintf (stderr, _("%s: option '-W %s' is ambiguous\n"),
+-			 argv[0], argv[d->optind]);
++			 argv[0], d->optarg);
+ #endif
+ 	      }
+ 	    d->__nextchar += strlen (d->__nextchar);
+@@ -1001,8 +1007,8 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 			char *buf;
+ 
+ 			if (__asprintf (&buf, _("\
+-%s: option '%s' requires an argument\n"),
+-					argv[0], argv[d->optind - 1]) >= 0)
++%s: option '-W %s' requires an argument\n"),
++					argv[0], pfound->name) >= 0)
+ 			  {
+ 			    _IO_flockfile (stderr);
+ 
+@@ -1018,15 +1024,17 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
+ 			    free (buf);
+ 			  }
+ #else
+-			fprintf (stderr,
+-				 _("%s: option '%s' requires an argument\n"),
+-				 argv[0], argv[d->optind - 1]);
++			fprintf (stderr, _("\
++%s: option '-W %s' requires an argument\n"),
++				 argv[0], pfound->name);
+ #endif
+ 		      }
+ 		    d->__nextchar += strlen (d->__nextchar);
+ 		    return optstring[0] == ':' ? ':' : '?';
+ 		  }
+ 	      }
++	    else
++	      d->optarg = NULL;
+ 	    d->__nextchar += strlen (d->__nextchar);
+ 	    if (longind != NULL)
+ 	      *longind = option_index;
+diff --git a/posix/regcomp.c b/posix/regcomp.c
+index 6966b5d..542b848 100644
+--- a/posix/regcomp.c
++++ b/posix/regcomp.c
+@@ -1,6 +1,5 @@
+ /* Extended regular expression matching and search library.
+-   Copyright (C) 2002,2003,2004,2005,2006,2007,2009
+-   Free Software Foundation, Inc.
++   Copyright (C) 2002-2007,2009,2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Isamu Hasegawa <isamu@yamato.ibm.com>.
+ 
+@@ -616,7 +615,7 @@ free_dfa_content (re_dfa_t *dfa)
+ 	    re_dfastate_t *state = entry->array[j];
+ 	    free_state (state);
+ 	  }
+-        re_free (entry->array);
++	re_free (entry->array);
+       }
+   re_free (dfa->state_table);
+ #ifdef RE_ENABLE_I18N
+@@ -1066,8 +1065,8 @@ optimize_utf8 (re_dfa_t *dfa)
+ 	  }
+ 	break;
+       case OP_PERIOD:
+-        has_period = 1;
+-        break;
++	has_period = 1;
++	break;
+       case OP_BACK_REF:
+       case OP_ALT:
+       case END_OF_RE:
+@@ -1080,7 +1079,7 @@ optimize_utf8 (re_dfa_t *dfa)
+       case SIMPLE_BRACKET:
+ 	/* Just double check.  The non-ASCII range starts at 0x80.  */
+ 	assert (0x80 % BITSET_WORD_BITS == 0);
+-        for (i = 0x80 / BITSET_WORD_BITS; i < BITSET_WORDS; ++i)
++	for (i = 0x80 / BITSET_WORD_BITS; i < BITSET_WORDS; ++i)
+ 	  if (dfa->nodes[node].opr.sbcset[i])
+ 	    return;
+ 	break;
+@@ -1161,7 +1160,7 @@ analyze (regex_t *preg)
+     {
+       dfa->inveclosures = re_malloc (re_node_set, dfa->nodes_len);
+       if (BE (dfa->inveclosures == NULL, 0))
+-        return REG_ESPACE;
++	return REG_ESPACE;
+       ret = calc_inveclosure (dfa);
+     }
+ 
+@@ -1183,16 +1182,16 @@ postorder (bin_tree_t *root, reg_errcode_t (fn (void *, bin_tree_t *)),
+ 	 if that's the only child).  */
+       while (node->left || node->right)
+ 	if (node->left)
+-          node = node->left;
+-        else
+-          node = node->right;
++	  node = node->left;
++	else
++	  node = node->right;
+ 
+       do
+ 	{
+ 	  reg_errcode_t err = fn (extra, node);
+ 	  if (BE (err != REG_NOERROR, 0))
+ 	    return err;
+-          if (node->parent == NULL)
++	  if (node->parent == NULL)
+ 	    return REG_NOERROR;
+ 	  prev = node;
+ 	  node = node->parent;
+@@ -1226,7 +1225,7 @@ preorder (bin_tree_t *root, reg_errcode_t (fn (void *, bin_tree_t *)),
+ 	      prev = node;
+ 	      node = node->parent;
+ 	      if (!node)
+-	        return REG_NOERROR;
++		return REG_NOERROR;
+ 	    }
+ 	  node = node->right;
+ 	}
+@@ -1249,13 +1248,13 @@ optimize_subexps (void *extra, bin_tree_t *node)
+     }
+ 
+   else if (node->token.type == SUBEXP
+-           && node->left && node->left->token.type == SUBEXP)
++	   && node->left && node->left->token.type == SUBEXP)
+     {
+       int other_idx = node->left->token.opr.idx;
+ 
+       node->left = node->left->left;
+       if (node->left)
+-        node->left->parent = node;
++	node->left->parent = node;
+ 
+       dfa->subexp_map[other_idx] = dfa->subexp_map[node->token.opr.idx];
+       if (other_idx < BITSET_WORD_BITS)
+@@ -1340,9 +1339,9 @@ calc_first (void *extra, bin_tree_t *node)
+       node->first = node;
+       node->node_idx = re_dfa_add_node (dfa, node->token);
+       if (BE (node->node_idx == -1, 0))
+-        return REG_ESPACE;
++	return REG_ESPACE;
+       if (node->token.type == ANCHOR)
+-        dfa->nodes[node->node_idx].constraint = node->token.opr.ctx_type;
++	dfa->nodes[node->node_idx].constraint = node->token.opr.ctx_type;
+     }
+   return REG_NOERROR;
+ }
+@@ -1364,7 +1363,7 @@ calc_next (void *extra, bin_tree_t *node)
+       if (node->left)
+ 	node->left->next = node->next;
+       if (node->right)
+-        node->right->next = node->next;
++	node->right->next = node->next;
+       break;
+     }
+   return REG_NOERROR;
+@@ -1643,9 +1642,10 @@ static reg_errcode_t
+ calc_eclosure_iter (re_node_set *new_set, re_dfa_t *dfa, int node, int root)
+ {
+   reg_errcode_t err;
+-  int i, incomplete;
++  int i;
+   re_node_set eclosure;
+-  incomplete = 0;
++  int ret;
++  int incomplete = 0;
+   err = re_node_set_alloc (&eclosure, dfa->edests[node].nelem + 1);
+   if (BE (err != REG_NOERROR, 0))
+     return err;
+@@ -1700,8 +1700,10 @@ calc_eclosure_iter (re_node_set *new_set, re_dfa_t *dfa, int node, int root)
+ 	  }
+       }
+ 
+-  /* Epsilon closures include itself.  */
+-  re_node_set_insert (&eclosure, node);
++  /* An epsilon closure includes itself.  */
++  ret = re_node_set_insert (&eclosure, node);
++  if (BE (ret < 0, 0))
++    return REG_ESPACE;
+   if (incomplete && !root)
+     dfa->eclosures[node].nelem = 0;
+   else
+@@ -2285,7 +2287,7 @@ parse_expression (re_string_t *regexp, regex_t *preg, re_token_t *token,
+ 	  && dfa->word_ops_used == 0)
+ 	init_word_char (dfa);
+       if (token->opr.ctx_type == WORD_DELIM
+-          || token->opr.ctx_type == NOT_WORD_DELIM)
++	  || token->opr.ctx_type == NOT_WORD_DELIM)
+ 	{
+ 	  bin_tree_t *tree_first, *tree_last;
+ 	  if (token->opr.ctx_type == WORD_DELIM)
+@@ -2293,13 +2295,13 @@ parse_expression (re_string_t *regexp, regex_t *preg, re_token_t *token,
+ 	      token->opr.ctx_type = WORD_FIRST;
+ 	      tree_first = create_token_tree (dfa, NULL, NULL, token);
+ 	      token->opr.ctx_type = WORD_LAST;
+-            }
+-          else
+-            {
++	    }
++	  else
++	    {
+ 	      token->opr.ctx_type = INSIDE_WORD;
+ 	      tree_first = create_token_tree (dfa, NULL, NULL, token);
+ 	      token->opr.ctx_type = INSIDE_NOTWORD;
+-            }
++	    }
+ 	  tree_last = create_token_tree (dfa, NULL, NULL, token);
+ 	  tree = create_tree (dfa, tree_first, tree_last, OP_ALT);
+ 	  if (BE (tree_first == NULL || tree_last == NULL || tree == NULL, 0))
+@@ -2410,7 +2412,7 @@ parse_sub_exp (re_string_t *regexp, regex_t *preg, re_token_t *token,
+     {
+       tree = parse_reg_exp (regexp, preg, token, syntax, nest, err);
+       if (BE (*err == REG_NOERROR && token->type != OP_CLOSE_SUBEXP, 0))
+-        *err = REG_EPAREN;
++	*err = REG_EPAREN;
+       if (BE (*err != REG_NOERROR, 0))
+ 	return NULL;
+     }
+@@ -2541,11 +2543,11 @@ parse_dup_op (bin_tree_t *elem, re_string_t *regexp, re_dfa_t *dfa,
+       elem = duplicate_tree (elem, dfa);
+       tree = create_tree (dfa, tree, elem, CONCAT);
+       if (BE (elem == NULL || tree == NULL, 0))
+-        goto parse_dup_op_espace;
++	goto parse_dup_op_espace;
+ 
+       tree = create_tree (dfa, tree, NULL, OP_ALT);
+       if (BE (tree == NULL, 0))
+-        goto parse_dup_op_espace;
++	goto parse_dup_op_espace;
+     }
+ 
+   if (old_tree)
+@@ -2626,9 +2628,9 @@ build_range_exp (bitset_t sbcset, bracket_elem_t *start_elem,
+        no MBCSET if dfa->mb_cur_max == 1.  */
+     if (mbcset)
+       {
+-        /* Check the space of the arrays.  */
+-        if (BE (*range_alloc == mbcset->nranges, 0))
+-          {
++	/* Check the space of the arrays.  */
++	if (BE (*range_alloc == mbcset->nranges, 0))
++	  {
+ 	    /* There is not enough space, need realloc.  */
+ 	    wchar_t *new_array_start, *new_array_end;
+ 	    int new_nranges;
+@@ -2638,9 +2640,9 @@ build_range_exp (bitset_t sbcset, bracket_elem_t *start_elem,
+ 	    /* Use realloc since mbcset->range_starts and mbcset->range_ends
+ 	       are NULL if *range_alloc == 0.  */
+ 	    new_array_start = re_realloc (mbcset->range_starts, wchar_t,
+-				          new_nranges);
++					  new_nranges);
+ 	    new_array_end = re_realloc (mbcset->range_ends, wchar_t,
+-				        new_nranges);
++					new_nranges);
+ 
+ 	    if (BE (new_array_start == NULL || new_array_end == NULL, 0))
+ 	      return REG_ESPACE;
+@@ -2648,10 +2650,10 @@ build_range_exp (bitset_t sbcset, bracket_elem_t *start_elem,
+ 	    mbcset->range_starts = new_array_start;
+ 	    mbcset->range_ends = new_array_end;
+ 	    *range_alloc = new_nranges;
+-          }
++	  }
+ 
+-        mbcset->range_starts[mbcset->nranges] = start_wc;
+-        mbcset->range_ends[mbcset->nranges++] = end_wc;
++	mbcset->range_starts[mbcset->nranges] = start_wc;
++	mbcset->range_ends[mbcset->nranges++] = end_wc;
+       }
+ 
+     /* Build the table for single byte characters.  */
+@@ -2870,8 +2872,8 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
+ 	 build below suffices. */
+       if (nrules > 0 || dfa->mb_cur_max > 1)
+ 	{
+-          /* Check the space of the arrays.  */
+-          if (BE (*range_alloc == mbcset->nranges, 0))
++	  /* Check the space of the arrays.  */
++	  if (BE (*range_alloc == mbcset->nranges, 0))
+ 	    {
+ 	      /* There is not enough space, need realloc.  */
+ 	      uint32_t *new_array_start;
+@@ -2883,18 +2885,18 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
+ 	      new_array_start = re_realloc (mbcset->range_starts, uint32_t,
+ 					    new_nranges);
+ 	      new_array_end = re_realloc (mbcset->range_ends, uint32_t,
+-				          new_nranges);
++					  new_nranges);
+ 
+ 	      if (BE (new_array_start == NULL || new_array_end == NULL, 0))
+-	        return REG_ESPACE;
++		return REG_ESPACE;
+ 
+ 	      mbcset->range_starts = new_array_start;
+ 	      mbcset->range_ends = new_array_end;
+ 	      *range_alloc = new_nranges;
+ 	    }
+ 
+-          mbcset->range_starts[mbcset->nranges] = start_collseq;
+-          mbcset->range_ends[mbcset->nranges++] = end_collseq;
++	  mbcset->range_starts[mbcset->nranges] = start_collseq;
++	  mbcset->range_ends[mbcset->nranges++] = end_collseq;
+ 	}
+ 
+       /* Build the table for single byte characters.  */
+@@ -3227,17 +3229,17 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
+ 	 of having both SIMPLE_BRACKET and COMPLEX_BRACKET.  */
+       if (sbc_idx < BITSET_WORDS)
+ 	{
+-          /* Build a tree for simple bracket.  */
+-          br_token.type = SIMPLE_BRACKET;
+-          br_token.opr.sbcset = sbcset;
+-          work_tree = create_token_tree (dfa, NULL, NULL, &br_token);
+-          if (BE (work_tree == NULL, 0))
+-            goto parse_bracket_exp_espace;
++	  /* Build a tree for simple bracket.  */
++	  br_token.type = SIMPLE_BRACKET;
++	  br_token.opr.sbcset = sbcset;
++	  work_tree = create_token_tree (dfa, NULL, NULL, &br_token);
++	  if (BE (work_tree == NULL, 0))
++	    goto parse_bracket_exp_espace;
+ 
+-          /* Then join them by ALT node.  */
+-          work_tree = create_tree (dfa, work_tree, mbc_tree, OP_ALT);
+-          if (BE (work_tree == NULL, 0))
+-            goto parse_bracket_exp_espace;
++	  /* Then join them by ALT node.  */
++	  work_tree = create_tree (dfa, work_tree, mbc_tree, OP_ALT);
++	  if (BE (work_tree == NULL, 0))
++	    goto parse_bracket_exp_espace;
+ 	}
+       else
+ 	{
+@@ -3256,7 +3258,7 @@ parse_bracket_exp (re_string_t *regexp, re_dfa_t *dfa, re_token_t *token,
+       br_token.opr.sbcset = sbcset;
+       work_tree = create_token_tree (dfa, NULL, NULL, &br_token);
+       if (BE (work_tree == NULL, 0))
+-        goto parse_bracket_exp_espace;
++	goto parse_bracket_exp_espace;
+     }
+   return work_tree;
+ 
+@@ -3809,7 +3811,7 @@ duplicate_tree (const bin_tree_t *root, re_dfa_t *dfa)
+ 	      node = node->parent;
+ 	      dup_node = dup_node->parent;
+ 	      if (!node)
+-	        return dup_root;
++		return dup_root;
+ 	    }
+ 	  node = node->right;
+ 	  p_new = &dup_node->right;
+diff --git a/posix/regex_internal.c b/posix/regex_internal.c
+index c9da2b9..09cffcf 100644
+--- a/posix/regex_internal.c
++++ b/posix/regex_internal.c
+@@ -133,7 +133,14 @@ re_string_realloc_buffers (re_string_t *pstr, int new_buf_len)
+ #ifdef RE_ENABLE_I18N
+   if (pstr->mb_cur_max > 1)
+     {
+-      wint_t *new_wcs = re_realloc (pstr->wcs, wint_t, new_buf_len);
++      wint_t *new_wcs;
++
++      /* Avoid overflow in realloc.  */
++      const size_t max_object_size = MAX (sizeof (wint_t), sizeof (int));
++      if (BE (SIZE_MAX / max_object_size < new_buf_len, 0))
++	return REG_ESPACE;
++
++      new_wcs = re_realloc (pstr->wcs, wint_t, new_buf_len);
+       if (BE (new_wcs == NULL, 0))
+ 	return REG_ESPACE;
+       pstr->wcs = new_wcs;
+@@ -1404,8 +1411,11 @@ re_dfa_add_node (re_dfa_t *dfa, re_token_t token)
+       re_node_set *new_edests, *new_eclosures;
+       re_token_t *new_nodes;
+ 
+-      /* Avoid overflows.  */
+-      if (BE (new_nodes_alloc < dfa->nodes_alloc, 0))
++      /* Avoid overflows in realloc.  */
++      const size_t max_object_size = MAX (sizeof (re_token_t),
++					  MAX (sizeof (re_node_set),
++					       sizeof (int)));
++      if (BE (SIZE_MAX / max_object_size < new_nodes_alloc, 0))
+ 	return -1;
+ 
+       new_nodes = re_realloc (dfa->nodes, re_token_t, new_nodes_alloc);
+diff --git a/posix/regexec.c b/posix/regexec.c
+index 7bf0c08..8481b61 100644
+--- a/posix/regexec.c
++++ b/posix/regexec.c
+@@ -3998,7 +3998,7 @@ find_collation_sequence_value (const unsigned char *mbs, size_t mbs_len)
+ 	  /* Skip the collation sequence value.  */
+ 	  idx += sizeof (uint32_t);
+ 	  /* Skip the wide char sequence of the collating element.  */
+-	  idx = idx + sizeof (uint32_t) * (extra[idx] + 1);
++	  idx = idx + sizeof (uint32_t) * (*(int32_t *) (extra + idx) + 1);
+ 	  /* If we found the entry, return the sequence value.  */
+ 	  if (found)
+ 	    return *(uint32_t *) (extra + idx);
+diff --git a/resolv/netdb.h b/resolv/netdb.h
+index dc1f7ce..06e9a9a 100644
+--- a/resolv/netdb.h
++++ b/resolv/netdb.h
+@@ -516,6 +516,30 @@ extern int ruserok_af (__const char *__rhost, int __suser,
+ 		       __const char *__remuser, __const char *__locuser,
+ 		       sa_family_t __af);
+ 
++/* Check whether user REMUSER on system indicated by IPv4 address
++   RADDR is allowed to login as LOCUSER.  Non-IPv4 (e.g., IPv6) are
++   not supported.  If SUSER is not zero the user tries to become
++   superuser.  Return 0 if it is possible.
++
++   This function is not part of POSIX and therefore no official
++   cancellation point.  But due to similarity with an POSIX interface
++   or due to the implementation it is a cancellation point and
++   therefore not marked with __THROW.  */
++extern int iruserok (uint32_t __raddr, int __suser,
++		     __const char *__remuser, __const char *__locuser);
++
++/* This is the equivalent function where the pfamiliy if the address
++   pointed to by RADDR is determined by the value of AF.  It therefore
++   can be used for IPv6
++
++   This function is not part of POSIX and therefore no official
++   cancellation point.  But due to similarity with an POSIX interface
++   or due to the implementation it is a cancellation point and
++   therefore not marked with __THROW.  */
++extern int iruserok_af (__const void *__raddr, int __suser,
++			__const char *__remuser, __const char *__locuser,
++			sa_family_t __af);
++
+ /* Try to allocate reserved port, returning a descriptor for a socket opened
+    at this port or -1 if unsuccessful.  The search for an available port
+    will start at ALPORT and continues with lower numbers.
+diff --git a/resolv/nss_dns/dns-host.c b/resolv/nss_dns/dns-host.c
+index 818a40a..8592183 100644
+--- a/resolv/nss_dns/dns-host.c
++++ b/resolv/nss_dns/dns-host.c
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1996-2004, 2007, 2008, 2009 Free Software Foundation, Inc.
++/* Copyright (C) 1996-2004, 2007-2009, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Extended from original form by Ulrich Drepper <drepper@cygnus.com>, 1996.
+ 
+@@ -198,21 +198,27 @@ _nss_dns_gethostbyname3_r (const char *name, int af, struct hostent *result,
+ 			  1024, &host_buffer.ptr, NULL, NULL, NULL);
+   if (n < 0)
+     {
+-      if (errno == ESRCH)
++      switch (errno)
+ 	{
++	case ESRCH:
+ 	  status = NSS_STATUS_TRYAGAIN;
+ 	  h_errno = TRY_AGAIN;
++	  break;
++	case ECONNREFUSED:
++	case ETIMEDOUT:
++	  status = NSS_STATUS_UNAVAIL;
++	  break;
++	default:
++	  status = NSS_STATUS_NOTFOUND;
++	  break;
+ 	}
+-      else
+-	status = (errno == ECONNREFUSED
+-		  ? NSS_STATUS_UNAVAIL : NSS_STATUS_NOTFOUND);
+       *h_errnop = h_errno;
+       if (h_errno == TRY_AGAIN)
+ 	*errnop = EAGAIN;
+       else
+ 	__set_errno (olderr);
+ 
+-      /* If we are looking for a IPv6 address and mapping is enabled
++      /* If we are looking for an IPv6 address and mapping is enabled
+ 	 by having the RES_USE_INET6 bit in _res.options set, we try
+ 	 another lookup.  */
+       if (af == AF_INET6 && (_res.options & RES_USE_INET6))
+@@ -1044,7 +1050,7 @@ gaih_getanswer_slice (const querybuf *answer, int anslen, const char *qname,
+ 	  ++had_error;
+ 	  continue;
+ 	}
+-      if (*firstp)
++      if (*firstp && canon == NULL)
+ 	{
+ 	  h_name = buffer;
+ 	  buffer += h_namelen;
+@@ -1160,19 +1166,7 @@ gaih_getanswer_slice (const querybuf *answer, int anslen, const char *qname,
+ 	  if (ttl != 0 && ttlp != NULL)
+ 	    *ttlp = ttl;
+ 
+-	  if (canon != NULL)
+-	    {
+-	      (*pat)->name = canon;
+-
+-	      /* Reclaim buffer space.  */
+-	      if (h_name + h_namelen == buffer)
+-		{
+-		  buffer = h_name;
+-		  buflen += h_namelen;
+-		}
+-	    }
+-	  else
+-	    (*pat)->name = h_name;
++	  (*pat)->name = canon ?: h_name;
+ 
+ 	  *firstp = 0;
+ 	}
+diff --git a/sysdeps/i386/lshift.S b/sysdeps/i386/lshift.S
+index 536d987..398cf03 100644
+--- a/sysdeps/i386/lshift.S
++++ b/sysdeps/i386/lshift.S
+@@ -1,5 +1,5 @@
+ /* i80386 __mpn_lshift --
+-   Copyright (C) 1992, 1994, 1997-2000, 2005 Free Software Foundation, Inc.
++   Copyright (C) 1992,1994,1997-2000,2005,2010 Free Software Foundation, Inc.
+    This file is part of the GNU MP Library.
+ 
+    The GNU MP Library is free software; you can redistribute it and/or modify
+@@ -55,6 +55,7 @@ ENTRY (BP_SYM (__mpn_lshift))
+ 
+ 	movl	(%esi,%edx,4),%ebx	/* read most significant limb */
+ 	cfi_rel_offset (ebx, 0)
++	cfi_remember_state
+ 	xorl	%eax,%eax
+ 	shldl	%cl,%ebx,%eax		/* compute carry limb */
+ 	decl	%edx
+@@ -95,6 +96,7 @@ L(1):	movl	(%esi,%edx,4),%eax
+ 	LEAVE
+ 	ret
+ 
++	cfi_restore_state
+ L(end):	shll	%cl,%ebx		/* compute least significant limb */
+ 	movl	%ebx,(%edi)		/* store it */
+ 
+diff --git a/sysdeps/ia64/memchr.S b/sysdeps/ia64/memchr.S
+index cdd71ca..56d8056 100644
+--- a/sysdeps/ia64/memchr.S
++++ b/sysdeps/ia64/memchr.S
+@@ -47,7 +47,7 @@
+ #define saved_lc	r16
+ #define	chr		r17
+ #define len		r18
+-#define pos0		r20
++#define last		r20
+ #define val		r21
+ #define tmp		r24
+ #define chrx8		r25
+@@ -67,6 +67,7 @@ ENTRY(__memchr)
+ 	mov	saved_pr = pr		// save the predicates
+ 	.body
+ 	mov 	ret0 = str
++	add	last = str, in2		// last byte
+ 	and 	tmp = 7, str		// tmp = str % 8
+ 	cmp.ne	p7, p0 = r0, r0		// clear p7
+ 	extr.u	chr = in1, 0, 8		// chr = (unsigned char) in1
+@@ -143,7 +144,10 @@ ENTRY(__memchr)
+ 	ld8	tmp = [ret0];;		// load the first unchecked 8byte
+ 	xor	aux[1] = tmp, chrx8;;
+ 	czx1.r	poschr[1] = aux[1];;
+-	cmp.ne	p7, p0 = 8, poschr[1]
++	cmp.ne	p7, p0 = 8, poschr[1];;
++(p7)	add	ret0 = addr[MEMLAT+2], poschr[1];;
++(p7)	cmp.geu	p6, p7 = ret0, last	// don't go over the last byte
++(p6)	br.cond.spnt	.notfound;;
+ (p7)	br.cond.spnt	.foundit;;
+ 	adds	ret0 = 8, ret0		// load the next unchecked 8byte
+ 	br.sptk	.l4;;
+diff --git a/sysdeps/mach/hurd/ttyname_r.c b/sysdeps/mach/hurd/ttyname_r.c
+index 7313b9a..8896252 100644
+--- a/sysdeps/mach/hurd/ttyname_r.c
++++ b/sysdeps/mach/hurd/ttyname_r.c
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1994, 95, 96, 98 Free Software Foundation, Inc.
++/* Copyright (C) 1994,1995,1996,1998,2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -34,13 +34,13 @@ __ttyname_r (int fd, char *buf, size_t buflen)
+ 
+   nodename[0] = '\0';
+   if (err = HURD_DPORT_USE (fd, __term_get_nodename (port, nodename)))
+-    return __hurd_dfail (fd, err), -1;
++    return __hurd_dfail (fd, err), errno;
+ 
+   len = strlen (nodename) + 1;
+   if (len > buflen)
+     {
+       errno = EINVAL;
+-      return -1;
++      return errno;
+     }
+ 
+   memcpy (buf, nodename, len);
+diff --git a/sysdeps/posix/cuserid.c b/sysdeps/posix/cuserid.c
+index 11c827a..a74ff84 100644
+--- a/sysdeps/posix/cuserid.c
++++ b/sysdeps/posix/cuserid.c
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1991, 1996, 1998, 1999, 2001 Free Software Foundation, Inc.
++/* Copyright (C) 1991, 1996, 1998, 1999, 2001, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -44,5 +44,6 @@ cuserid (s)
+ 
+   if (s == NULL)
+     s = name;
+-  return strncpy (s, pwptr->pw_name, L_cuserid);
++  s[L_cuserid - 1] = '\0';
++  return strncpy (s, pwptr->pw_name, L_cuserid - 1);
+ }
+diff --git a/sysdeps/posix/getaddrinfo.c b/sysdeps/posix/getaddrinfo.c
+index a788d18..8b7e38f 100644
+--- a/sysdeps/posix/getaddrinfo.c
++++ b/sysdeps/posix/getaddrinfo.c
+@@ -702,6 +702,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
+ 
+ 	  while (!no_more)
+ 	    {
++	      no_data = 0;
+ 	      nss_gethostbyname4_r fct4
+ 		= __nss_lookup_function (nip, "gethostbyname4_r");
+ 	      if (fct4 != NULL)
+@@ -719,13 +720,8 @@ gaih_inet (const char *name, const struct gaih_service *service,
+ 		      if (status != NSS_STATUS_TRYAGAIN
+ 			  || rc != ERANGE || herrno != NETDB_INTERNAL)
+ 			{
+-			  if (herrno == NETDB_INTERNAL)
+-			    {
+-			      __set_h_errno (herrno);
+-			      _res.options = old_res_options;
+-			      return -EAI_SYSTEM;
+-			    }
+-			  if (herrno == TRY_AGAIN)
++			  if (status == NSS_STATUS_TRYAGAIN
++			      && herrno == TRY_AGAIN)
+ 			    no_data = EAI_AGAIN;
+ 			  else
+ 			    no_data = herrno == NO_DATA;
+diff --git a/sysdeps/s390/s390-64/utf16-utf32-z9.c b/sysdeps/s390/s390-64/utf16-utf32-z9.c
+index 868dea6..14daf21 100644
+--- a/sysdeps/s390/s390-64/utf16-utf32-z9.c
++++ b/sysdeps/s390/s390-64/utf16-utf32-z9.c
+@@ -203,7 +203,10 @@ gconv_end (struct __gconv_step *data)
+    swapping).  */
+ #define BODY								\
+   {									\
+-    if (GLRO (dl_hwcap) & HWCAP_S390_ETF3EH)				\
++    /* The hardware instruction currently fails to report an error for	\
++       isolated low surrogates so we have to disable the instruction	\
++       until this gets resolved.  */					\
++    if (0) /* (GLRO (dl_hwcap) & HWCAP_S390_ETF3EH) */			\
+       {									\
+ 	HARDWARE_CONVERT ("cu24 %0, %1, 1");				\
+ 	if (inptr != inend)						\
+@@ -229,6 +232,12 @@ gconv_end (struct __gconv_step *data)
+       }									\
+     else								\
+       {									\
++        /* An isolated low-surrogate was found.  This has to be         \
++	   considered ill-formed.  */					\
++        if (__builtin_expect (u1 >= 0xdc00, 0))				\
++	  {								\
++	    STANDARD_FROM_LOOP_ERR_HANDLER (2);				\
++	  }								\
+ 	/* It's a surrogate character.  At least the first word says	\
+ 	   it is.  */							\
+ 	if (__builtin_expect (inptr + 4 > inend, 0))			\
+diff --git a/sysdeps/s390/s390-64/utf8-utf16-z9.c b/sysdeps/s390/s390-64/utf8-utf16-z9.c
+index 531d3eb..5f73f3c 100644
+--- a/sysdeps/s390/s390-64/utf8-utf16-z9.c
++++ b/sysdeps/s390/s390-64/utf8-utf16-z9.c
+@@ -345,9 +345,12 @@ gconv_end (struct __gconv_step *data)
+    Operation.  */
+ #define BODY								\
+   {									\
+-    if (GLRO (dl_hwcap) & HWCAP_S390_ETF3EH)				\
++    /* The hardware instruction currently fails to report an error for	\
++       isolated low surrogates so we have to disable the instruction	\
++       until this gets resolved.  */					\
++    if (0) /* (GLRO (dl_hwcap) & HWCAP_S390_ETF3EH) */			\
+       {									\
+-	HARDWARE_CONVERT ("cu21 %0, %1");				\
++	HARDWARE_CONVERT ("cu21 %0, %1, 1");				\
+ 	if (inptr != inend)						\
+ 	  {								\
+ 	    /* Check if the third byte is				\
+@@ -388,7 +391,7 @@ gconv_end (struct __gconv_step *data)
+ 									\
+ 	outptr += 2;							\
+       }									\
+-    else if (c >= 0x0800 && c <= 0xd7ff)				\
++    else if ((c >= 0x0800 && c <= 0xd7ff) || c > 0xdfff)		\
+       {									\
+ 	/* Three byte UTF-8 char.  */					\
+ 									\
+diff --git a/sysdeps/sh/sh4/fpu/feholdexcpt.c b/sysdeps/sh/sh4/fpu/feholdexcpt.c
+index 7aac5a0..87d6420 100644
+--- a/sysdeps/sh/sh4/fpu/feholdexcpt.c
++++ b/sysdeps/sh/sh4/fpu/feholdexcpt.c
+@@ -1,5 +1,6 @@
+ /* Store current floating-point environment and clear exceptions.
+-   Copyright (C) 1997, 1998, 1999, 2000, 2005 Free Software Foundation, Inc.
++   Copyright (C) 1997, 1998, 1999, 2000, 2005, 2010
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -29,10 +30,15 @@ feholdexcept (fenv_t *envp)
+   _FPU_GETCW (temp);
+   envp->__fpscr = temp;
+ 
+-  /* Now set all exceptions to non-stop.  */
++  /* Clear the status flags.  */
+   temp &= ~FE_ALL_EXCEPT;
++
++  /* Now set all exceptions to non-stop.  */
++  temp &= ~(FE_ALL_EXCEPT << 5);
++
+   _FPU_SETCW (temp);
+ 
+-  return 1;
++  /* Success.  */
++  return 0;
+ }
+ libm_hidden_def (feholdexcept)
+diff --git a/sysdeps/unix/bsd/ptsname.c b/sysdeps/unix/bsd/ptsname.c
+index fd446a4..6063201 100644
+--- a/sysdeps/unix/bsd/ptsname.c
++++ b/sysdeps/unix/bsd/ptsname.c
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1998,2002 Free Software Foundation, Inc.
++/* Copyright (C) 1998,2002,2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -44,6 +44,7 @@ int
+ __ptsname_r (int fd, char *buf, size_t buflen)
+ {
+   int save_errno = errno;
++  int err;
+   struct stat st;
+ 
+   if (buf == NULL)
+@@ -62,8 +63,12 @@ __ptsname_r (int fd, char *buf, size_t buflen)
+       return ERANGE;
+     }
+ 
+-  if (__ttyname_r (fd, buf, buflen) != 0)
+-    return errno;
++  err = __ttyname_r (fd, buf, buflen);
++  if (err != 0)
++    {
++      __set_errno (err);
++      return errno;
++    }
+ 
+   buf[sizeof (_PATH_DEV) - 1] = 't';
+ 
+diff --git a/sysdeps/unix/getlogin.c b/sysdeps/unix/getlogin.c
+index 4752685..7345af0 100644
+--- a/sysdeps/unix/getlogin.c
++++ b/sysdeps/unix/getlogin.c
+@@ -33,6 +33,7 @@ getlogin (void)
+ {
+   char tty_pathname[2 + 2 * NAME_MAX];
+   char *real_tty_path = tty_pathname;
++  int err;
+   char *result = NULL;
+   static char name[UT_NAMESIZE + 1];
+   struct utmp *ut, line, buffer;
+@@ -46,8 +47,12 @@ getlogin (void)
+      thing to do.  Note that ttyname(open("/dev/tty")) on those
+      systems returns /dev/tty, so that is not a possible solution for
+      getlogin().  */
+-  if (__ttyname_r (0, real_tty_path, sizeof (tty_pathname)) != 0)
+-    return NULL;
++  err = __ttyname_r (0, real_tty_path, sizeof (tty_pathname));
++  if (err != 0)
++    {
++      __set_errno (err);
++      return NULL;
++    }
+ 
+   real_tty_path += 5;		/* Remove "/dev/".  */
+ 
+diff --git a/sysdeps/unix/readdir_r.c b/sysdeps/unix/readdir_r.c
+index f84709e..9372791 100644
+--- a/sysdeps/unix/readdir_r.c
++++ b/sysdeps/unix/readdir_r.c
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1991,92,93,94,95,96,97,98,99,2000,02
++/* Copyright (C) 1991,92,93,94,95,96,97,98,99,2000,02,10
+ 	Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+@@ -113,7 +113,17 @@ __READDIR_R (DIR *dirp, DIRENT_TYPE *entry, DIRENT_TYPE **result)
+   while (dp->d_ino == 0);
+ 
+   if (dp != NULL)
+-    *result = memcpy (entry, dp, reclen);
++    {
++#ifdef GETDENTS_64BIT_ALIGNED
++      /* The d_reclen value might include padding which is not part of
++	 the DIRENT_TYPE data structure.  */
++      reclen = MIN (reclen, sizeof (DIRENT_TYPE));
++#endif
++      *result = memcpy (entry, dp, reclen);
++#ifdef GETDENTS_64BIT_ALIGNED
++      entry->d_reclen = reclen;
++#endif
++    }
+   else
+     *result = NULL;
+ 
+diff --git a/sysdeps/unix/sysv/linux/getsysstats.c b/sysdeps/unix/sysv/linux/getsysstats.c
+index 97e20d2..af454b6 100644
+--- a/sysdeps/unix/sysv/linux/getsysstats.c
++++ b/sysdeps/unix/sysv/linux/getsysstats.c
+@@ -1,5 +1,5 @@
+ /* Determine various system internal values, Linux version.
+-   Copyright (C) 1996-2003, 2006, 2007, 2009 Free Software Foundation, Inc.
++   Copyright (C) 1996-2003,2006,2007,2009,2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
+ 
+@@ -117,18 +117,6 @@ next_line (int fd, char *const buffer, char **cp, char **re,
+       if (nl == NULL)
+ 	nl = *re - 1;
+     }
+-  else if (nl + 5 >= *re)
+-    {
+-      memmove (buffer, nl, *re - nl);
+-      *re = buffer + (*re - nl);
+-      nl = *cp = buffer;
+-
+-      ssize_t n = read_not_cancel (fd, *re, buffer_end - *re);
+-      if (n < 0)
+-	return NULL;
+-
+-      *re += n;
+-    }
+ 
+   *cp = nl + 1;
+   assert (*cp <= *re);
+diff --git a/sysdeps/unix/sysv/linux/i386/fallocate.c b/sysdeps/unix/sysv/linux/i386/fallocate.c
+index 14e7883..1434a83 100644
+--- a/sysdeps/unix/sysv/linux/i386/fallocate.c
++++ b/sysdeps/unix/sysv/linux/i386/fallocate.c
+@@ -30,7 +30,13 @@ int
+ fallocate (int fd, int mode, __off_t offset, __off_t len)
+ {
+ #ifdef __NR_fallocate
+-  return __call_fallocate (fd, mode, offset, len);
++  int err = __call_fallocate (fd, mode, offset, len);
++  if (__builtin_expect (err, 0))
++    {
++      __set_errno (err);
++      err = -1;
++    }
++  return err;
+ #else
+   __set_errno (ENOSYS);
+   return -1;
+diff --git a/sysdeps/unix/sysv/linux/i386/fallocate64.c b/sysdeps/unix/sysv/linux/i386/fallocate64.c
+index 85f315c..063bab0 100644
+--- a/sysdeps/unix/sysv/linux/i386/fallocate64.c
++++ b/sysdeps/unix/sysv/linux/i386/fallocate64.c
+@@ -30,7 +30,13 @@ int
+ fallocate64 (int fd, int mode, __off64_t offset, __off64_t len)
+ {
+ #ifdef __NR_fallocate
+-  return __call_fallocate (fd, mode, offset, len);
++  int err = __call_fallocate (fd, mode, offset, len);
++  if (__builtin_expect (err, 0))
++    {
++      __set_errno (err);
++      err = -1;
++    }
++  return err;
+ #else
+   __set_errno (ENOSYS);
+   return -1;
+diff --git a/sysdeps/unix/sysv/linux/i386/readdir64_r.c b/sysdeps/unix/sysv/linux/i386/readdir64_r.c
+index c6da57b..f96f16a 100644
+--- a/sysdeps/unix/sysv/linux/i386/readdir64_r.c
++++ b/sysdeps/unix/sysv/linux/i386/readdir64_r.c
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2000, 2004 Free Software Foundation, Inc.
++/* Copyright (C) 2000, 2004, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -19,6 +19,7 @@
+ #define __READDIR_R __readdir64_r
+ #define __GETDENTS __getdents64
+ #define DIRENT_TYPE struct dirent64
++#define GETDENTS_64BIT_ALIGNED 1
+ 
+ #include <sysdeps/unix/readdir_r.c>
+ 
+diff --git a/sysdeps/unix/sysv/linux/ifaddrs.c b/sysdeps/unix/sysv/linux/ifaddrs.c
+index 149bd1c..84f223d 100644
+--- a/sysdeps/unix/sysv/linux/ifaddrs.c
++++ b/sysdeps/unix/sysv/linux/ifaddrs.c
+@@ -1,5 +1,5 @@
+ /* getifaddrs -- get names and addresses of all network interfaces
+-   Copyright (C) 2003-2008, 2009 Free Software Foundation, Inc.
++   Copyright (C) 2003-2008, 2009, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -315,17 +315,19 @@ map_newlink (int index, struct ifaddrs_storage *ifas, int *map, int max)
+       else if (map[i] == index)
+ 	return i;
+     }
+-  /* This should never be reached. If this will be reached, we have
+-     a very big problem.  */
+-  abort ();
++
++  /* This means interfaces changed inbetween the reading of the
++     RTM_GETLINK and RTM_GETADDR information.  We have to repeat
++     everything.  */
++  return -1;
+ }
+ 
+ 
+ /* Create a linked list of `struct ifaddrs' structures, one for each
+    network interface on the host machine.  If successful, store the
+    list in *IFAP and return 0.  On errors, return -1 and set `errno'.  */
+-int
+-getifaddrs (struct ifaddrs **ifap)
++static int
++getifaddrs_internal (struct ifaddrs **ifap)
+ {
+   struct netlink_handle nh = { 0, 0, 0, NULL, NULL };
+   struct netlink_res *nlp;
+@@ -481,6 +483,13 @@ getifaddrs (struct ifaddrs **ifap)
+ 		 kernel.  */
+ 	      ifa_index = map_newlink (ifim->ifi_index - 1, ifas,
+ 				       map_newlink_data, newlink);
++	      if (__builtin_expect (ifa_index == -1, 0))
++		{
++		try_again:
++		  result = -EAGAIN;
++		  free (ifas);
++		  goto exit_free;
++		}
+ 	      ifas[ifa_index].ifa.ifa_flags = ifim->ifi_flags;
+ 
+ 	      while (RTA_OK (rta, rtasize))
+@@ -565,9 +574,11 @@ getifaddrs (struct ifaddrs **ifap)
+ 		 that we have holes in the interface part of the list,
+ 		 but we always have already the interface for this address.  */
+ 	      ifa_index = newlink + newaddr_idx;
+-	      ifas[ifa_index].ifa.ifa_flags
+-		= ifas[map_newlink (ifam->ifa_index - 1, ifas,
+-				    map_newlink_data, newlink)].ifa.ifa_flags;
++	      int idx = map_newlink (ifam->ifa_index - 1, ifas,
++				     map_newlink_data, newlink);
++	      if (__builtin_expect (idx == -1, 0))
++		goto try_again;
++	      ifas[ifa_index].ifa.ifa_flags = ifas[idx].ifa.ifa_flags;
+ 	      if (ifa_index > 0)
+ 		ifas[ifa_index - 1].ifa.ifa_next = &ifas[ifa_index].ifa;
+ 	      ++newaddr_idx;
+@@ -747,9 +758,13 @@ getifaddrs (struct ifaddrs **ifap)
+ 	      /* If we didn't get the interface name with the
+ 		 address, use the name from the interface entry.  */
+ 	      if (ifas[ifa_index].ifa.ifa_name == NULL)
+-		ifas[ifa_index].ifa.ifa_name
+-		  = ifas[map_newlink (ifam->ifa_index - 1, ifas,
+-				      map_newlink_data, newlink)].ifa.ifa_name;
++		{
++		  int idx = map_newlink (ifam->ifa_index - 1, ifas,
++					 map_newlink_data, newlink);
++		  if (__builtin_expect (idx == -1, 0))
++		    goto try_again;
++		  ifas[ifa_index].ifa.ifa_name = ifas[idx].ifa.ifa_name;
++		}
+ 
+ 	      /* Calculate the netmask.  */
+ 	      if (ifas[ifa_index].ifa.ifa_addr
+@@ -826,6 +841,22 @@ getifaddrs (struct ifaddrs **ifap)
+ 
+   return result;
+ }
++
++
++/* Create a linked list of `struct ifaddrs' structures, one for each
++   network interface on the host machine.  If successful, store the
++   list in *IFAP and return 0.  On errors, return -1 and set `errno'.  */
++int
++getifaddrs (struct ifaddrs **ifap)
++{
++  int res;
++
++  do
++    res = getifaddrs_internal (ifap);
++  while (res == -EAGAIN);
++
++  return res;
++}
+ libc_hidden_def (getifaddrs)
+ 
+ 
+diff --git a/sysdeps/unix/sysv/linux/s390/s390-32/____longjmp_chk.c b/sysdeps/unix/sysv/linux/s390/s390-32/____longjmp_chk.c
+index b28e587..f2c1518 100644
+--- a/sysdeps/unix/sysv/linux/s390/s390-32/____longjmp_chk.c
++++ b/sysdeps/unix/sysv/linux/s390/s390-32/____longjmp_chk.c
+@@ -46,7 +46,7 @@
+ 	    {								\
+ 	      if ((oss.ss_flags & SS_ONSTACK) == 0			\
+ 		  || ((uintptr_t) (oss.ss_sp + oss.ss_size) - new_sp	\
+-		      >= oss.ss_size))					\
++		      < oss.ss_size))					\
+ 		__fortify_fail ("longjmp causes uninitialized stack frame");\
+ 	    }								\
+ 	}								\
+diff --git a/sysdeps/unix/sysv/linux/s390/s390-64/____longjmp_chk.c b/sysdeps/unix/sysv/linux/s390/s390-64/____longjmp_chk.c
+index dcf58fb..261be25 100644
+--- a/sysdeps/unix/sysv/linux/s390/s390-64/____longjmp_chk.c
++++ b/sysdeps/unix/sysv/linux/s390/s390-64/____longjmp_chk.c
+@@ -46,7 +46,7 @@
+ 	    {								\
+ 	      if ((oss.ss_flags & SS_ONSTACK) == 0			\
+ 		  || ((uintptr_t) (oss.ss_sp + oss.ss_size) - new_sp	\
+-		      >= oss.ss_size))					\
++		      < oss.ss_size))					\
+ 		__fortify_fail ("longjmp causes uninitialized stack frame");\
+ 	    }								\
+ 	}								\
+diff --git a/sysdeps/x86_64/dl-machine.h b/sysdeps/x86_64/dl-machine.h
+index 61a0556..f615e95 100644
+--- a/sysdeps/x86_64/dl-machine.h
++++ b/sysdeps/x86_64/dl-machine.h
+@@ -1,5 +1,5 @@
+ /* Machine-dependent ELF dynamic relocation inline functions.  x86-64 version.
+-   Copyright (C) 2001-2005, 2006, 2008, 2009 Free Software Foundation, Inc.
++   Copyright (C) 2001-2006, 2008, 2009, 2010 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Andreas Jaeger <aj@suse.de>.
+ 
+@@ -419,7 +419,7 @@ elf_machine_rela (struct link_map *map, const Elf64_Rela *reloc,
+ 	case R_X86_64_PC32:
+ 	  value += reloc->r_addend - (Elf64_Addr) reloc_addr;
+ 	  *(unsigned int *) reloc_addr = value;
+-	  if (__builtin_expect (value != (unsigned int) value, 0))
++	  if (__builtin_expect (value != (int) value, 0))
+ 	    {
+ 	      fmt = "\
+ %s: Symbol `%s' causes overflow in R_X86_64_PC32 relocation\n";
+diff --git a/sysdeps/x86_64/multiarch/init-arch.c b/sysdeps/x86_64/multiarch/init-arch.c
+index 7823ace..0fe2f86 100644
+--- a/sysdeps/x86_64/multiarch/init-arch.c
++++ b/sysdeps/x86_64/multiarch/init-arch.c
+@@ -1,6 +1,6 @@
+ /* Initialize CPU feature data.
+    This file is part of the GNU C Library.
+-   Copyright (C) 2008, 2009 Free Software Foundation, Inc.
++   Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+    Contributed by Ulrich Drepper <drepper@redhat.com>.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -18,6 +18,7 @@
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+    02111-1307 USA.  */
+ 
++#include <atomic.h>
+ #include <cpuid.h>
+ #include "init-arch.h"
+ 
+@@ -26,7 +27,7 @@ struct cpu_features __cpu_features attribute_hidden;
+ 
+ 
+ static void
+-get_common_indeces (void)
++get_common_indeces (unsigned int *family, unsigned int *model)
+ {
+   __cpuid (1, __cpu_features.cpuid[COMMON_CPUID_INDEX_1].eax,
+ 	   __cpu_features.cpuid[COMMON_CPUID_INDEX_1].ebx,
+@@ -34,8 +35,8 @@ get_common_indeces (void)
+ 	   __cpu_features.cpuid[COMMON_CPUID_INDEX_1].edx);
+ 
+   unsigned int eax = __cpu_features.cpuid[COMMON_CPUID_INDEX_1].eax;
+-  __cpu_features.family = (eax >> 8) & 0x0f;
+-  __cpu_features.model = (eax >> 4) & 0x0f;
++  *family = (eax >> 8) & 0x0f;
++  *model = (eax >> 4) & 0x0f;
+ }
+ 
+ 
+@@ -45,36 +46,44 @@ __init_cpu_features (void)
+   unsigned int ebx;
+   unsigned int ecx;
+   unsigned int edx;
++  unsigned int family = 0;
++  unsigned int model = 0;
++  enum cpu_features_kind kind;
+ 
+   __cpuid (0, __cpu_features.max_cpuid, ebx, ecx, edx);
+ 
+   /* This spells out "GenuineIntel".  */
+   if (ebx == 0x756e6547 && ecx == 0x6c65746e && edx == 0x49656e69)
+     {
+-      __cpu_features.kind = arch_kind_intel;
++      kind = arch_kind_intel;
+ 
+-      get_common_indeces ();
++      get_common_indeces (&family, &model);
+ 
+       unsigned int eax = __cpu_features.cpuid[COMMON_CPUID_INDEX_1].eax;
+       unsigned int extended_family = (eax >> 20) & 0xff;
+       unsigned int extended_model = (eax >> 12) & 0xf0;
+       if (__cpu_features.family == 0x0f)
+ 	{
+-	  __cpu_features.family += extended_family;
+-	  __cpu_features.model += extended_model;
++	  family += extended_family;
++	  model += extended_model;
+ 	}
+       else if (__cpu_features.family == 0x06)
+-	__cpu_features.model += extended_model;
++	model += extended_model;
+     }
+   /* This spells out "AuthenticAMD".  */
+   else if (ebx == 0x68747541 && ecx == 0x444d4163 && edx == 0x69746e65)
+     {
+-      __cpu_features.kind = arch_kind_amd;
++      kind = arch_kind_amd;
+ 
+-      get_common_indeces ();
++      get_common_indeces (&family, &model);
+     }
+   else
+-    __cpu_features.kind = arch_kind_other;
++    kind = arch_kind_other;
++
++  __cpu_features.family = family;
++  __cpu_features.model = model;
++  atomic_write_barrier ();
++  __cpu_features.kind = kind;
+ }
+ 
+ #undef __get_cpu_features
+diff --git a/sysdeps/x86_64/multiarch/init-arch.h b/sysdeps/x86_64/multiarch/init-arch.h
+index 9b12831..f632069 100644
+--- a/sysdeps/x86_64/multiarch/init-arch.h
++++ b/sysdeps/x86_64/multiarch/init-arch.h
+@@ -1,5 +1,5 @@
+ /* This file is part of the GNU C Library.
+-   Copyright (C) 2008, 2009 Free Software Foundation, Inc.
++   Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+@@ -27,7 +27,7 @@ enum
+ 
+ extern struct cpu_features
+ {
+-  enum
++  enum cpu_features_kind
+     {
+       arch_kind_unknown = 0,
+       arch_kind_intel,
+diff --git a/version.h b/version.h
+index 3c51c9c..08933b6 100644
+--- a/version.h
++++ b/version.h
+@@ -1,4 +1,4 @@
+ /* This file just defines the current version number of libc.  */
+ 
+ #define RELEASE "stable"
+-#define VERSION "2.11.1"
++#define VERSION "2.11.2"

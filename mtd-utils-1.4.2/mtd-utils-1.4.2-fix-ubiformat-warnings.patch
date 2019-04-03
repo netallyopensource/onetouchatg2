@@ -1,0 +1,20 @@
+diff -Naur mtd-utils-1.4.2.orig/ubi-utils/src/ubiformat.c mtd-utils-1.4.2/ubi-utils/src/ubiformat.c
+--- mtd-utils-1.4.2.orig/ubi-utils/src/ubiformat.c	2011-02-23 11:11:14.000000000 -0500
++++ mtd-utils-1.4.2/ubi-utils/src/ubiformat.c	2011-02-23 11:21:57.000000000 -0500
+@@ -366,14 +366,14 @@
+ 	while (len > 0) {
+ 		ssize_t l = read(fd, buf, len);
+ 		if (l == 0)
+-			return errmsg("eof reached; %zu bytes remaining", len);
++			return errmsg("eof reached; %zu bytes remaining", (int)len);
+ 		else if (l > 0) {
+ 			buf += l;
+ 			len -= l;
+ 		} else if (errno == EINTR || errno == EAGAIN)
+ 			continue;
+ 		else
+-			return sys_errmsg("reading failed; %zu bytes remaining", len);
++			return sys_errmsg("reading failed; %zu bytes remaining", (int)len);
+ 	}
+ 
+ 	return 0;

@@ -1,0 +1,40 @@
+#!/bin/sh
+# chkconfig: 2345 03 97
+### BEGIN INIT INFO
+# Provides:          modules
+# Required-Start:    $local_fs
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start modules at boot time
+# Description:       Enable service provided by modules.
+# X-Start-Before:    
+# X-Stop-After:      
+# X-Timesys-Start-Number:  03
+# X-Timesys-Stop-Number:  97
+### END INIT INFO
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+load_from_file()
+{
+  while read module
+  do
+    modprobe $module
+  done < $1
+}
+
+case "$1" in
+  start)
+    load_from_file /etc/modules
+    for f in $(find /etc/modules.d /etc/modules-load.d -type f 2>/dev/null)
+    do
+      load_from_file $f
+    done
+  ;;
+  stop)
+  ;;
+  *)
+    echo "$0 [start|stop]"
+  ;;
+esac

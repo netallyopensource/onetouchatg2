@@ -1,0 +1,12 @@
+diff -Naur util-linux-2.20.1.orig/include/c.h util-linux-2.20.1/include/c.h
+--- util-linux-2.20.1.orig/include/c.h	2011-12-12 12:27:26.000000000 -0500
++++ util-linux-2.20.1/include/c.h	2011-12-12 12:28:05.000000000 -0500
+@@ -106,7 +106,7 @@
+ 
+ #ifndef HAVE_PROGRAM_INVOCATION_SHORT_NAME
+ # ifdef HAVE___PROGNAME
+-extern char *__progname;
++extern const char *__progname;
+ #  define program_invocation_short_name __progname
+ # else
+ #  ifdef HAVE_GETEXECNAME

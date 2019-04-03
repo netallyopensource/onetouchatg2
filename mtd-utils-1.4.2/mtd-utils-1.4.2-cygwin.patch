@@ -1,0 +1,82 @@
+diff -Naur mtd-utils-1.4.2.orig/mkfs.jffs2.c mtd-utils-1.4.2/mkfs.jffs2.c
+--- mtd-utils-1.4.2.orig/mkfs.jffs2.c	2011-02-23 11:11:14.000000000 -0500
++++ mtd-utils-1.4.2/mkfs.jffs2.c	2011-02-23 11:12:54.000000000 -0500
+@@ -67,7 +67,9 @@
+ #include <time.h>
+ #include <getopt.h>
+ #ifndef WITHOUT_XATTR
++#ifndef __CYGWIN__
+ #include <sys/xattr.h>
++#endif
+ #include <sys/acl.h>
+ #endif
+ #include <byteswap.h>
+@@ -375,7 +377,7 @@
+    the following macros use it if available or use a hacky workaround...
+  */
+ 
+-#ifdef __GNUC__
++#if defined __GNUC__ && !defined __CYGWIN__
+ #define SCANF_PREFIX "a"
+ #define SCANF_STRING(s) (&s)
+ #define GETCWD_SIZE 0
+@@ -1140,6 +1142,8 @@
+ 	if (!enable_xattr)
+ 		return;
+ 
++#ifndef __CYGWIN__
++
+ 	list_sz = llistxattr(e->hostname, xlist, XATTR_BUFFER_SIZE);
+ 	if (list_sz < 0) {
+ 		if (verbose)
+@@ -1201,6 +1205,7 @@
+ 		full_write(out_fd, &ref, sizeof(ref));
+ 		padword();
+ 	}
++#endif
+ }
+ 
+ #else /* WITHOUT_XATTR */
+diff -Naur mtd-utils-1.4.2.orig/rfddump.c mtd-utils-1.4.2/rfddump.c
+--- mtd-utils-1.4.2.orig/rfddump.c	2011-02-23 11:11:14.000000000 -0500
++++ mtd-utils-1.4.2/rfddump.c	2011-02-23 11:12:54.000000000 -0500
+@@ -25,7 +25,11 @@
+ #include <getopt.h>
+ 
+ #include <mtd/mtd-user.h>
++#ifdef __CYGWIN__
++#include <asm/types.h>
++#else
+ #include <linux/types.h>
++#endif
+ #include <mtd_swab.h>
+ 
+ /* next is an array of mapping for each corresponding sector */
+diff -Naur mtd-utils-1.4.2.orig/rfdformat.c mtd-utils-1.4.2/rfdformat.c
+--- mtd-utils-1.4.2.orig/rfdformat.c	2011-02-23 11:11:14.000000000 -0500
++++ mtd-utils-1.4.2/rfdformat.c	2011-02-23 11:12:54.000000000 -0500
+@@ -27,7 +27,11 @@
+ #include <getopt.h>
+ 
+ #include <mtd/mtd-user.h>
++#ifdef __CYGWIN__
++#include <asm/types.h>
++#else
+ #include <linux/types.h>
++#endif
+ 
+ void display_help(void)
+ {
+diff -Naur mtd-utils-1.4.2.orig/summary.h mtd-utils-1.4.2/summary.h
+--- mtd-utils-1.4.2.orig/summary.h	2011-02-23 11:11:14.000000000 -0500
++++ mtd-utils-1.4.2/summary.h	2011-02-23 11:12:54.000000000 -0500
+@@ -12,7 +12,9 @@
+ #ifndef JFFS2_SUMMARY_H
+ #define JFFS2_SUMMARY_H
+ 
++#ifndef __CYGWIN__
+ #include <linux/uio.h>
++#endif
+ #include <linux/jffs2.h>
+ 
+ #define DIRTY_SPACE(x) do { typeof(x) _x = (x); \

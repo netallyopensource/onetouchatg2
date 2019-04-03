@@ -1,0 +1,1965 @@
+diff -Naur glibc-2.11.orig/ChangeLog glibc-2.11/ChangeLog
+--- glibc-2.11.orig/ChangeLog	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/ChangeLog	2009-12-08 15:10:20.000000000 -0500
+@@ -1,3 +1,161 @@
++2009-11-24  Ulrich Drepper  <drepper@redhat.com>
++
++	* sysdeps/unix/grantpt.c (grantpt): Use CLOSE_ALL_FDS is available
++	before the exec.
++	* sysdeps/unix/sysv/linux/grantpt.c: New file.
++	* login/programs/pt_chown.c (main): Don't print message on errors
++	when doing real work.
++
++	* csu/elf-init.c (__libc_csu_irel): New function.  Code to perform
++	irel relocations split out from...
++	(__libc_csu_init): ...here.
++	* csu/libc-start.c [!SHARED]: Call __libc_csu_irel early.
++
++2009-11-22  Ulrich Drepper  <drepper@redhat.com>
++
++	* sunrpc/create_xid.c (_create_xid): Reinitialize state after fork.
++
++2009-11-18  H.J. Lu  <hongjiu.lu@intel.com>
++
++	[BZ #10162]
++	* sysdeps/ia64/memchr.S: Don't use a simple loop on data shorter
++	than software pipeline.  Properly recover from shorter read.
++
++2009-11-16  Jakub Jelinek  <jakub@redhat.com>
++
++	* sysdeps/unix/sysv/linux/sync_file_range.c (sync_file_range):
++	Implement using sync_file_range2 syscall if __NR_sync_file_range2
++	is defined.
++	* sysdeps/unix/sysv/linux/powerpc/powerpc64/sync_file_range.c: New
++	file.
++
++2009-11-19  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #10958]
++	* libio/libio.h (_IO_getwc_unlocked): Check for _wide_data being
++	initialized before using it.
++	(_IO_putwc_unlocked): Likewise.
++
++	[BZ #10918]
++	* sysdeps/unix/sysv/linux/bits/sched.h (__CPU_ISSET_S): Use __const
++	in cast to not throw away const-ness of parameters.
++	(__CPU_EQUAL_S): Likewise.
++	(__CPU_OP_S): Likewise.
++
++2009-11-17  Paolo Bonzini  <bonzini@gnu.org>
++
++	* posix/bug-regex30.c: New file.
++	* posix/Makefile: Add rules to build and run bug-regex30.
++	* posix/regcomp.c (re_compile_fastmap_iter): Add all multibyte
++	character lead bytes when there is a range in a COMPLEX_BRACKET.
++	Reported by Oleg Bylatov.
++
++2009-11-17  Ulrich Drepper  <drepper@redhat.com>
++
++	[BZ #10969]
++	* locale/duplocale.c (__duplocale): Handle LC_GLOBAL_LOCALE special.
++	* locale/tst-duplocale.c: New file.
++	* locale/Makefile (tests): Add tst-duplocale.
++
++	[BZ #10968]
++	* locale/langinfo.h (_NL_LOCALE_NAME): Correct definition.
++	Patch by Bruno Haible <bruno@clisp.org>.
++	* locale/tst-locname.c: New file.
++	* locale/Makefile (tests): Add tst-locname.
++
++	[BZ #10972]
++	* sysdeps/unix/sysv/linux/powerpc/bits/mman.h: Add new MADV_*
++	constants from recent kernels.
++	* sysdeps/unix/sysv/linux/i386/bits/mman.h: Likewise.
++	* sysdeps/unix/sysv/linux/x86_64/bits/mman.h: Likewise.
++	* sysdeps/unix/sysv/linux/s390/bits/mman.h: Likewise.
++	* sysdeps/unix/sysv/linux/sparc/bits/mman.h: Likewise.
++	* sysdeps/unix/sysv/linux/sh/bits/mman.h: Likewise.
++	* sysdeps/unix/sysv/linux/ia64/bits/mman.h: Likewise.
++
++2009-11-09  Mike Frysinger  <vapier@gentoo.org>
++
++	* sysdeps/unix/sysv/linux/i386/fallocate.c: Include errno.h.
++	(fallocate): Return ENOSYS if __NR_fallocate is not defined.
++	* sysdeps/unix/sysv/linux/i386/fallocate64.c: Likewise.
++
++2009-11-06  Mike Frysinger  <vapier@gentoo.org>
++
++	* posix/bug-regex29.c: Include stdio.h.
++
++2009-11-14  Ulrich Drepper  <drepper@redhat.com>
++
++	* sysdeps/unix/sysv/linux/sh/bits/fcntl.h: Update F_SETOWN_EX and
++	F_GETOWN_EX definitions according to corrected kernel definitions.
++	* sysdeps/unix/sysv/linux/powerpc/bits/fcntl.h: Likewise.
++	* sysdeps/unix/sysv/linux/x86_64/bits/fcntl.h: Likewise.
++	* sysdeps/unix/sysv/linux/sparc/bits/fcntl.h: Likewise.
++	* sysdeps/unix/sysv/linux/ia64/bits/fcntl.h: Likewise.
++	* sysdeps/unix/sysv/linux/i386/bits/fcntl.h: Likewise.
++	* sysdeps/unix/sysv/linux/s390/bits/fcntl.h: Likewise.
++
++2009-11-10  Andreas Schwab  <schwab@redhat.com>
++
++	* resolv/mapv4v6hostent.h (map_v4v6_hostent): Return non-zero if
++	out of buffer space.
++	* resolv/nss_dns/dns-host.c (getanswer_r): Check for
++	map_v4v6_hostent running out of space.
++
++2009-11-10  Ulrich Drepper  <drepper@redhat.com>
++
++	* string/bits/string3.h (memset): If the second parameter is constant
++	and zero there is likely no transposition.
++	Patch by Caolan McNamara <caolanm@redhat.com.
++
++2009-11-04  Philippe De Muyter  <phdm@macqel.be>
++
++	* sysdeps/powerpc/fpu/e_sqrt.c: Fix spelling of (Newton-)Raphson.
++	* sysdeps/powerpc/fpu/e_sqrtf.c: Likewise.
++
++2009-10-30  Holger Hans Peter Freyther  <zecke@selfish.org>
++
++	* malloc/memusagestat.c (main): Fix spelling in an error message.
++
++2009-11-01  H.J. Lu  <hongjiu.lu@intel.com>
++
++	* elf/dl-sym.c (do_sym): Properly handle STT_GNU_IFUNC symbols.
++	* elf/ifuncmain3.c (main): Test dlopen STT_GNU_IFUNC symbol.
++
++2009-11-03  Andreas Schwab  <schwab@redhat.com>
++
++	* sysdeps/unix/sysv/linux/powerpc/powerpc32/syscalls.list: Add
++	readahead.
++
++2009-11-03  Jakub Jelinek  <jakub@redhat.com>
++
++	* sysdeps/powerpc/powerpc64/dl-machine.h (resolve_ifunc): Don't
++	relocate opd entry when resolving prelink conflicts.
++
++2009-11-04  Jakub Jelinek  <jakub@redhat.com>
++
++	* misc/sys/uio.h (preadv, pwritev): Fix type of last argument
++	when -D_FILE_OFFSET_BITS=64.
++
++	* sysdeps/unix/sysv/linux/ia64/bits/fcntl.h (fallocate): Fix types
++	of last two arguments when -D_FILE_OFFSET_BITS=64.
++	* sysdeps/unix/sysv/linux/i386/bits/fcntl.h (fallocate): Likewise.
++	* sysdeps/unix/sysv/linux/s390/bits/fcntl.h (fallocate): Likewise.
++	* sysdeps/unix/sysv/linux/powerpc/bits/fcntl.h (fallocate): Likewise.
++	* sysdeps/unix/sysv/linux/x86_64/bits/fcntl.h (fallocate): Likewise.
++	* sysdeps/unix/sysv/linux/sparc/bits/fcntl.h (fallocate): Likewise.
++	* sysdeps/unix/sysv/linux/sh/bits/fcntl.h (fallocate): Likewise.
++
++2009-11-03  Andreas Schwab  <schwab@linux-m68k.org>
++
++	[BZ #4457]
++	* sysdeps/generic/libgcc_s.h: New file.
++	* sysdeps/generic/framestate.c: Include it and use LIBGCC_S_SO.
++
++2009-11-01  Ulrich Drepper  <drepper@redhat.com>
++
++	* malloc/hooks.c (free_check): Restore locking and call _int_free
++	appropriately.
++
+ 2009-10-30  Ulrich Drepper  <drepper@redhat.com>
+ 
+ 	* version.h (VERSION): Bump for 2.11 release.
+diff -Naur glibc-2.11.orig/csu/elf-init.c glibc-2.11/csu/elf-init.c
+--- glibc-2.11.orig/csu/elf-init.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/csu/elf-init.c	2009-12-08 15:10:20.000000000 -0500
+@@ -72,15 +72,14 @@
+ /* These functions are passed to __libc_start_main by the startup code.
+    These get statically linked into each program.  For dynamically linked
+    programs, this module will come from libc_nonshared.a and differs from
+-   the libc.a module in that it doesn't call the preinit array.  */
++   the libc.a module in that it doesn't call the preinit array and performs
++   explicit IREL{,A} relocations.  */
+ 
+-void
+-__libc_csu_init (int argc, char **argv, char **envp)
+-{
+-  /* For dynamically linked executables the preinit array is executed by
+-     the dynamic linker (before initializing any shared object.  */
+ 
+ #ifndef LIBC_NONSHARED
++void
++__libc_csu_irel (void)
++{
+ # ifdef USE_MULTIARCH
+ #  ifdef ELF_MACHINE_IRELA
+   {
+@@ -98,7 +97,17 @@
+   }
+ #  endif
+ # endif
++}
++#endif
+ 
++
++void
++__libc_csu_init (int argc, char **argv, char **envp)
++{
++  /* For dynamically linked executables the preinit array is executed by
++     the dynamic linker (before initializing any shared object.  */
++
++#ifndef LIBC_NONSHARED
+   /* For static executables, preinit happens right before init.  */
+   {
+     const size_t size = __preinit_array_end - __preinit_array_start;
+diff -Naur glibc-2.11.orig/csu/libc-start.c glibc-2.11/csu/libc-start.c
+--- glibc-2.11.orig/csu/libc-start.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/csu/libc-start.c	2009-12-08 15:10:20.000000000 -0500
+@@ -24,6 +24,9 @@
+ #include <bp-sym.h>
+ 
+ extern void __libc_init_first (int argc, char **argv, char **envp);
++#ifndef SHARED
++extern void __libc_csu_irel (void);
++#endif
+ 
+ extern int __libc_multiple_libcs;
+ 
+@@ -134,6 +137,9 @@
+     }
+ # endif
+ 
++  /* Performe IREL{,A} relocations.  */
++  __libc_csu_irel ();
++
+   /* Initialize the thread library at least a bit since the libgcc
+      functions are using thread functions if these are available and
+      we need to setup errno.  */
+diff -Naur glibc-2.11.orig/elf/dl-sym.c glibc-2.11/elf/dl-sym.c
+--- glibc-2.11.orig/elf/dl-sym.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/elf/dl-sym.c	2009-12-08 15:10:20.000000000 -0500
+@@ -193,8 +193,13 @@
+ 
+       /* Resolve indirect function address.  */
+       if (__builtin_expect (ELFW(ST_TYPE) (ref->st_info) == STT_GNU_IFUNC, 0))
+-	value
+-	  = ((DL_FIXUP_VALUE_TYPE (*) (void)) DL_FIXUP_VALUE_ADDR (value)) ();
++	{
++	  DL_FIXUP_VALUE_TYPE fixup
++	    = DL_FIXUP_MAKE_VALUE (result, (ElfW(Addr)) value);
++	  fixup =
++	    ((DL_FIXUP_VALUE_TYPE (*) (void)) DL_FIXUP_VALUE_ADDR (fixup)) ();
++	  value = (void *) DL_FIXUP_VALUE_CODE_ADDR (fixup);
++	}
+ 
+ #ifdef SHARED
+       /* Auditing checkpoint: we have a new binding.  Provide the
+diff -Naur glibc-2.11.orig/elf/ifuncmain3.c glibc-2.11/elf/ifuncmain3.c
+--- glibc-2.11.orig/elf/ifuncmain3.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/elf/ifuncmain3.c	2009-12-08 15:10:20.000000000 -0500
+@@ -46,6 +46,15 @@
+       return 1;
+     }
+ 
++  p = dlsym (h, "foo");
++  if (p == NULL)
++    {
++      printf ("symbol not found: %s\n", dlerror ());
++      return 1;
++    }
++  if ((*p) () != -1)
++    abort ();
++
+   f = dlsym (h, "get_foo_p");
+   if (f == NULL)
+     {
+diff -Naur glibc-2.11.orig/libio/libio.h glibc-2.11/libio/libio.h
+--- glibc-2.11.orig/libio/libio.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/libio/libio.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1991-1995,1997-2006,2007 Free Software Foundation, Inc.
++/* Copyright (C) 1991-1995,1997-2006,2007,2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Written by Per Bothner <bothner@cygnus.com>.
+ 
+@@ -442,13 +442,15 @@
+ 
+ #if defined _LIBC || defined _GLIBCPP_USE_WCHAR_T
+ # define _IO_getwc_unlocked(_fp) \
+-  (_IO_BE ((_fp)->_wide_data->_IO_read_ptr >= (_fp)->_wide_data->_IO_read_end,\
+-	   0) \
++  (_IO_BE ((_fp)->_wide_data == NULL					\
++	   || ((_fp)->_wide_data->_IO_read_ptr				\
++	       >= (_fp)->_wide_data->_IO_read_end), 0)			\
+    ? __wuflow (_fp) : (_IO_wint_t) *(_fp)->_wide_data->_IO_read_ptr++)
+ # define _IO_putwc_unlocked(_wch, _fp) \
+-  (_IO_BE ((_fp)->_wide_data->_IO_write_ptr \
+-	   >= (_fp)->_wide_data->_IO_write_end, 0) \
+-   ? __woverflow (_fp, _wch) \
++  (_IO_BE ((_fp)->_wide_data == NULL					\
++	   || ((_fp)->_wide_data->_IO_write_ptr				\
++	       >= (_fp)->_wide_data->_IO_write_end), 0)			\
++   ? __woverflow (_fp, _wch)						\
+    : (_IO_wint_t) (*(_fp)->_wide_data->_IO_write_ptr++ = (_wch)))
+ #endif
+ 
+diff -Naur glibc-2.11.orig/locale/duplocale.c glibc-2.11/locale/duplocale.c
+--- glibc-2.11.orig/locale/duplocale.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/locale/duplocale.c	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,5 @@
+ /* Duplicate handle for selection of locales.
+-   Copyright (C) 1997,2000,2001,2002,2005,2008 Free Software Foundation, Inc.
++   Copyright (C) 1997,2000-2002,2005,2008,2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+ 
+@@ -37,6 +37,10 @@
+   if (dataset == _nl_C_locobj_ptr)
+     return dataset;
+ 
++  /* Handle a special value.  */
++  if (dataset == LC_GLOBAL_LOCALE)
++    dataset = &_nl_global_locale;
++
+   __locale_t result;
+   int cnt;
+   size_t names_len = 0;
+diff -Naur glibc-2.11.orig/locale/langinfo.h glibc-2.11/locale/langinfo.h
+--- glibc-2.11.orig/locale/langinfo.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/locale/langinfo.h	2009-12-08 15:10:20.000000000 -0500
+@@ -568,7 +568,8 @@
+ 
+ /* This macro produces an item you can pass to `nl_langinfo' or
+    `nl_langinfo_l' to get the name of the locale in use for CATEGORY.  */
+-#define _NL_LOCALE_NAME(category)	_NL_ITEM ((category), -1)
++#define _NL_LOCALE_NAME(category)	_NL_ITEM ((category),		      \
++						  _NL_ITEM_INDEX (-1))
+ #ifdef __USE_GNU
+ # define NL_LOCALE_NAME(category)	_NL_LOCALE_NAME (category)
+ #endif
+diff -Naur glibc-2.11.orig/locale/Makefile glibc-2.11/locale/Makefile
+--- glibc-2.11.orig/locale/Makefile	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/locale/Makefile	2009-12-08 15:10:20.000000000 -0500
+@@ -1,4 +1,4 @@
+-# Copyright (C) 1991,1992,1995-2003,2005 Free Software Foundation, Inc.
++# Copyright (C) 1991,1992,1995-2003,2005,2009 Free Software Foundation, Inc.
+ # This file is part of the GNU C Library.
+ 
+ # The GNU C Library is free software; you can redistribute it and/or
+@@ -38,7 +38,7 @@
+ routines	= setlocale findlocale loadlocale loadarchive \
+ 		  localeconv nl_langinfo nl_langinfo_l mb_cur_max \
+ 		  newlocale duplocale freelocale uselocale
+-tests		= tst-C-locale
++tests		= tst-C-locale tst-locname tst-duplocale
+ categories	= ctype messages monetary numeric time paper name \
+ 		  address telephone measurement identification collate
+ aux		= $(categories:%=lc-%) $(categories:%=C-%) SYS_libc C_name \
+@@ -104,7 +104,7 @@
+ 
+ # This makes sure -DNOT_IN_libc is passed for all these modules.
+ cpp-srcs-left := $(addsuffix .c,$(localedef-modules) $(localedef-aux) \
+-			        $(locale-modules) $(lib-modules))
++				$(locale-modules) $(lib-modules))
+ lib := nonlib
+ include $(patsubst %,$(..)cppflags-iterator.mk,$(cpp-srcs-left))
+ 
+diff -Naur glibc-2.11.orig/locale/tst-duplocale.c glibc-2.11/locale/tst-duplocale.c
+--- glibc-2.11.orig/locale/tst-duplocale.c	1969-12-31 19:00:00.000000000 -0500
++++ glibc-2.11/locale/tst-duplocale.c	2009-12-08 15:10:20.000000000 -0500
+@@ -0,0 +1,14 @@
++#include <locale.h>
++#include <stdio.h>
++
++static int
++do_test (void)
++{
++  locale_t d = duplocale (LC_GLOBAL_LOCALE);
++  if (d != (locale_t) 0)
++    freelocale (d);
++  return 0;
++}
++
++#define TEST_FUNCTION do_test ()
++#include "../test-skeleton.c"
+diff -Naur glibc-2.11.orig/locale/tst-locname.c glibc-2.11/locale/tst-locname.c
+--- glibc-2.11.orig/locale/tst-locname.c	1969-12-31 19:00:00.000000000 -0500
++++ glibc-2.11/locale/tst-locname.c	2009-12-08 15:10:20.000000000 -0500
+@@ -0,0 +1,20 @@
++#include <langinfo.h>
++#include <locale.h>
++#include <stdio.h>
++#include <string.h>
++
++static int
++do_test (void)
++{
++  const char *s = nl_langinfo (_NL_LOCALE_NAME (LC_CTYPE));
++  if (s == NULL || strcmp (s, "C") != 0)
++    {
++      printf ("incorrect locale name returned: %s, expected \"C\"\n", s);
++      return 1;
++    }
++
++  return 0;
++}
++
++#define TEST_FUNCTION do_test ()
++#include "../test-skeleton.c"
+diff -Naur glibc-2.11.orig/localedata/ChangeLog glibc-2.11/localedata/ChangeLog
+--- glibc-2.11.orig/localedata/ChangeLog	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/localedata/ChangeLog	2009-12-08 15:10:20.000000000 -0500
+@@ -1,3 +1,15 @@
++2009-11-24  Ulrich Drepper  <drepper@redhat.com>
++
++	* locales/hsb_DE: Define week, first_weekday, and first_workday.
++
++2009-11-23  Ulrich Drepper  <drepper@redhat.com>
++
++	* locales/en_DK: Define week, first_weekday, and first_workday.
++
++2009-11-22  Ulrich Drepper  <drepper@redhat.com>
++
++	* locales/nl_NL: Define week, first_weekday, and first_workday.
++
+ 2009-10-30  Ulrich Drepper  <drepper@redhat.com>
+ 
+ 	* locales/it_CH: Fix typos in last change.
+diff -Naur glibc-2.11.orig/localedata/locales/en_DK glibc-2.11/localedata/locales/en_DK
+--- glibc-2.11.orig/localedata/locales/en_DK	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/localedata/locales/en_DK	2009-12-08 15:10:20.000000000 -0500
+@@ -85,34 +85,34 @@
+ 
+ LC_TIME
+ abday    "<U0053><U0075><U006E>";"<U004D><U006F><U006E>";/
+-         "<U0054><U0075><U0065>";"<U0057><U0065><U0064>";/
+-         "<U0054><U0068><U0075>";"<U0046><U0072><U0069>";/
+-         "<U0053><U0061><U0074>"
++	 "<U0054><U0075><U0065>";"<U0057><U0065><U0064>";/
++	 "<U0054><U0068><U0075>";"<U0046><U0072><U0069>";/
++	 "<U0053><U0061><U0074>"
+ day      "<U0053><U0075><U006E><U0064><U0061><U0079>";/
+-         "<U004D><U006F><U006E><U0064><U0061><U0079>";/
+-         "<U0054><U0075><U0065><U0073><U0064><U0061><U0079>";/
+-         "<U0057><U0065><U0064><U006E><U0065><U0073><U0064><U0061><U0079>";/
+-         "<U0054><U0068><U0075><U0072><U0073><U0064><U0061><U0079>";/
+-         "<U0046><U0072><U0069><U0064><U0061><U0079>";/
+-         "<U0053><U0061><U0074><U0075><U0072><U0064><U0061><U0079>"
++	 "<U004D><U006F><U006E><U0064><U0061><U0079>";/
++	 "<U0054><U0075><U0065><U0073><U0064><U0061><U0079>";/
++	 "<U0057><U0065><U0064><U006E><U0065><U0073><U0064><U0061><U0079>";/
++	 "<U0054><U0068><U0075><U0072><U0073><U0064><U0061><U0079>";/
++	 "<U0046><U0072><U0069><U0064><U0061><U0079>";/
++	 "<U0053><U0061><U0074><U0075><U0072><U0064><U0061><U0079>"
+ abmon    "<U004A><U0061><U006E>";"<U0046><U0065><U0062>";/
+-         "<U004D><U0061><U0072>";"<U0041><U0070><U0072>";/
+-         "<U004D><U0061><U0079>";"<U004A><U0075><U006E>";/
+-         "<U004A><U0075><U006C>";"<U0041><U0075><U0067>";/
+-         "<U0053><U0065><U0070>";"<U004F><U0063><U0074>";/
+-         "<U004E><U006F><U0076>";"<U0044><U0065><U0063>"
++	 "<U004D><U0061><U0072>";"<U0041><U0070><U0072>";/
++	 "<U004D><U0061><U0079>";"<U004A><U0075><U006E>";/
++	 "<U004A><U0075><U006C>";"<U0041><U0075><U0067>";/
++	 "<U0053><U0065><U0070>";"<U004F><U0063><U0074>";/
++	 "<U004E><U006F><U0076>";"<U0044><U0065><U0063>"
+ mon      "<U004A><U0061><U006E><U0075><U0061><U0072><U0079>";/
+-         "<U0046><U0065><U0062><U0072><U0075><U0061><U0072><U0079>";/
+-         "<U004D><U0061><U0072><U0063><U0068>";/
+-         "<U0041><U0070><U0072><U0069><U006C>";/
+-         "<U004D><U0061><U0079>";/
+-         "<U004A><U0075><U006E><U0065>";/
+-         "<U004A><U0075><U006C><U0079>";/
+-         "<U0041><U0075><U0067><U0075><U0073><U0074>";/
+-         "<U0053><U0065><U0070><U0074><U0065><U006D><U0062><U0065><U0072>";/
+-         "<U004F><U0063><U0074><U006F><U0062><U0065><U0072>";/
+-         "<U004E><U006F><U0076><U0065><U006D><U0062><U0065><U0072>";/
+-         "<U0044><U0065><U0063><U0065><U006D><U0062><U0065><U0072>"
++	 "<U0046><U0065><U0062><U0072><U0075><U0061><U0072><U0079>";/
++	 "<U004D><U0061><U0072><U0063><U0068>";/
++	 "<U0041><U0070><U0072><U0069><U006C>";/
++	 "<U004D><U0061><U0079>";/
++	 "<U004A><U0075><U006E><U0065>";/
++	 "<U004A><U0075><U006C><U0079>";/
++	 "<U0041><U0075><U0067><U0075><U0073><U0074>";/
++	 "<U0053><U0065><U0070><U0074><U0065><U006D><U0062><U0065><U0072>";/
++	 "<U004F><U0063><U0074><U006F><U0062><U0065><U0072>";/
++	 "<U004E><U006F><U0076><U0065><U006D><U0062><U0065><U0072>";/
++	 "<U0044><U0065><U0063><U0065><U006D><U0062><U0065><U0072>"
+ % date formats following ISO 8601-1988
+ d_t_fmt  "<U0025><U0059><U002D><U0025><U006D><U002D><U0025><U0064><U0054><U0025><U0054><U0020><U0025><U005A>"
+ d_fmt    "<U0025><U0059><U002D><U0025><U006D><U002D><U0025><U0064>"
+@@ -122,6 +122,9 @@
+ date_fmt	"<U0025><U0061><U0020><U0025><U0062><U0020><U0025><U0065>/
+ <U0020><U0025><U0048><U003A><U0025><U004D><U003A><U0025><U0053><U0020>/
+ <U0025><U005A><U0020><U0025><U0059>"
++week    7;19971130;4
++first_weekday 2
++first_workday 2
+ END LC_TIME
+ 
+ LC_MESSAGES
+diff -Naur glibc-2.11.orig/localedata/locales/hsb_DE glibc-2.11/localedata/locales/hsb_DE
+--- glibc-2.11.orig/localedata/locales/hsb_DE	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/localedata/locales/hsb_DE	2009-12-08 15:10:20.000000000 -0500
+@@ -197,7 +197,7 @@
+ % letter;accent;case;specials
+ 
+ order_start forward;backward/
+-            ;forward;position
++	    ;forward;position
+ 
+ % <CAPITAL> or <SMALL> letters first:
+ 
+@@ -2136,16 +2136,16 @@
+ 
+ LC_TIME
+ abday   "<U004E><U006A>";"<U0050><U00F3>";/
+-        "<U0057><U0075>";"<U0053><U0072>";/
+-        "<U0160><U0074>";"<U0050><U006A>";/
+-        "<U0053><U006F>"
++	"<U0057><U0075>";"<U0053><U0072>";/
++	"<U0160><U0074>";"<U0050><U006A>";/
++	"<U0053><U006F>"
+ day     "<U004E><U006A><U0065><U0064><U017A><U0065><U006C><U0061>";/
+-        "<U0050><U00F3><U006E><U0064><U017A><U0065><U006C><U0061>";/
+-        "<U0057><U0075><U0074><U006F><U0072><U0061>";/
+-        "<U0053><U0072><U006A><U0065><U0064><U0061>";/
+-        "<U0160><U0074><U0076><U00F3><U0072><U0074><U006B>";/
+-        "<U0050><U006A><U0061><U0074><U006B>";/
+-        "<U0053><U006F><U0062><U006F><U0074><U0061>"
++	"<U0050><U00F3><U006E><U0064><U017A><U0065><U006C><U0061>";/
++	"<U0057><U0075><U0074><U006F><U0072><U0061>";/
++	"<U0053><U0072><U006A><U0065><U0064><U0061>";/
++	"<U0160><U0074><U0076><U00F3><U0072><U0074><U006B>";/
++	"<U0050><U006A><U0061><U0074><U006B>";/
++	"<U0053><U006F><U0062><U006F><U0074><U0061>"
+ abmon	"<U004A><U0061><U006E>";"<U0046><U0065><U0062>";/
+ 	"<U004D><U011B><U0072>";"<U0041><U0070><U0072>";/
+ 	"<U004D><U0065><U006A>";"<U004A><U0075><U006E>";/
+@@ -2172,6 +2172,10 @@
+ date_fmt       "<U0025><U0061><U0020><U0025><U0062><U0020><U0025><U0065>/
+ <U0020><U0025><U0048><U003A><U0025><U004D><U003A><U0025><U0053><U0020>/
+ <U0025><U005A><U0020><U0025><U0059>"
++
++week    7;19971130;4
++first_weekday 2
++first_workday 2
+ END LC_TIME
+ 
+ LC_PAPER
+diff -Naur glibc-2.11.orig/localedata/locales/nl_NL glibc-2.11/localedata/locales/nl_NL
+--- glibc-2.11.orig/localedata/locales/nl_NL	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/localedata/locales/nl_NL	2009-12-08 15:10:20.000000000 -0500
+@@ -88,33 +88,33 @@
+ 
+ LC_TIME
+ abday   "<U007A><U006F>";"<U006D><U0061>";"<U0064><U0069>";/
+-        "<U0077><U006F>";"<U0064><U006F>";"<U0076><U0072>";/
+-        "<U007A><U0061>"
++	"<U0077><U006F>";"<U0064><U006F>";"<U0076><U0072>";/
++	"<U007A><U0061>"
+ day     "<U007A><U006F><U006E><U0064><U0061><U0067>";/
+-        "<U006D><U0061><U0061><U006E><U0064><U0061><U0067>";/
+-        "<U0064><U0069><U006E><U0073><U0064><U0061><U0067>";/
+-        "<U0077><U006F><U0065><U006E><U0073><U0064><U0061><U0067>";/
+-        "<U0064><U006F><U006E><U0064><U0065><U0072><U0064><U0061><U0067>";/
+-        "<U0076><U0072><U0069><U006A><U0064><U0061><U0067>";/
+-        "<U007A><U0061><U0074><U0065><U0072><U0064><U0061><U0067>"
++	"<U006D><U0061><U0061><U006E><U0064><U0061><U0067>";/
++	"<U0064><U0069><U006E><U0073><U0064><U0061><U0067>";/
++	"<U0077><U006F><U0065><U006E><U0073><U0064><U0061><U0067>";/
++	"<U0064><U006F><U006E><U0064><U0065><U0072><U0064><U0061><U0067>";/
++	"<U0076><U0072><U0069><U006A><U0064><U0061><U0067>";/
++	"<U007A><U0061><U0074><U0065><U0072><U0064><U0061><U0067>"
+ abmon   "<U006A><U0061><U006E>";"<U0066><U0065><U0062>";/
+-        "<U006D><U0072><U0074>";"<U0061><U0070><U0072>";/
+-        "<U006D><U0065><U0069>";"<U006A><U0075><U006E>";/
+-        "<U006A><U0075><U006C>";"<U0061><U0075><U0067>";/
+-        "<U0073><U0065><U0070>";"<U006F><U006B><U0074>";/
+-        "<U006E><U006F><U0076>";"<U0064><U0065><U0063>"
++	"<U006D><U0072><U0074>";"<U0061><U0070><U0072>";/
++	"<U006D><U0065><U0069>";"<U006A><U0075><U006E>";/
++	"<U006A><U0075><U006C>";"<U0061><U0075><U0067>";/
++	"<U0073><U0065><U0070>";"<U006F><U006B><U0074>";/
++	"<U006E><U006F><U0076>";"<U0064><U0065><U0063>"
+ mon     "<U006A><U0061><U006E><U0075><U0061><U0072><U0069>";/
+-        "<U0066><U0065><U0062><U0072><U0075><U0061><U0072><U0069>";/
+-        "<U006D><U0061><U0061><U0072><U0074>";/
+-        "<U0061><U0070><U0072><U0069><U006C>";/
+-        "<U006D><U0065><U0069>";/
+-        "<U006A><U0075><U006E><U0069>";/
+-        "<U006A><U0075><U006C><U0069>";/
+-        "<U0061><U0075><U0067><U0075><U0073><U0074><U0075><U0073>";/
+-        "<U0073><U0065><U0070><U0074><U0065><U006D><U0062><U0065><U0072>";/
+-        "<U006F><U006B><U0074><U006F><U0062><U0065><U0072>";/
+-        "<U006E><U006F><U0076><U0065><U006D><U0062><U0065><U0072>";/
+-        "<U0064><U0065><U0063><U0065><U006D><U0062><U0065><U0072>"
++	"<U0066><U0065><U0062><U0072><U0075><U0061><U0072><U0069>";/
++	"<U006D><U0061><U0061><U0072><U0074>";/
++	"<U0061><U0070><U0072><U0069><U006C>";/
++	"<U006D><U0065><U0069>";/
++	"<U006A><U0075><U006E><U0069>";/
++	"<U006A><U0075><U006C><U0069>";/
++	"<U0061><U0075><U0067><U0075><U0073><U0074><U0075><U0073>";/
++	"<U0073><U0065><U0070><U0074><U0065><U006D><U0062><U0065><U0072>";/
++	"<U006F><U006B><U0074><U006F><U0062><U0065><U0072>";/
++	"<U006E><U006F><U0076><U0065><U006D><U0062><U0065><U0072>";/
++	"<U0064><U0065><U0063><U0065><U006D><U0062><U0065><U0072>"
+ d_t_fmt "<U0025><U0061><U0020><U0025><U0064><U0020><U0025><U0062><U0020><U0025><U0059><U0020><U0025><U0054><U0020><U0025><U005A>"
+ d_fmt   "<U0025><U0064><U002D><U0025><U006D><U002D><U0025><U0079>"
+ t_fmt   "<U0025><U0054>"
+@@ -123,6 +123,10 @@
+ date_fmt       "<U0025><U0061><U0020><U0025><U0062><U0020><U0025><U0065>/
+ <U0020><U0025><U0048><U003A><U0025><U004D><U003A><U0025><U0053><U0020>/
+ <U0025><U005A><U0020><U0025><U0059>"
++
++week    7;19971130;4
++first_weekday 2
++first_workday 2
+ END LC_TIME
+ 
+ LC_PAPER
+diff -Naur glibc-2.11.orig/login/programs/pt_chown.c glibc-2.11/login/programs/pt_chown.c
+--- glibc-2.11.orig/login/programs/pt_chown.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/login/programs/pt_chown.c	2009-12-08 15:10:20.000000000 -0500
+@@ -154,8 +154,7 @@
+ # define ncap_list (sizeof (cap_list) / sizeof (cap_list[0]))
+ 	  cap_t caps = cap_init ();
+ 	  if (caps == NULL)
+-	    error (FAIL_ENOMEM, errno,
+-		   _("Failed to initialize drop of capabilities"));
++	    return FAIL_ENOMEM;
+ 
+ 	  /* There is no reason why these should not work.  */
+ 	  cap_set_flag (caps, CAP_PERMITTED, ncap_list, cap_list, CAP_SET);
+@@ -166,7 +165,7 @@
+ 	  cap_free (caps);
+ 
+ 	  if (__builtin_expect (res != 0, 0))
+-	    error (FAIL_EXEC, errno, _("cap_set_proc failed"));
++	    return FAIL_EXEC;
+ 	}
+ #endif
+ 
+diff -Naur glibc-2.11.orig/malloc/hooks.c glibc-2.11/malloc/hooks.c
+--- glibc-2.11.orig/malloc/hooks.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/malloc/hooks.c	2009-12-08 15:10:20.000000000 -0500
+@@ -162,8 +162,8 @@
+ 	 ((char*)p + sz)>=(mp_.sbrk_base+main_arena.system_mem) )) ||
+        sz<MINSIZE || sz&MALLOC_ALIGN_MASK || !inuse(p) ||
+        ( !prev_inuse(p) && (p->prev_size&MALLOC_ALIGN_MASK ||
+-                            (contig && (char*)prev_chunk(p)<mp_.sbrk_base) ||
+-                            next_chunk(prev_chunk(p))!=p) ))
++			    (contig && (char*)prev_chunk(p)<mp_.sbrk_base) ||
++			    next_chunk(prev_chunk(p))!=p) ))
+       return NULL;
+     magic = MAGICBYTE(p);
+     for(sz += SIZE_SZ-1; (c = ((unsigned char*)p)[sz]) != magic; sz -= c) {
+@@ -177,9 +177,9 @@
+        first. */
+     offset = (unsigned long)mem & page_mask;
+     if((offset!=MALLOC_ALIGNMENT && offset!=0 && offset!=0x10 &&
+-        offset!=0x20 && offset!=0x40 && offset!=0x80 && offset!=0x100 &&
+-        offset!=0x200 && offset!=0x400 && offset!=0x800 && offset!=0x1000 &&
+-        offset<0x2000) ||
++	offset!=0x20 && offset!=0x40 && offset!=0x80 && offset!=0x100 &&
++	offset!=0x200 && offset!=0x400 && offset!=0x800 && offset!=0x1000 &&
++	offset<0x2000) ||
+        !chunk_is_mmapped(p) || (p->size & PREV_INUSE) ||
+        ( (((unsigned long)p - p->prev_size) & page_mask) != 0 ) ||
+        ( (sz = chunksize(p)), ((p->prev_size + sz) & page_mask) != 0 ) )
+@@ -276,13 +276,17 @@
+   mchunkptr p;
+ 
+   if(!mem) return;
++  (void)mutex_lock(&main_arena.mutex);
+   p = mem2chunk_check(mem, NULL);
+   if(!p) {
++    (void)mutex_unlock(&main_arena.mutex);
++
+     malloc_printerr(check_action, "free(): invalid pointer", mem);
+     return;
+   }
+ #if HAVE_MMAP
+   if (chunk_is_mmapped(p)) {
++    (void)mutex_unlock(&main_arena.mutex);
+     munmap_chunk(p);
+     return;
+   }
+@@ -291,12 +295,11 @@
+   memset(mem, 0, chunksize(p) - (SIZE_SZ+1));
+ #endif
+ #ifdef ATOMIC_FASTBINS
+-  _int_free(&main_arena, p, 0);
++  _int_free(&main_arena, p, 1);
+ #else
+-  (void)mutex_lock(&main_arena.mutex);
+   _int_free(&main_arena, p);
+-  (void)mutex_unlock(&main_arena.mutex);
+ #endif
++  (void)mutex_unlock(&main_arena.mutex);
+ }
+ 
+ static Void_t*
+@@ -345,13 +348,13 @@
+       if(oldsize - SIZE_SZ >= nb)
+ 	newmem = oldmem; /* do nothing */
+       else {
+-        /* Must alloc, copy, free. */
+-        if (top_check() >= 0)
++	/* Must alloc, copy, free. */
++	if (top_check() >= 0)
+ 	  newmem = _int_malloc(&main_arena, bytes+1);
+-        if (newmem) {
+-          MALLOC_COPY(BOUNDED_N(newmem, bytes+1), oldmem, oldsize - 2*SIZE_SZ);
+-          munmap_chunk(oldp);
+-        }
++	if (newmem) {
++	  MALLOC_COPY(BOUNDED_N(newmem, bytes+1), oldmem, oldsize - 2*SIZE_SZ);
++	  munmap_chunk(oldp);
++	}
+       }
+     }
+   } else {
+@@ -367,7 +370,7 @@
+     nb = chunksize(newp);
+     if(oldp<newp || oldp>=chunk_at_offset(newp, nb)) {
+       memset((char*)oldmem + 2*sizeof(mbinptr), 0,
+-             oldsize - (2*sizeof(mbinptr)+2*SIZE_SZ+1));
++	     oldsize - (2*sizeof(mbinptr)+2*SIZE_SZ+1));
+     } else if(nb > oldsize+SIZE_SZ) {
+       memset((char*)BOUNDED_N(chunk2mem(newp), bytes) + oldsize,
+ 	     0, nb - (oldsize+SIZE_SZ));
+@@ -626,7 +629,7 @@
+ 	mark_bin(&main_arena, i);
+       } else {
+ 	/* Oops, index computation from chunksize must have changed.
+-           Link the whole list into unsorted_chunks.  */
++	   Link the whole list into unsorted_chunks.  */
+ 	first(b) = last(b) = b;
+ 	b = unsorted_chunks(&main_arena);
+ 	ms->av[2*i+2]->bk = b;
+@@ -667,7 +670,7 @@
+     /* Check whether it is safe to enable malloc checking, or whether
+        it is necessary to disable it.  */
+     if (ms->using_malloc_checking && !using_malloc_checking &&
+-        !disallow_malloc_check)
++	!disallow_malloc_check)
+       __malloc_check_init ();
+     else if (!ms->using_malloc_checking && using_malloc_checking) {
+       __malloc_hook = NULL;
+diff -Naur glibc-2.11.orig/malloc/memusagestat.c glibc-2.11/malloc/memusagestat.c
+--- glibc-2.11.orig/malloc/memusagestat.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/malloc/memusagestat.c	2009-12-08 15:10:20.000000000 -0500
+@@ -181,7 +181,7 @@
+       || st.st_size < 2 * sizeof (struct entry))
+     {
+       close (fd);
+-      error (EXIT_FAILURE, 0, "input file as incorrect size");
++      error (EXIT_FAILURE, 0, "input file has incorrect size");
+     }
+   /* Compute number of data entries.  */
+   total = st.st_size / sizeof (struct entry) - 2;
+diff -Naur glibc-2.11.orig/misc/sys/uio.h glibc-2.11/misc/sys/uio.h
+--- glibc-2.11.orig/misc/sys/uio.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/misc/sys/uio.h	2009-12-08 15:10:20.000000000 -0500
+@@ -80,10 +80,10 @@
+ # else
+ #  ifdef __REDIRECT
+ extern ssize_t __REDIRECT (preadv, (int __fd, __const struct iovec *__iovec,
+-				    int __count, __off_t __offset),
++				    int __count, __off64_t __offset),
+ 			   preadv64) __wur;
+ extern ssize_t __REDIRECT (pwritev, (int __fd, __const struct iovec *__iovec,
+-				     int __count, __off_t __offset),
++				     int __count, __off64_t __offset),
+ 			   pwritev64) __wur;
+ #  else
+ #   define preadv preadv64
+diff -Naur glibc-2.11.orig/nptl/ChangeLog glibc-2.11/nptl/ChangeLog
+--- glibc-2.11.orig/nptl/ChangeLog	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/nptl/ChangeLog	2009-12-08 15:10:20.000000000 -0500
+@@ -1,3 +1,15 @@
++2009-11-27  Andreas Schwab  <schwab@redhat.com>
++
++	* sysdeps/unix/sysv/linux/x86_64/cancellation.S: Reload
++	THREAD_SELF->cancelhandling after returning from futex call.
++
++2009-11-03  Andreas Schwab  <schwab@linux-m68k.org>
++
++	[BZ #4457]
++	* sysdeps/pthread/unwind-resume.c: Include <libgcc_s.h> and use
++	LIBGCC_S_SO.
++	* sysdeps/pthread/unwind-forcedunwind.c: Likewise.
++
+ 2009-10-30  Ulrich Drepper  <drepper@redhat.com>
+ 
+ 	* tst-sem11.c (main): Rewrite to avoid aliasing problems.
+diff -Naur glibc-2.11.orig/nptl/sysdeps/pthread/unwind-forcedunwind.c glibc-2.11/nptl/sysdeps/pthread/unwind-forcedunwind.c
+--- glibc-2.11.orig/nptl/sysdeps/pthread/unwind-forcedunwind.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/nptl/sysdeps/pthread/unwind-forcedunwind.c	2009-12-08 15:10:20.000000000 -0500
+@@ -22,6 +22,7 @@
+ #include <unwind.h>
+ #include <pthreadP.h>
+ #include <sysdep.h>
++#include <libgcc_s.h>
+ 
+ static void *libgcc_s_handle;
+ static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
+@@ -49,7 +50,7 @@
+       return;
+     }
+ 
+-  handle = __libc_dlopen ("libgcc_s.so.1");
++  handle = __libc_dlopen (LIBGCC_S_SO);
+ 
+   if (handle == NULL
+       || (resume = __libc_dlsym (handle, "_Unwind_Resume")) == NULL
+@@ -61,7 +62,7 @@
+       || ARCH_CANCEL_INIT (handle)
+ #endif
+       )
+-    __libc_fatal ("libgcc_s.so.1 must be installed for pthread_cancel to work\n");
++    __libc_fatal (LIBGCC_S_SO " must be installed for pthread_cancel to work\n");
+ 
+   PTR_MANGLE (resume);
+   libgcc_s_resume = resume;
+diff -Naur glibc-2.11.orig/nptl/sysdeps/pthread/unwind-resume.c glibc-2.11/nptl/sysdeps/pthread/unwind-resume.c
+--- glibc-2.11.orig/nptl/sysdeps/pthread/unwind-resume.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/nptl/sysdeps/pthread/unwind-resume.c	2009-12-08 15:10:20.000000000 -0500
+@@ -20,6 +20,7 @@
+ #include <dlfcn.h>
+ #include <stdio.h>
+ #include <unwind.h>
++#include <libgcc_s.h>
+ 
+ static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
+ static _Unwind_Reason_Code (*libgcc_s_personality)
+@@ -32,12 +33,12 @@
+   void *resume, *personality;
+   void *handle;
+ 
+-  handle = __libc_dlopen ("libgcc_s.so.1");
++  handle = __libc_dlopen (LIBGCC_S_SO);
+ 
+   if (handle == NULL
+       || (resume = __libc_dlsym (handle, "_Unwind_Resume")) == NULL
+       || (personality = __libc_dlsym (handle, "__gcc_personality_v0")) == NULL)
+-    __libc_fatal ("libgcc_s.so.1 must be installed for pthread_cancel to work\n");
++    __libc_fatal (LIBGCC_S_SO " must be installed for pthread_cancel to work\n");
+ 
+   libgcc_s_resume = resume;
+   libgcc_s_personality = personality;
+diff -Naur glibc-2.11.orig/nptl/sysdeps/unix/sysv/linux/x86_64/cancellation.S glibc-2.11/nptl/sysdeps/unix/sysv/linux/x86_64/cancellation.S
+--- glibc-2.11.orig/nptl/sysdeps/unix/sysv/linux/x86_64/cancellation.S	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/nptl/sysdeps/unix/sysv/linux/x86_64/cancellation.S	2009-12-08 15:10:20.000000000 -0500
+@@ -96,8 +96,8 @@
+ 	cmpxchgl %r11d, %fs:CANCELHANDLING
+ 	jnz	2b
+ 
+-3:	movl	%r11d, %eax
+-	andl	$(TCB_CANCELING_BITMASK|TCB_CANCELED_BITMASK), %eax
++	movl	%r11d, %eax
++3:	andl	$(TCB_CANCELING_BITMASK|TCB_CANCELED_BITMASK), %eax
+ 	cmpl	$TCB_CANCELING_BITMASK, %eax
+ 	je	4f
+ 1:	ret
+@@ -111,5 +111,6 @@
+ 	addq	$CANCELHANDLING, %rdi
+ 	LOAD_PRIVATE_FUTEX_WAIT (%esi)
+ 	syscall
++	movl	%fs:CANCELHANDLING, %eax
+ 	jmp	3b
+ END(__pthread_disable_asynccancel)
+diff -Naur glibc-2.11.orig/posix/bug-regex29.c glibc-2.11/posix/bug-regex29.c
+--- glibc-2.11.orig/posix/bug-regex29.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/posix/bug-regex29.c	2009-12-08 15:10:20.000000000 -0500
+@@ -1,4 +1,5 @@
+ #include <regex.h>
++#include <stdio.h>
+ 
+ static int
+ do_test (void)
+diff -Naur glibc-2.11.orig/posix/bug-regex30.c glibc-2.11/posix/bug-regex30.c
+--- glibc-2.11.orig/posix/bug-regex30.c	1969-12-31 19:00:00.000000000 -0500
++++ glibc-2.11/posix/bug-regex30.c	2009-12-08 15:10:20.000000000 -0500
+@@ -0,0 +1,103 @@
++/* Russian regular expression tests.
++   Copyright (C) 2009 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Paolo Bonzini <pbonzini@redhat.com>, 2009.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sys/types.h>
++#include <mcheck.h>
++#include <regex.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <locale.h>
++
++/* Tests supposed to match.  */
++struct
++{
++  const char *pattern;
++  const char *string;
++  int flags, nmatch;
++  regmatch_t rm[5];
++} tests[] = {
++  /* U+0413	\xd0\x93	CYRILLIC CAPITAL LETTER GHE
++     U+0420	\xd0\xa0        CYRILLIC CAPITAL LETTER ER
++     U+0430	\xd0\xb0	CYRILLIC SMALL LETTER A
++     U+0433	\xd0\xb3	CYRILLIC SMALL LETTER GHE
++     U+0440	\xd1\x80	CYRILLIC SMALL LETTER ER
++     U+044F	\xd1\x8f	CYRILLIC SMALL LETTER YA */
++  { "[\xd0\xb0-\xd1\x8f]", "\xd0\xb3", 0, 1,
++    { { 0, 2 } } },
++  { "[\xd0\xb0-\xd1\x8f]", "\xd0\x93", REG_ICASE, 1,
++    { { 0, 2 } } },
++  { "[\xd1\x80-\xd1\x8f]", "\xd0\xa0", REG_ICASE, 1,
++    { { 0, 2 } } },
++};
++
++
++static int
++do_test (void)
++{
++  if (setlocale (LC_ALL, "de_DE.UTF-8") == NULL)
++    {
++      puts ("setlocale failed");
++      return 1;
++    }
++
++  int ret = 0;
++
++  for (size_t i = 0; i < sizeof (tests) / sizeof (tests[0]); ++i)
++    {
++      regex_t re;
++      regmatch_t rm[5];
++      int n = regcomp (&re, tests[i].pattern, tests[i].flags);
++      if (n != 0)
++	{
++	  char buf[500];
++	  regerror (n, &re, buf, sizeof (buf));
++	  printf ("regcomp %zd failed: %s\n", i, buf);
++	  ret = 1;
++	  continue;
++	}
++
++      if (regexec (&re, tests[i].string, tests[i].nmatch, rm, 0))
++	{
++	  printf ("regexec %zd failed\n", i);
++	  ret = 1;
++	  regfree (&re);
++	  continue;
++	}
++
++      for (n = 0; n < tests[i].nmatch; ++n)
++	if (rm[n].rm_so != tests[i].rm[n].rm_so
++	      || rm[n].rm_eo != tests[i].rm[n].rm_eo)
++	  {
++	    if (tests[i].rm[n].rm_so == -1 && tests[i].rm[n].rm_eo == -1)
++	      break;
++	    printf ("regexec match failure rm[%d] %d..%d\n",
++		    n, rm[n].rm_so, rm[n].rm_eo);
++	    ret = 1;
++	    break;
++	  }
++
++      regfree (&re);
++    }
++
++  return ret;
++}
++
++#define TEST_FUNCTION do_test ()
++#include "../test-skeleton.c"
+diff -Naur glibc-2.11.orig/posix/Makefile glibc-2.11/posix/Makefile
+--- glibc-2.11.orig/posix/Makefile	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/posix/Makefile	2009-12-08 15:10:20.000000000 -0500
+@@ -82,7 +82,7 @@
+ 		   bug-regex17 bug-regex18 bug-regex19 bug-regex20 \
+ 		   bug-regex21 bug-regex22 bug-regex23 bug-regex24 \
+ 		   bug-regex25 bug-regex26 bug-regex27 bug-regex28 \
+-		   bug-regex29 \
++		   bug-regex29 bug-regex30 \
+ 		   tst-nice tst-nanosleep tst-regex2 \
+ 		   transbug tst-rxspencer tst-pcre tst-boost \
+ 		   bug-ga1 tst-vfork1 tst-vfork2 tst-vfork3 tst-waitid \
+@@ -195,6 +195,7 @@
+ bug-regex23-ENV = LOCPATH=$(common-objpfx)localedata
+ bug-regex25-ENV = LOCPATH=$(common-objpfx)localedata
+ bug-regex26-ENV = LOCPATH=$(common-objpfx)localedata
++bug-regex30-ENV = LOCPATH=$(common-objpfx)localedata
+ tst-rxspencer-ARGS = --utf8 rxspencer/tests
+ tst-rxspencer-ENV = LOCPATH=$(common-objpfx)localedata
+ tst-pcre-ARGS = PCRE.tests
+diff -Naur glibc-2.11.orig/posix/regcomp.c glibc-2.11/posix/regcomp.c
+--- glibc-2.11.orig/posix/regcomp.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/posix/regcomp.c	2009-12-08 15:10:20.000000000 -0500
+@@ -377,7 +377,7 @@
+ 	     applies to multibyte character sets; for single byte character
+ 	     sets, the SIMPLE_BRACKET again suffices.  */
+ 	  if (dfa->mb_cur_max > 1
+-	      && (cset->nchar_classes || cset->non_match
++	      && (cset->nchar_classes || cset->non_match || cset->nranges
+ # ifdef _LIBC
+ 		  || cset->nequiv_classes
+ # endif /* _LIBC */
+diff -Naur glibc-2.11.orig/resolv/mapv4v6hostent.h glibc-2.11/resolv/mapv4v6hostent.h
+--- glibc-2.11.orig/resolv/mapv4v6hostent.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/resolv/mapv4v6hostent.h	2009-12-08 15:10:20.000000000 -0500
+@@ -57,13 +57,13 @@
+     char ac;
+ } align;
+ 
+-static void
++static int
+ map_v4v6_hostent (struct hostent *hp, char **bpp, int *lenp)
+ {
+   char **ap;
+ 
+   if (hp->h_addrtype != AF_INET || hp->h_length != INADDRSZ)
+-    return;
++    return 0;
+   hp->h_addrtype = AF_INET6;
+   hp->h_length = IN6ADDRSZ;
+   for (ap = hp->h_addr_list; *ap; ap++)
+@@ -71,11 +71,8 @@
+       int i = sizeof (align) - ((u_long) *bpp % sizeof (align));
+ 
+       if (*lenp < (i + IN6ADDRSZ))
+-	{
+-	  /* Out of memory.  Truncate address list here.  XXX */
+-	  *ap = NULL;
+-	  return;
+-	}
++	/* Out of memory.  */
++	return 1;
+       *bpp += i;
+       *lenp -= i;
+       map_v4v6_address (*ap, *bpp);
+@@ -83,4 +80,5 @@
+       *bpp += IN6ADDRSZ;
+       *lenp -= IN6ADDRSZ;
+     }
++  return 0;
+ }
+diff -Naur glibc-2.11.orig/resolv/nss_dns/dns-host.c glibc-2.11/resolv/nss_dns/dns-host.c
+--- glibc-2.11.orig/resolv/nss_dns/dns-host.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/resolv/nss_dns/dns-host.c	2009-12-08 15:10:20.000000000 -0500
+@@ -878,7 +878,8 @@
+ 		}
+ 	      bp += n;
+ 	      linebuflen -= n;
+-	      map_v4v6_hostent (result, &bp, &linebuflen);
++	      if (map_v4v6_hostent (result, &bp, &linebuflen))
++		goto too_small;
+ 	    }
+ 	  *h_errnop = NETDB_SUCCESS;
+ 	  return NSS_STATUS_SUCCESS;
+@@ -953,7 +954,8 @@
+ 	}
+ 
+       if (have_to_map)
+-	map_v4v6_hostent (result, &bp, &linebuflen);
++	if (map_v4v6_hostent (result, &bp, &linebuflen))
++	  goto too_small;
+       *h_errnop = NETDB_SUCCESS;
+       return NSS_STATUS_SUCCESS;
+     }
+diff -Naur glibc-2.11.orig/string/bits/string3.h glibc-2.11/string/bits/string3.h
+--- glibc-2.11.orig/string/bits/string3.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/string/bits/string3.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2004, 2005, 2007 Free Software Foundation, Inc.
++/* Copyright (C) 2004, 2005, 2007, 2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -77,7 +77,8 @@
+ __extern_always_inline void *
+ __NTH (memset (void *__dest, int __ch, size_t __len))
+ {
+-  if (__builtin_constant_p (__len) && __len == 0)
++  if (__builtin_constant_p (__len) && __len == 0
++      && (!__builtin_constant_p (__ch) || __ch != 0))
+     {
+       __warn_memset_zero_len ();
+       return __dest;
+diff -Naur glibc-2.11.orig/sunrpc/create_xid.c glibc-2.11/sunrpc/create_xid.c
+--- glibc-2.11.orig/sunrpc/create_xid.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sunrpc/create_xid.c	2009-12-08 15:10:20.000000000 -0500
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 1998, 2000 Free Software Foundation, Inc.
++/* Copyright (c) 1998, 2000, 2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Thorsten Kukuk <kukuk@vt.uni-paderborn.de>, 1998.
+ 
+@@ -27,7 +27,7 @@
+ 
+ __libc_lock_define_initialized (static, createxid_lock)
+ 
+-static int is_initialized;
++static pid_t is_initialized;
+ static struct drand48_data __rpc_lrand48_data;
+ 
+ unsigned long
+@@ -37,13 +37,15 @@
+ 
+   __libc_lock_lock (createxid_lock);
+ 
+-  if (!is_initialized)
++  pid_t pid = getpid ();
++  if (is_initialized != pid)
+     {
+       struct timeval now;
+ 
+       __gettimeofday (&now, (struct timezone *) 0);
+-      __srand48_r (now.tv_sec ^ now.tv_usec, &__rpc_lrand48_data);
+-      is_initialized = 1;
++      __srand48_r (now.tv_sec ^ now.tv_usec ^ pid,
++		   &__rpc_lrand48_data);
++      is_initialized = pid;
+     }
+ 
+   lrand48_r (&__rpc_lrand48_data, &res);
+diff -Naur glibc-2.11.orig/sysdeps/generic/framestate.c glibc-2.11/sysdeps/generic/framestate.c
+--- glibc-2.11.orig/sysdeps/generic/framestate.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/generic/framestate.c	2009-12-08 15:10:20.000000000 -0500
+@@ -24,6 +24,7 @@
+ #define __frame_state_for fallback_frame_state_for
+ #include <unwind-dw2.c>
+ #undef __frame_state_for
++#include <libgcc_s.h>
+ 
+ typedef struct frame_state * (*framesf)(void *pc, struct frame_state *);
+ struct frame_state *__frame_state_for (void *pc,
+@@ -36,7 +37,7 @@
+ 
+   if (frame_state_for == NULL)
+     {
+-      void *handle = __libc_dlopen ("libgcc_s.so.1");
++      void *handle = __libc_dlopen (LIBGCC_S_SO);
+ 
+       if (handle == NULL
+ 	  || (frame_state_for
+diff -Naur glibc-2.11.orig/sysdeps/generic/libgcc_s.h glibc-2.11/sysdeps/generic/libgcc_s.h
+--- glibc-2.11.orig/sysdeps/generic/libgcc_s.h	1969-12-31 19:00:00.000000000 -0500
++++ glibc-2.11/sysdeps/generic/libgcc_s.h	2009-12-08 15:10:20.000000000 -0500
+@@ -0,0 +1,2 @@
++/* Name of libgcc_s library provided by gcc.  */
++#define LIBGCC_S_SO "libgcc_s.so.1"
+diff -Naur glibc-2.11.orig/sysdeps/ia64/memchr.S glibc-2.11/sysdeps/ia64/memchr.S
+--- glibc-2.11.orig/sysdeps/ia64/memchr.S	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/ia64/memchr.S	2009-12-08 15:10:20.000000000 -0500
+@@ -126,7 +126,16 @@
+ 	br.ret.sptk.many b0
+ 
+ .recovery:
+-	adds	ret0 = -((MEMLAT + 1) * 8), ret0;;
++#if MEMLAT != 6
++# error "MEMLAT must be 6!"
++#endif
++(p[MEMLAT-6])	add	ret0 = -8, ret0;;
++(p[MEMLAT-5])	add	ret0 = -8, ret0;;
++(p[MEMLAT-4])	add	ret0 = -8, ret0;;
++(p[MEMLAT-3])	add	ret0 = -8, ret0;;
++(p[MEMLAT-2])	add	ret0 = -8, ret0;;
++(p[MEMLAT-1])	add	ret0 = -8, ret0;;
++(p[MEMLAT])	add	ret0 = -8, ret0;;
+ (p[MEMLAT+1])	add	ret0 = -8, ret0;;
+ (p[MEMLAT+2])	add	ret0 = -8, ret0;;
+ .l4:
+diff -Naur glibc-2.11.orig/sysdeps/powerpc/fpu/e_sqrt.c glibc-2.11/sysdeps/powerpc/fpu/e_sqrt.c
+--- glibc-2.11.orig/sysdeps/powerpc/fpu/e_sqrt.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/powerpc/fpu/e_sqrt.c	2009-12-08 15:10:20.000000000 -0500
+@@ -35,7 +35,7 @@
+ /* The method is based on a description in
+    Computation of elementary functions on the IBM RISC System/6000 processor,
+    P. W. Markstein, IBM J. Res. Develop, 34(1) 1990.
+-   Basically, it consists of two interleaved Newton-Rhapson approximations,
++   Basically, it consists of two interleaved Newton-Raphson approximations,
+    one to find the actual square root, and one to find its reciprocal
+    without the expense of a division operation.   The tricky bit here
+    is the use of the POWER/PowerPC multiply-add operation to get the
+@@ -44,7 +44,7 @@
+    The argument reduction works by a combination of table lookup to
+    obtain the initial guesses, and some careful modification of the
+    generated guesses (which mostly runs on the integer unit, while the
+-   Newton-Rhapson is running on the FPU).  */
++   Newton-Raphson is running on the FPU).  */
+ 
+ #ifdef __STDC__
+ double
+@@ -102,7 +102,7 @@
+ 	  /* complete the INSERT_WORDS (sx, sxi, xi1) operation.  */
+ 	  sx = iw_u.value;
+ 
+-	  /* Here we have three Newton-Rhapson iterations each of a
++	  /* Here we have three Newton-Raphson iterations each of a
+ 	     division and a square root and the remainder of the
+ 	     argument reduction, all interleaved.   */
+ 	  sd = -(sg * sg - sx);
+diff -Naur glibc-2.11.orig/sysdeps/powerpc/fpu/e_sqrtf.c glibc-2.11/sysdeps/powerpc/fpu/e_sqrtf.c
+--- glibc-2.11.orig/sysdeps/powerpc/fpu/e_sqrtf.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/powerpc/fpu/e_sqrtf.c	2009-12-08 15:10:20.000000000 -0500
+@@ -35,7 +35,7 @@
+ /* The method is based on a description in
+    Computation of elementary functions on the IBM RISC System/6000 processor,
+    P. W. Markstein, IBM J. Res. Develop, 34(1) 1990.
+-   Basically, it consists of two interleaved Newton-Rhapson approximations,
++   Basically, it consists of two interleaved Newton-Raphson approximations,
+    one to find the actual square root, and one to find its reciprocal
+    without the expense of a division operation.   The tricky bit here
+    is the use of the POWER/PowerPC multiply-add operation to get the
+@@ -44,7 +44,7 @@
+    The argument reduction works by a combination of table lookup to
+    obtain the initial guesses, and some careful modification of the
+    generated guesses (which mostly runs on the integer unit, while the
+-   Newton-Rhapson is running on the FPU).  */
++   Newton-Raphson is running on the FPU).  */
+ 
+ #ifdef __STDC__
+ float
+@@ -90,7 +90,7 @@
+ 	  sg = t_sqrt[0];
+ 	  sy = t_sqrt[1];
+ 
+-	  /* Here we have three Newton-Rhapson iterations each of a
++	  /* Here we have three Newton-Raphson iterations each of a
+ 	     division and a square root and the remainder of the
+ 	     argument reduction, all interleaved.   */
+ 	  sd = -(sg * sg - sx);
+diff -Naur glibc-2.11.orig/sysdeps/powerpc/powerpc64/dl-machine.h glibc-2.11/sysdeps/powerpc/powerpc64/dl-machine.h
+--- glibc-2.11.orig/sysdeps/powerpc/powerpc64/dl-machine.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/powerpc/powerpc64/dl-machine.h	2009-12-08 15:10:20.000000000 -0500
+@@ -531,13 +531,14 @@
+ resolve_ifunc (Elf64_Addr value,
+ 	       const struct link_map *map, const struct link_map *sym_map)
+ {
++#ifndef RESOLVE_CONFLICT_FIND_MAP
+   /* The function we are calling may not yet have its opd entry relocated.  */
+   Elf64_FuncDesc opd;
+   if (map != sym_map
+-#if !defined RTLD_BOOTSTRAP && defined SHARED
++# if !defined RTLD_BOOTSTRAP && defined SHARED
+       /* Bootstrap map doesn't have l_relocated set for it.  */
+       && sym_map != &GL(dl_rtld_map)
+-#endif
++# endif
+       && !sym_map->l_relocated)
+     {
+       Elf64_FuncDesc *func = (Elf64_FuncDesc *) value;
+@@ -546,6 +547,7 @@
+       opd.fd_aux = func->fd_aux;
+       value = (Elf64_Addr) &opd;
+     }
++#endif
+   return ((Elf64_Addr (*) (void)) value) ();
+ }
+ 
+diff -Naur glibc-2.11.orig/sysdeps/unix/grantpt.c glibc-2.11/sysdeps/unix/grantpt.c
+--- glibc-2.11.orig/sysdeps/unix/grantpt.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/grantpt.c	2009-12-08 15:10:20.000000000 -0500
+@@ -190,6 +190,10 @@
+ 	if (__dup2 (fd, PTY_FILENO) < 0)
+ 	  _exit (FAIL_EBADF);
+ 
++#ifdef CLOSE_ALL_FDS
++      CLOSE_ALL_FDS ();
++#endif
++
+       execle (_PATH_PT_CHOWN, basename (_PATH_PT_CHOWN), NULL, NULL);
+       _exit (FAIL_EXEC);
+     }
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/bits/sched.h glibc-2.11/sysdeps/unix/sysv/linux/bits/sched.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/bits/sched.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/bits/sched.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,6 +1,6 @@
+ /* Definitions of constants and data structure for POSIX 1003.1b-1993
+    scheduling interface.
+-   Copyright (C) 1996-1999,2001-2003,2005,2006,2007,2008
++   Copyright (C) 1996-1999,2001-2003,2005,2006,2007,2008,2009
+    Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+@@ -154,7 +154,7 @@
+   (__extension__							      \
+    ({ size_t __cpu = (cpu);						      \
+       __cpu < 8 * (setsize)						      \
+-      ? ((((__cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]	      \
++      ? ((((__const __cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]      \
+ 	  & __CPUMASK (__cpu))) != 0					      \
+       : 0; }))
+ 
+@@ -167,8 +167,8 @@
+ # else
+ #  define __CPU_EQUAL_S(setsize, cpusetp1, cpusetp2) \
+   (__extension__							      \
+-   ({ __cpu_mask *__arr1 = (cpusetp1)->__bits;				      \
+-      __cpu_mask *__arr2 = (cpusetp2)->__bits;				      \
++   ({ __const __cpu_mask *__arr1 = (cpusetp1)->__bits;			      \
++      __const __cpu_mask *__arr2 = (cpusetp2)->__bits;			      \
+       size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
+       size_t __i;							      \
+       for (__i = 0; __i < __imax; ++__i)				      \
+@@ -180,8 +180,8 @@
+ # define __CPU_OP_S(setsize, destset, srcset1, srcset2, op) \
+   (__extension__							      \
+    ({ cpu_set_t *__dest = (destset);					      \
+-      __cpu_mask *__arr1 = (srcset1)->__bits;				      \
+-      __cpu_mask *__arr2 = (srcset2)->__bits;				      \
++      __const __cpu_mask *__arr1 = (srcset1)->__bits;			      \
++      __const __cpu_mask *__arr2 = (srcset2)->__bits;			      \
+       size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
+       size_t __i;							      \
+       for (__i = 0; __i < __imax; ++__i)				      \
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/grantpt.c glibc-2.11/sysdeps/unix/sysv/linux/grantpt.c
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/grantpt.c	1969-12-31 19:00:00.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/grantpt.c	2009-12-08 15:10:20.000000000 -0500
+@@ -0,0 +1,42 @@
++#include <assert.h>
++#include <ctype.h>
++#include <dirent.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <paths.h>
++#include <stdlib.h>
++#include <unistd.h>
++
++#include "not-cancel.h"
++#include "pty-private.h"
++
++
++/* Close all file descriptors except the one specified.  */
++static void
++close_all_fds (void)
++{
++  DIR *dir = __opendir ("/proc/self/fd");
++  if (dir != NULL)
++    {
++      struct dirent64 *d;
++      while ((d = __readdir64 (dir)) != NULL)
++	if (isdigit (d->d_name[0]))
++	  {
++	    char *endp;
++	    long int fd = strtol (d->d_name, &endp, 10);
++	    if (*endp == '\0' && fd != PTY_FILENO && fd != dirfd (dir))
++	      close_not_cancel_no_status (fd);
++	  }
++
++      __closedir (dir);
++
++      int nullfd = open_not_cancel_2 (_PATH_DEVNULL, O_RDONLY);
++      assert (nullfd == STDIN_FILENO);
++      nullfd = open_not_cancel_2 (_PATH_DEVNULL, O_WRONLY);
++      assert (nullfd == STDOUT_FILENO);
++      __dup2 (STDOUT_FILENO, STDERR_FILENO);
++    }
++}
++#define CLOSE_ALL_FDS() close_all_fds()
++
++#include <sysdeps/unix/grantpt.c>
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/i386/bits/fcntl.h glibc-2.11/sysdeps/unix/sysv/linux/i386/bits/fcntl.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/i386/bits/fcntl.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/i386/bits/fcntl.h	2009-12-08 15:10:20.000000000 -0500
+@@ -92,8 +92,8 @@
+ #ifdef __USE_GNU
+ # define F_SETSIG	10	/* Set number of signal to be sent.  */
+ # define F_GETSIG	11	/* Get number of signal to be sent.  */
+-# define F_SETOWN_EX	12	/* Get owner (thread receiving SIGIO).  */
+-# define F_GETOWN_EX	13	/* Set owner (thread receiving SIGIO).  */
++# define F_SETOWN_EX	15	/* Get owner (thread receiving SIGIO).  */
++# define F_GETOWN_EX	16	/* Set owner (thread receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+@@ -259,8 +259,8 @@
+ extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+ # else
+ #  ifdef __REDIRECT
+-extern int __REDIRECT (fallocate, (int __fd, int __mode, __off_t __offset,
+-				   __off_t __len),
++extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
++				   __off64_t __len),
+ 		       fallocate64);
+ #  else
+ #   define fallocate fallocate64
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/i386/bits/mman.h glibc-2.11/sysdeps/unix/sysv/linux/i386/bits/mman.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/i386/bits/mman.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/i386/bits/mman.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,5 @@
+ /* Definitions for POSIX memory map interface.  Linux/i386 version.
+-   Copyright (C) 1997, 2000, 2003, 2005, 2006 Free Software Foundation, Inc.
++   Copyright (C) 1997,2000,2003,2005,2006,2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -84,14 +84,17 @@
+ 
+ /* Advice to `madvise'.  */
+ #ifdef __USE_BSD
+-# define MADV_NORMAL	 0	/* No further special treatment.  */
+-# define MADV_RANDOM	 1	/* Expect random page references.  */
+-# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+-# define MADV_WILLNEED	 3	/* Will need these pages.  */
+-# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+-# define MADV_REMOVE	 9	/* Remove these pages and resources.  */
+-# define MADV_DONTFORK	 10	/* Do not inherit across fork.  */
+-# define MADV_DOFORK	 11	/* Do inherit across fork.  */
++# define MADV_NORMAL	  0	/* No further special treatment.  */
++# define MADV_RANDOM	  1	/* Expect random page references.  */
++# define MADV_SEQUENTIAL  2	/* Expect sequential page references.  */
++# define MADV_WILLNEED	  3	/* Will need these pages.  */
++# define MADV_DONTNEED	  4	/* Don't need these pages.  */
++# define MADV_REMOVE	  9	/* Remove these pages and resources.  */
++# define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
++# define MADV_DOFORK	  11	/* Do inherit across fork.  */
++# define MADV_MERGEABLE	  12	/* KSM may merge identical pages.  */
++# define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
++# define MADV_HWPOISON	  100	/* Poison a page for testing.  */
+ #endif
+ 
+ /* The POSIX people had to invent similar names for the same things.  */
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/i386/fallocate64.c glibc-2.11/sysdeps/unix/sysv/linux/i386/fallocate64.c
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/i386/fallocate64.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/i386/fallocate64.c	2009-12-08 15:10:20.000000000 -0500
+@@ -16,6 +16,7 @@
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+    02111-1307 USA.  */
+ 
++#include <errno.h>
+ #include <fcntl.h>
+ #include <sysdep.h>
+ 
+@@ -28,5 +29,10 @@
+ int
+ fallocate64 (int fd, int mode, __off64_t offset, __off64_t len)
+ {
++#ifdef __NR_fallocate
+   return __call_fallocate (fd, mode, offset, len);
++#else
++  __set_errno (ENOSYS);
++  return -1;
++#endif
+ }
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/i386/fallocate.c glibc-2.11/sysdeps/unix/sysv/linux/i386/fallocate.c
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/i386/fallocate.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/i386/fallocate.c	2009-12-08 15:10:20.000000000 -0500
+@@ -16,6 +16,7 @@
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+    02111-1307 USA.  */
+ 
++#include <errno.h>
+ #include <fcntl.h>
+ #include <sysdep.h>
+ 
+@@ -28,5 +29,10 @@
+ int
+ fallocate (int fd, int mode, __off_t offset, __off_t len)
+ {
++#ifdef __NR_fallocate
+   return __call_fallocate (fd, mode, offset, len);
++#else
++  __set_errno (ENOSYS);
++  return -1;
++#endif
+ }
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/ia64/bits/fcntl.h glibc-2.11/sysdeps/unix/sysv/linux/ia64/bits/fcntl.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/ia64/bits/fcntl.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/ia64/bits/fcntl.h	2009-12-08 15:10:20.000000000 -0500
+@@ -88,8 +88,8 @@
+ #ifdef __USE_GNU
+ # define F_SETSIG	10	/* Set number of signal to be sent.  */
+ # define F_GETSIG	11	/* Get number of signal to be sent.  */
+-# define F_SETOWN_EX	12	/* Get owner (thread receiving SIGIO).  */
+-# define F_GETOWN_EX	13	/* Set owner (thread receiving SIGIO).  */
++# define F_SETOWN_EX	15	/* Get owner (thread receiving SIGIO).  */
++# define F_GETOWN_EX	16	/* Set owner (thread receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+@@ -253,8 +253,8 @@
+ extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+ # else
+ #  ifdef __REDIRECT
+-extern int __REDIRECT (fallocate, (int __fd, int __mode, __off_t __offset,
+-				   __off_t __len),
++extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
++				   __off64_t __len),
+ 		       fallocate64);
+ #  else
+ #   define fallocate fallocate64
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/ia64/bits/mman.h glibc-2.11/sysdeps/unix/sysv/linux/ia64/bits/mman.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/ia64/bits/mman.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/ia64/bits/mman.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,6 @@
+ /* Definitions for POSIX memory map interface.  Linux/ia64 version.
+-   Copyright (C) 1997,1998,2000,2003,2005,2006 Free Software Foundation, Inc.
++   Copyright (C) 1997,1998,2000,2003,2005,2006,2009
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -84,14 +85,17 @@
+ 
+ /* Advice to `madvise'.  */
+ #ifdef __USE_BSD
+-# define MADV_NORMAL	 0	/* No further special treatment.  */
+-# define MADV_RANDOM	 1	/* Expect random page references.  */
+-# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+-# define MADV_WILLNEED	 3	/* Will need these pages.  */
+-# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+-# define MADV_REMOVE	 9	/* Remove these pages and resources.  */
+-# define MADV_DONTFORK	 10	/* Do not inherit across fork.  */
+-# define MADV_DOFORK	 11	/* Do inherit across fork.  */
++# define MADV_NORMAL	  0	/* No further special treatment.  */
++# define MADV_RANDOM	  1	/* Expect random page references.  */
++# define MADV_SEQUENTIAL  2	/* Expect sequential page references.  */
++# define MADV_WILLNEED	  3	/* Will need these pages.  */
++# define MADV_DONTNEED	  4	/* Don't need these pages.  */
++# define MADV_REMOVE	  9	/* Remove these pages and resources.  */
++# define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
++# define MADV_DOFORK	  11	/* Do inherit across fork.  */
++# define MADV_MERGEABLE	  12	/* KSM may merge identical pages.  */
++# define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
++# define MADV_HWPOISON	  100	/* Poison a page for testing.  */
+ #endif
+ 
+ /* The POSIX people had to invent similar names for the same things.  */
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/powerpc/bits/fcntl.h glibc-2.11/sysdeps/unix/sysv/linux/powerpc/bits/fcntl.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/powerpc/bits/fcntl.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/powerpc/bits/fcntl.h	2009-12-08 15:10:20.000000000 -0500
+@@ -85,15 +85,15 @@
+ #define F_SETLKW64	14	/* Set record locking info (blocking).	*/
+ 
+ #if defined __USE_BSD || defined __USE_UNIX98
+-# define F_SETOWN	8	/* Get owner (process receiving of SIGIO).  */
+-# define F_GETOWN	9	/* Set owner (process receiving of SIGIO).  */
++# define F_SETOWN	8	/* Get owner (process receiving SIGIO).  */
++# define F_GETOWN	9	/* Set owner (process receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+ # define F_SETSIG	10	/* Set number of signal to be sent.  */
+ # define F_GETSIG	11	/* Get number of signal to be sent.  */
+-# define F_SETOWN_EX	12	/* Get owner (thread receiving SIGIO).  */
+-# define F_GETOWN_EX	13	/* Set owner (thread receiving SIGIO).  */
++# define F_SETOWN_EX	15	/* Get owner (thread receiving SIGIO).  */
++# define F_GETOWN_EX	16	/* Set owner (thread receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+@@ -259,8 +259,8 @@
+ extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+ # else
+ #  ifdef __REDIRECT
+-extern int __REDIRECT (fallocate, (int __fd, int __mode, __off_t __offset,
+-				   __off_t __len),
++extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
++				   __off64_t __len),
+ 		       fallocate64);
+ #  else
+ #   define fallocate fallocate64
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/powerpc/bits/mman.h glibc-2.11/sysdeps/unix/sysv/linux/powerpc/bits/mman.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/powerpc/bits/mman.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/powerpc/bits/mman.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,6 @@
+ /* Definitions for POSIX memory map interface.  Linux/PowerPC version.
+-   Copyright (C) 1997,2000,2003,2005,2006,2008 Free Software Foundation, Inc.
++   Copyright (C) 1997,2000,2003,2005,2006,2008,2009
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -85,14 +86,17 @@
+ 
+ /* Advice to `madvise'.  */
+ #ifdef __USE_BSD
+-# define MADV_NORMAL	 0	/* No further special treatment.  */
+-# define MADV_RANDOM	 1	/* Expect random page references.  */
+-# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+-# define MADV_WILLNEED	 3	/* Will need these pages.  */
+-# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+-# define MADV_REMOVE	 9	/* Remove these pages and resources.  */
+-# define MADV_DONTFORK	 10	/* Do not inherit across fork.  */
+-# define MADV_DOFORK	 11	/* Do inherit across fork.  */
++# define MADV_NORMAL	  0	/* No further special treatment.  */
++# define MADV_RANDOM	  1	/* Expect random page references.  */
++# define MADV_SEQUENTIAL  2	/* Expect sequential page references.  */
++# define MADV_WILLNEED	  3	/* Will need these pages.  */
++# define MADV_DONTNEED	  4	/* Don't need these pages.  */
++# define MADV_REMOVE	  9	/* Remove these pages and resources.  */
++# define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
++# define MADV_DOFORK	  11	/* Do inherit across fork.  */
++# define MADV_MERGEABLE	  12	/* KSM may merge identical pages.  */
++# define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
++# define MADV_HWPOISON	  100	/* Poison a page for testing.  */
+ #endif
+ 
+ /* The POSIX people had to invent similar names for the same things.  */
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/powerpc/powerpc32/syscalls.list glibc-2.11/sysdeps/unix/sysv/linux/powerpc/powerpc32/syscalls.list
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/powerpc/powerpc32/syscalls.list	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/powerpc/powerpc32/syscalls.list	2009-12-08 15:10:20.000000000 -0500
+@@ -3,3 +3,6 @@
+ # System calls with wrappers.
+ oldgetrlimit	EXTRA	getrlimit	i:ip	__old_getrlimit	getrlimit@GLIBC_2.0
+ oldsetrlimit	EXTRA	setrlimit	i:ip	__old_setrlimit	setrlimit@GLIBC_2.0
++
++# Due to 64bit alignment there is a dummy second parameter
++readahead	-	readahead	i:iiiii	__readahead	readahead
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/powerpc/powerpc64/sync_file_range.c glibc-2.11/sysdeps/unix/sysv/linux/powerpc/powerpc64/sync_file_range.c
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/powerpc/powerpc64/sync_file_range.c	1969-12-31 19:00:00.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/powerpc/powerpc64/sync_file_range.c	2009-12-08 15:10:20.000000000 -0500
+@@ -0,0 +1,44 @@
++/* Selective file content synch'ing.
++   Copyright (C) 2006, 2007, 2009 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <errno.h>
++#include <fcntl.h>
++#include <sys/types.h>
++
++#include <sysdep.h>
++#include <sys/syscall.h>
++
++
++#if defined __NR_sync_file_range2
++int
++sync_file_range (int fd, __off64_t from, __off64_t to, unsigned int flags)
++{
++  return INLINE_SYSCALL (sync_file_range2, 4, fd, flags, from, to);
++}
++#else
++int
++sync_file_range (int fd, __off64_t from, __off64_t to, unsigned int flags)
++{
++  __set_errno (ENOSYS);
++  return -1;
++}
++stub_warning (sync_file_range)
++
++# include <stub-tag.h>
++#endif
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/s390/bits/fcntl.h glibc-2.11/sysdeps/unix/sysv/linux/s390/bits/fcntl.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/s390/bits/fcntl.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/s390/bits/fcntl.h	2009-12-08 15:10:20.000000000 -0500
+@@ -107,8 +107,8 @@
+ #ifdef __USE_GNU
+ # define F_SETSIG	10	/* Set number of signal to be sent.  */
+ # define F_GETSIG	11	/* Get number of signal to be sent.  */
+-# define F_SETOWN_EX	12	/* Get owner (thread receiving SIGIO).  */
+-# define F_GETOWN_EX	13	/* Set owner (thread receiving SIGIO).  */
++# define F_SETOWN_EX	15	/* Get owner (thread receiving SIGIO).  */
++# define F_GETOWN_EX	16	/* Set owner (thread receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+@@ -279,8 +279,8 @@
+ extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+ # else
+ #  ifdef __REDIRECT
+-extern int __REDIRECT (fallocate, (int __fd, int __mode, __off_t __offset,
+-				   __off_t __len),
++extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
++				   __off64_t __len),
+ 		       fallocate64);
+ #  else
+ #   define fallocate fallocate64
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/s390/bits/mman.h glibc-2.11/sysdeps/unix/sysv/linux/s390/bits/mman.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/s390/bits/mman.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/s390/bits/mman.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,5 @@
+ /* Definitions for POSIX memory map interface.  Linux/s390 version.
+-   Copyright (C) 2000,2001,2002,2003,2005,2006 Free Software Foundation, Inc.
++   Copyright (C) 2000-2003,2005,2006,2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -84,14 +84,17 @@
+ 
+ /* Advice to `madvise'.  */
+ #ifdef __USE_BSD
+-# define MADV_NORMAL	 0	/* No further special treatment.  */
+-# define MADV_RANDOM	 1	/* Expect random page references.  */
+-# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+-# define MADV_WILLNEED	 3	/* Will need these pages.  */
+-# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+-# define MADV_REMOVE	 9	/* Remove these pages and resources.  */
+-# define MADV_DONTFORK	 10	/* Do not inherit across fork.  */
+-# define MADV_DOFORK	 11	/* Do inherit across fork.  */
++# define MADV_NORMAL	  0	/* No further special treatment.  */
++# define MADV_RANDOM	  1	/* Expect random page references.  */
++# define MADV_SEQUENTIAL  2	/* Expect sequential page references.  */
++# define MADV_WILLNEED	  3	/* Will need these pages.  */
++# define MADV_DONTNEED	  4	/* Don't need these pages.  */
++# define MADV_REMOVE	  9	/* Remove these pages and resources.  */
++# define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
++# define MADV_DOFORK	  11	/* Do inherit across fork.  */
++# define MADV_MERGEABLE	  12	/* KSM may merge identical pages.  */
++# define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
++# define MADV_HWPOISON	  100	/* Poison a page for testing.  */
+ #endif
+ 
+ /* The POSIX people had to invent similar names for the same things.  */
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/sh/bits/fcntl.h glibc-2.11/sysdeps/unix/sysv/linux/sh/bits/fcntl.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/sh/bits/fcntl.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/sh/bits/fcntl.h	2009-12-08 15:10:20.000000000 -0500
+@@ -85,15 +85,15 @@
+ #define F_SETLKW64	14	/* Set record locking info (blocking).	*/
+ 
+ #if defined __USE_BSD || defined __USE_UNIX98
+-# define F_SETOWN	8	/* Get owner (process receiving of SIGIO).  */
+-# define F_GETOWN	9	/* Set owner (process receiving of SIGIO).  */
++# define F_SETOWN	8	/* Get owner (process receiving SIGIO).  */
++# define F_GETOWN	9	/* Set owner (process receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+ # define F_SETSIG	10	/* Set number of signal to be sent.  */
+ # define F_GETSIG	11	/* Get number of signal to be sent.  */
+-# define F_SETOWN_EX	12	/* Get owner (thread receiving of SIGIO).  */
+-# define F_GETOWN_EX	13	/* Set owner (thread receiving of SIGIO).  */
++# define F_SETOWN_EX	15	/* Get owner (thread receiving SIGIO).  */
++# define F_GETOWN_EX	16	/* Set owner (thread receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+@@ -259,8 +259,8 @@
+ extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+ # else
+ #  ifdef __REDIRECT
+-extern int __REDIRECT (fallocate, (int __fd, int __mode, __off_t __offset,
+-				   __off_t __len),
++extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
++				   __off64_t __len),
+ 		       fallocate64);
+ #  else
+ #   define fallocate fallocate64
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/sh/bits/mman.h glibc-2.11/sysdeps/unix/sysv/linux/sh/bits/mman.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/sh/bits/mman.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/sh/bits/mman.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,6 @@
+ /* Definitions for POSIX memory map interface.  Linux/SH version.
+-   Copyright (C) 1997,1999,2000,2003,2005,2006 Free Software Foundation, Inc.
++   Copyright (C) 1997,1999,2000,2003,2005,2006,2009
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -83,14 +84,17 @@
+ 
+ /* Advice to `madvise'.  */
+ #ifdef __USE_BSD
+-# define MADV_NORMAL	 0	/* No further special treatment.  */
+-# define MADV_RANDOM	 1	/* Expect random page references.  */
+-# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+-# define MADV_WILLNEED	 3	/* Will need these pages.  */
+-# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+-# define MADV_REMOVE	 9	/* Remove these pages and resources.  */
+-# define MADV_DONTFORK	 10	/* Do not inherit across fork.  */
+-# define MADV_DOFORK	 11	/* Do inherit across fork.  */
++# define MADV_NORMAL	  0	/* No further special treatment.  */
++# define MADV_RANDOM	  1	/* Expect random page references.  */
++# define MADV_SEQUENTIAL  2	/* Expect sequential page references.  */
++# define MADV_WILLNEED	  3	/* Will need these pages.  */
++# define MADV_DONTNEED	  4	/* Don't need these pages.  */
++# define MADV_REMOVE	  9	/* Remove these pages and resources.  */
++# define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
++# define MADV_DOFORK	  11	/* Do inherit across fork.  */
++# define MADV_MERGEABLE	  12	/* KSM may merge identical pages.  */
++# define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
++# define MADV_HWPOISON	  100	/* Poison a page for testing.  */
+ #endif
+ 
+ /* The POSIX people had to invent similar names for the same things.  */
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/sparc/bits/fcntl.h glibc-2.11/sysdeps/unix/sysv/linux/sparc/bits/fcntl.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/sparc/bits/fcntl.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/sparc/bits/fcntl.h	2009-12-08 15:10:20.000000000 -0500
+@@ -99,8 +99,8 @@
+ #ifdef __USE_GNU
+ # define F_SETSIG	10	/* Set number of signal to be sent.  */
+ # define F_GETSIG	11	/* Get number of signal to be sent.  */
+-# define F_GETOWN_EX	12	/* Get owner (thread receiving SIGIO).  */
+-# define F_SETOWN_EX	13	/* Set owner (thread receiving SIGIO).  */
++# define F_SETOWN_EX	15	/* Set owner (thread receiving SIGIO).  */
++# define F_GETOWN_EX	16	/* Get owner (thread receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+@@ -278,8 +278,8 @@
+ extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+ # else
+ #  ifdef __REDIRECT
+-extern int __REDIRECT (fallocate, (int __fd, int __mode, __off_t __offset,
+-				   __off_t __len),
++extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
++				   __off64_t __len),
+ 		       fallocate64);
+ #  else
+ #   define fallocate fallocate64
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/sparc/bits/mman.h glibc-2.11/sysdeps/unix/sysv/linux/sparc/bits/mman.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/sparc/bits/mman.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/sparc/bits/mman.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,6 @@
+ /* Definitions for POSIX memory map interface.  Linux/SPARC version.
+-   Copyright (C) 1997,1999,2000,2003,2005,2006 Free Software Foundation, Inc.
++   Copyright (C) 1997,1999,2000,2003,2005,2006,2009
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -85,15 +86,18 @@
+ 
+ /* Advice to `madvise'.  */
+ #ifdef __USE_BSD
+-# define MADV_NORMAL	 0	/* No further special treatment.  */
+-# define MADV_RANDOM	 1	/* Expect random page references.  */
+-# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+-# define MADV_WILLNEED	 3	/* Will need these pages.  */
+-# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+-# define MADV_FREE	 5	/* Content can be freed (Solaris).  */
+-# define MADV_REMOVE	 9	/* Remove these pages and resources.  */
+-# define MADV_DONTFORK	 10	/* Do not inherit across fork.  */
+-# define MADV_DOFORK	 11	/* Do inherit across fork.  */
++# define MADV_NORMAL	  0	/* No further special treatment.  */
++# define MADV_RANDOM	  1	/* Expect random page references.  */
++# define MADV_SEQUENTIAL  2	/* Expect sequential page references.  */
++# define MADV_WILLNEED	  3	/* Will need these pages.  */
++# define MADV_DONTNEED	  4	/* Don't need these pages.  */
++# define MADV_FREE	  5	/* Content can be freed (Solaris).  */
++# define MADV_REMOVE	  9	/* Remove these pages and resources.  */
++# define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
++# define MADV_DOFORK	  11	/* Do inherit across fork.  */
++# define MADV_MERGEABLE	  12	/* KSM may merge identical pages.  */
++# define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
++# define MADV_HWPOISON	  100	/* Poison a page for testing.  */
+ #endif
+ 
+ /* The POSIX people had to invent similar names for the same things.  */
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/sync_file_range.c glibc-2.11/sysdeps/unix/sysv/linux/sync_file_range.c
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/sync_file_range.c	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/sync_file_range.c	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,5 @@
+ /* Selective file content synch'ing.
+-   Copyright (C) 2006, 2007 Free Software Foundation, Inc.
++   Copyright (C) 2006, 2007, 2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -34,6 +34,14 @@
+ 			 __LONG_LONG_PAIR ((long) (to >> 32), (long) to),
+ 			 flags);
+ }
++#elif defined __NR_sync_file_range2
++int
++sync_file_range (int fd, __off64_t from, __off64_t to, unsigned int flags)
++{
++  return INLINE_SYSCALL (sync_file_range2, 6, fd, flags,
++			 __LONG_LONG_PAIR ((long) (from >> 32), (long) from),
++			 __LONG_LONG_PAIR ((long) (to >> 32), (long) to));
++}
+ #else
+ int
+ sync_file_range (int fd, __off64_t from, __off64_t to, unsigned int flags)
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/x86_64/bits/fcntl.h glibc-2.11/sysdeps/unix/sysv/linux/x86_64/bits/fcntl.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/x86_64/bits/fcntl.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/x86_64/bits/fcntl.h	2009-12-08 15:10:20.000000000 -0500
+@@ -99,15 +99,15 @@
+ #endif
+ 
+ #if defined __USE_BSD || defined __USE_UNIX98
+-# define F_SETOWN	8	/* Get owner (process receiving of SIGIO).  */
+-# define F_GETOWN	9	/* Set owner (process receiving of SIGIO).  */
++# define F_SETOWN	8	/* Get owner (process receiving SIGIO).  */
++# define F_GETOWN	9	/* Set owner (process receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+ # define F_SETSIG	10	/* Set number of signal to be sent.  */
+ # define F_GETSIG	11	/* Get number of signal to be sent.  */
+-# define F_SETOWN_EX	12	/* Get owner (thread receiving SIGIO).  */
+-# define F_GETOWN_EX	13	/* Set owner (thread receiving SIGIO).  */
++# define F_SETOWN_EX	15	/* Get owner (thread receiving SIGIO).  */
++# define F_GETOWN_EX	16	/* Set owner (thread receiving SIGIO).  */
+ #endif
+ 
+ #ifdef __USE_GNU
+@@ -273,8 +273,8 @@
+ extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+ # else
+ #  ifdef __REDIRECT
+-extern int __REDIRECT (fallocate, (int __fd, int __mode, __off_t __offset,
+-				   __off_t __len),
++extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
++				   __off64_t __len),
+ 		       fallocate64);
+ #  else
+ #   define fallocate fallocate64
+diff -Naur glibc-2.11.orig/sysdeps/unix/sysv/linux/x86_64/bits/mman.h glibc-2.11/sysdeps/unix/sysv/linux/x86_64/bits/mman.h
+--- glibc-2.11.orig/sysdeps/unix/sysv/linux/x86_64/bits/mman.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/sysdeps/unix/sysv/linux/x86_64/bits/mman.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,5 +1,5 @@
+ /* Definitions for POSIX memory map interface.  Linux/x86_64 version.
+-   Copyright (C) 2001, 2003, 2005, 2006 Free Software Foundation, Inc.
++   Copyright (C) 2001, 2003, 2005, 2006, 2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -85,14 +85,17 @@
+ 
+ /* Advice to `madvise'.  */
+ #ifdef __USE_BSD
+-# define MADV_NORMAL	 0	/* No further special treatment.  */
+-# define MADV_RANDOM	 1	/* Expect random page references.  */
+-# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+-# define MADV_WILLNEED	 3	/* Will need these pages.  */
+-# define MADV_DONTNEED	 4	/* Don't need these pages.  */
+-# define MADV_REMOVE	 9	/* Remove these pages and resources.  */
+-# define MADV_DONTFORK	 10	/* Do not inherit across fork.  */
+-# define MADV_DOFORK	 11	/* Do inherit across fork.  */
++# define MADV_NORMAL	  0	/* No further special treatment.  */
++# define MADV_RANDOM	  1	/* Expect random page references.  */
++# define MADV_SEQUENTIAL  2	/* Expect sequential page references.  */
++# define MADV_WILLNEED	  3	/* Will need these pages.  */
++# define MADV_DONTNEED	  4	/* Don't need these pages.  */
++# define MADV_REMOVE	  9	/* Remove these pages and resources.  */
++# define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
++# define MADV_DOFORK	  11	/* Do inherit across fork.  */
++# define MADV_MERGEABLE	  12	/* KSM may merge identical pages.  */
++# define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
++# define MADV_HWPOISON	  100	/* Poison a page for testing.  */
+ #endif
+ 
+ /* The POSIX people had to invent similar names for the same things.  */
+diff -Naur glibc-2.11.orig/version.h glibc-2.11/version.h
+--- glibc-2.11.orig/version.h	2009-10-30 12:17:08.000000000 -0500
++++ glibc-2.11/version.h	2009-12-08 15:10:20.000000000 -0500
+@@ -1,4 +1,4 @@
+ /* This file just defines the current version number of libc.  */
+ 
+ #define RELEASE "stable"
+-#define VERSION "2.11"
++#define VERSION "2.11.1"

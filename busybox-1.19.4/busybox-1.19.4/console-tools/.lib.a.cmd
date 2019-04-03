@@ -1,0 +1,1 @@
+cmd_console-tools/lib.a := rm -f console-tools/lib.a; powerpc-timesys-linux-gnuspe-ar  rcs console-tools/lib.a console-tools/chvt.o console-tools/clear.o console-tools/deallocvt.o console-tools/fgconsole.o console-tools/openvt.o console-tools/reset.o console-tools/resize.o console-tools/setconsole.o console-tools/setkeycodes.o console-tools/showkey.o

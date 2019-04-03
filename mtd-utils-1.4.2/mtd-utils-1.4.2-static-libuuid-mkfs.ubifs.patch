@@ -1,0 +1,12 @@
+diff -Naur mtd-utils-1.4.2.orig/mkfs.ubifs/Makefile mtd-utils-1.4.2/mkfs.ubifs/Makefile
+--- mtd-utils-1.4.2.orig/mkfs.ubifs/Makefile	2011-02-23 11:11:14.000000000 -0500
++++ mtd-utils-1.4.2/mkfs.ubifs/Makefile	2011-02-23 11:34:17.000000000 -0500
+@@ -6,7 +6,7 @@
+ 
+ TARGETS = mkfs.ubifs
+ 
+-LDLIBS_mkfs.ubifs = -lz -llzo2 -lm -luuid -L$(BUILDDIR)/../ubi-utils/ -lubi
++LDLIBS_mkfs.ubifs = -lz -llzo2 -lm -Wl,-static -luuid -Wl,-call_shared -L$(BUILDDIR)/../ubi-utils/ -lubi
+ LDLIBS_mkfs.ubifs += -L$(BUILDDIR)/../lib -lmtd -lcrc32
+ LDLIBS_mkfs.ubifs += $(ZLIBLDFLAGS) $(LZOLDFLAGS)
+ 

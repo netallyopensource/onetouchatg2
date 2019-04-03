@@ -1,0 +1,24 @@
+--- tcp_wrappers_7.6/percent_m.c~	2008-01-21 16:47:35.000000000 -0500
++++ tcp_wrappers_7.6/percent_m.c	2008-01-21 16:47:26.000000000 -0500
+@@ -13,10 +13,6 @@
+ #include <string.h>
+ 
+ extern int errno;
+-#ifndef SYS_ERRLIST_DEFINED
+-extern char *sys_errlist[];
+-extern int sys_nerr;
+-#endif
+ 
+ #include "mystdarg.h"
+ 
+@@ -29,8 +25,8 @@
+ 
+     while (*bp = *cp)
+ 	if (*cp == '%' && cp[1] == 'm') {
+-	    if (errno < sys_nerr && errno > 0) {
+-		strcpy(bp, sys_errlist[errno]);
++	    if (errno > 0) {
++		strcpy(bp, strerror(errno));
+ 	    } else {
+ 		sprintf(bp, "Unknown error %d", errno);
+ 	    }

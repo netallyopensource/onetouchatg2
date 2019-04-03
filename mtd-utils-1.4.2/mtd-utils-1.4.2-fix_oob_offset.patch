@@ -1,0 +1,40 @@
+Reported-by: Kelly Anderson <kelly at silka.with-linux.com>
+Signed-off-by: Artem Bityutskiy <Artem.Bityutskiy at nokia.com>
+---
+ lib/libmtd.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git mtd-utils-1.4.2/lib/libmtd.c mtd-utils-1.4.2/lib/libmtd.c
+index e0c0934..e313fc3 100644
+--- a/lib/libmtd.c
++++ b/lib/libmtd.c
+@@ -1083,6 +1083,7 @@ int do_oob_op(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
+ 	struct mtd_oob_buf64 oob64;
+ 	struct mtd_oob_buf oob;
+ 	unsigned long long max_offs;
++	unsigned int oob_offs;
+ 	const char *cmd64_str, *cmd_str;
+ 	struct libmtd *lib = (struct libmtd *)desc;
+ 
+@@ -1102,10 +1103,13 @@ int do_oob_op(libmtd_t desc, const struct mtd_dev_info *mtd, int fd,
+ 		errno = EINVAL;
+ 		return -1;
+ 	}
+-	if (start % mtd->min_io_size) {
+-		errmsg("unaligned address %llu, mtd%d page size is %d",
+-		       (unsigned long long)start, mtd->mtd_num,
+-		       mtd->min_io_size);
++
++	oob_offs = start & (mtd->min_io_size - 1);
++	if (oob_offs + length > mtd->oob_size) {
++		errmsg("Cannot write %llu OOB bytes to address %llu "
++		       "(OOB offset %u) - mtd%d OOB size is only %d bytes",
++		       (unsigned long long)length, (unsigned long long)start,
++		       oob_offs, mtd->mtd_num,  mtd->oob_size);
+ 		errno = EINVAL;
+ 		return -1;
+ 	}
+-- 
+1.7.2.3
+
+

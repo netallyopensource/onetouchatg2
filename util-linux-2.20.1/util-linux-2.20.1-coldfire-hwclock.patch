@@ -1,0 +1,21 @@
+diff -Naur util-linux-2.20.1.orig/hwclock/kd.c util-linux-2.20.1/hwclock/kd.c
+--- util-linux-2.20.1.orig/hwclock/kd.c	2011-12-12 12:27:26.000000000 -0500
++++ util-linux-2.20.1/hwclock/kd.c	2011-12-12 12:30:11.000000000 -0500
+@@ -3,7 +3,7 @@
+  */
+ 
+ 
+-#ifdef __m68k__
++#if defined(__m68k__) && !defined(__mcoldfire__)
+ 
+ # include <fcntl.h>
+ # include <sysexits.h>
+@@ -21,7 +21,7 @@
+ 
+ #endif
+ 
+-#if !defined(__m68k__) || !defined(KDGHWCLK)
++#if !defined(__m68k__) || !defined(KDGHWCLK) || defined(__mcoldfire__)
+ 
+ #include <stddef.h>
+ struct clock_ops *probe_for_kd_clock()

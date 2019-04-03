@@ -1,0 +1,11 @@
+diff -Naur openssl-0.9.8s.orig/fips/incore openssl-0.9.8s/fips/incore
+--- openssl-0.9.8s.orig/fips/incore	2012-01-07 09:49:37.000000000 -0500
++++ openssl-0.9.8s/fips/incore	2012-01-07 09:49:37.000000000 -0500
+@@ -58,6 +58,7 @@
+     elf64-x86-64) INCORE_ADJUST=4;;
+     #elf32-littlearm|elf32-little|elf32-bigarm) INCORE_ADJUST="-36";;
+     elf32-littlearm|elf32-little|elf32-bigarm) INCORE_ADJUST="-8";;
++    elf*mips*) INCORE_ADJUST="12";;
+   esac
+ 
+ fi

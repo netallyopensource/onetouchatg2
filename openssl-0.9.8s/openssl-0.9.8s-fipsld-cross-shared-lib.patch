@@ -1,0 +1,16 @@
+diff -Naur openssl-0.9.8s.orig/fips/fipsld openssl-0.9.8s/fips/fipsld
+--- openssl-0.9.8s.orig/fips/fipsld	2012-01-07 09:49:36.000000000 -0500
++++ openssl-0.9.8s/fips/fipsld	2012-01-07 09:49:38.000000000 -0500
+@@ -90,7 +90,11 @@
+ lib*|*.dll)	# must be linking a shared lib...
+ 	# Shared lib creation can be taking place in the source
+ 	# directory only, but fipscanister.o can reside elsewhere...
+-	FINGERTYPE="${THERE}/fips/fips_standalone_sha1"
++	if [ -x "${THERE}/fips/fips_standalone_sha1" ]; then
++	  FINGERTYPE="${THERE}/fips/fips_standalone_sha1"
++  else
++		FINGERTYPE="openssl sha1 -hmac ${HMAC_KEY}"
++	fi
+ 
+ 	# verify fipspremain.c against its detached signature...
+ 	${FINGERTYPE} "${PREMAIN_C}" | sed "s/(.*\//(/" | \

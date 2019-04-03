@@ -1,0 +1,57 @@
+#!/bin/sh
+# chkconfig: 2345 64 36
+### BEGIN INIT INFO
+# Provides:          apache-httpd http
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start apache-httpd at boot time
+# Description:       Enable service provided by apache-httpd.
+# X-Start-Before:    
+# X-Stop-After:      
+# X-Timesys-Start-Number:  64
+# X-Timesys-Stop-Number:  36
+### END INIT INFO
+
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+stop_service() {
+    echo "Stopping apache-httpd"
+    apachectl stop
+}
+
+start_service() {
+
+    if [ -z "$(grep ^daemon /etc/passwd 2>/dev/null)" ]; then
+        echo "$0: Creating system user 'daemon' with generic settings.  Review and modify as required."
+        yes '' | adduser daemon >/dev/null 2>&1 || yes '' | useradd daemon >/dev/null 2>&1
+    fi
+    if [ -z "$(grep ^daemon /etc/group 2>/dev/null)" ]; then
+        echo "$0: Creating system group 'daemon' with generic settings.  Review and modify as required."
+        yes '' | addgroup daemon >/dev/null 2>&1 || yes '' | groupadd daemon >/dev/null 2>&1
+    fi
+
+    echo "Starting apache-httpd"
+    apachectl start
+}
+
+case $1 in
+
+'start')
+    start_service
+    ;;
+
+'stop')
+    stop_service
+    ;;
+
+'restart')
+    stop_service
+    start_service
+    ;;
+
+*)
+    echo "Usage: $0 [start|stop|restart]"
+    ;;
+esac

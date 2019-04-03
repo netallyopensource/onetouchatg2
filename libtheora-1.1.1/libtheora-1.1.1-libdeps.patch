@@ -1,0 +1,13 @@
+diff -Naur libtheora-1.1.1.orig/lib/Makefile.in libtheora-1.1.1/lib/Makefile.in
+--- libtheora-1.1.1.orig/lib/Makefile.in	2011-05-30 12:22:11.000000000 -0400
++++ libtheora-1.1.1/lib/Makefile.in	2011-05-30 12:22:24.000000000 -0400
+@@ -357,7 +357,8 @@
+ libtheoradec_la_LIBADD =
+ am_libtheoradec_la_OBJECTS = $(am__objects_3)
+ libtheoradec_la_OBJECTS = $(am_libtheoradec_la_OBJECTS)
+-libtheoraenc_la_LIBADD =
++libtheoraenc_la_DEPENDENCIES = libtheoradec.la
++libtheoraenc_la_LIBADD = -ltheoradec
+ @THEORA_DISABLE_ENCODE_FALSE@am__objects_8 = mmxfrag.lo mmxidct.lo \
+ @THEORA_DISABLE_ENCODE_FALSE@	mmxstate.lo x86state.lo
+ @THEORA_DISABLE_ENCODE_FALSE@am__objects_9 =

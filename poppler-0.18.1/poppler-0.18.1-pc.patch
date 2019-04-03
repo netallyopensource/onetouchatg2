@@ -1,0 +1,223 @@
+diff -Naur poppler-0.18.1.orig/configure poppler-0.18.1/configure
+--- poppler-0.18.1.orig/configure	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/configure	2011-12-01 22:32:31.000000000 -0500
+@@ -678,6 +678,7 @@
+ INTROSPECTION_SCANNER
+ POPPLER_GLIB_LIBS
+ POPPLER_GLIB_CFLAGS
++GLIB_REQUIRED
+ CAIRO_REQ
+ CAIRO_FEATURE
+ BUILD_CAIRO_OUTPUT_FALSE
+diff -Naur poppler-0.18.1.orig/cpp/Makefile.in poppler-0.18.1/cpp/Makefile.in
+--- poppler-0.18.1.orig/cpp/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/cpp/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -229,6 +229,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/cpp/tests/Makefile.in poppler-0.18.1/cpp/tests/Makefile.in
+--- poppler-0.18.1.orig/cpp/tests/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/cpp/tests/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -136,6 +136,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/fofi/Makefile.in poppler-0.18.1/fofi/Makefile.in
+--- poppler-0.18.1.orig/fofi/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/fofi/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -175,6 +175,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/glib/demo/Makefile.in poppler-0.18.1/glib/demo/Makefile.in
+--- poppler-0.18.1.orig/glib/demo/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/glib/demo/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -159,6 +159,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/glib/Makefile.in poppler-0.18.1/glib/Makefile.in
+--- poppler-0.18.1.orig/glib/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/glib/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -232,6 +232,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/glib/reference/Makefile.in poppler-0.18.1/glib/reference/Makefile.in
+--- poppler-0.18.1.orig/glib/reference/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/glib/reference/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -108,6 +108,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/goo/Makefile.in poppler-0.18.1/goo/Makefile.in
+--- poppler-0.18.1.orig/goo/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/goo/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -178,6 +178,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/Makefile.in poppler-0.18.1/Makefile.in
+--- poppler-0.18.1.orig/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -196,6 +196,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/poppler/Makefile.in poppler-0.18.1/poppler/Makefile.in
+--- poppler-0.18.1.orig/poppler/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/poppler/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -273,6 +273,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/poppler-glib.pc.cmake poppler-0.18.1/poppler-glib.pc.cmake
+--- poppler-0.18.1.orig/poppler-glib.pc.cmake	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/poppler-glib.pc.cmake	2011-12-01 22:32:31.000000000 -0500
+@@ -6,7 +6,7 @@
+ Name: poppler-glib
+ Description: GLib wrapper for poppler
+ Version: @POPPLER_VERSION@
+-Requires: glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED cairo >= $CAIRO_VERSION
++Requires: glib-2.0 >= @GLIB_REQUIRED@ gobject-2.0 >= @GLIB_REQUIRED@ cairo >= @CAIRO_VERSION@
+ @PC_REQUIRES_PRIVATE@
+ 
+ Libs: -L${libdir} -lpoppler-glib
+diff -Naur poppler-0.18.1.orig/poppler-glib.pc.in poppler-0.18.1/poppler-glib.pc.in
+--- poppler-0.18.1.orig/poppler-glib.pc.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/poppler-glib.pc.in	2011-12-01 22:32:31.000000000 -0500
+@@ -6,7 +6,7 @@
+ Name: poppler-glib
+ Description: GLib wrapper for poppler
+ Version: @VERSION@
+-Requires: glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED cairo >= $CAIRO_VERSION
++Requires: glib-2.0 >= @GLIB_REQUIRED@ gobject-2.0 >= @GLIB_REQUIRED@ cairo >= @CAIRO_VERSION@
+ @PC_REQUIRES_PRIVATE@
+ 
+ Libs: -L${libdir} -lpoppler-glib
+diff -Naur poppler-0.18.1.orig/poppler-glib-uninstalled.pc.in poppler-0.18.1/poppler-glib-uninstalled.pc.in
+--- poppler-0.18.1.orig/poppler-glib-uninstalled.pc.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/poppler-glib-uninstalled.pc.in	2011-12-01 22:32:31.000000000 -0500
+@@ -1,7 +1,7 @@
+ Name: poppler-glib
+ Description: GLib wrapper for poppler - uninstalled
+ Version: @VERSION@
+-Requires: glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED cairo >= $CAIRO_VERSION
++Requires: glib-2.0 >= @GLIB_REQUIRED@ gobject-2.0 >= @GLIB_REQUIRED@ cairo >= @CAIRO_VERSION@
+ 
+ Libs: ${pc_top_builddir}/${pcfiledir}/glib/libpoppler-glib.la
+ Cflags: -I${pc_top_builddir}/${pcfiledir}/glib
+diff -Naur poppler-0.18.1.orig/qt4/demos/Makefile.in poppler-0.18.1/qt4/demos/Makefile.in
+--- poppler-0.18.1.orig/qt4/demos/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/qt4/demos/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -157,6 +157,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/qt4/Makefile.in poppler-0.18.1/qt4/Makefile.in
+--- poppler-0.18.1.orig/qt4/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/qt4/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -141,6 +141,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/qt4/src/Makefile.in poppler-0.18.1/qt4/src/Makefile.in
+--- poppler-0.18.1.orig/qt4/src/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/qt4/src/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -198,6 +198,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/qt4/tests/Makefile.in poppler-0.18.1/qt4/tests/Makefile.in
+--- poppler-0.18.1.orig/qt4/tests/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/qt4/tests/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -302,6 +302,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/splash/Makefile.in poppler-0.18.1/splash/Makefile.in
+--- poppler-0.18.1.orig/splash/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/splash/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -170,6 +170,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/test/Makefile.in poppler-0.18.1/test/Makefile.in
+--- poppler-0.18.1.orig/test/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/test/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -157,6 +157,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+diff -Naur poppler-0.18.1.orig/utils/Makefile.in poppler-0.18.1/utils/Makefile.in
+--- poppler-0.18.1.orig/utils/Makefile.in	2011-12-01 22:26:31.000000000 -0500
++++ poppler-0.18.1/utils/Makefile.in	2011-12-01 22:32:31.000000000 -0500
+@@ -245,6 +245,7 @@
+ FREETYPE_LIBS = @FREETYPE_LIBS@
+ GLIB_MKENUMS = @GLIB_MKENUMS@
+ GLIB_REQ = @GLIB_REQ@
++GLIB_REQUIRED = @GLIB_REQUIRED@
+ GREP = @GREP@
+ GTKDOC_CHECK = @GTKDOC_CHECK@
+ GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@

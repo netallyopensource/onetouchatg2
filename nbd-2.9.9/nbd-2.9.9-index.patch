@@ -1,0 +1,14 @@
+diff -Naur nbd-2.9.9.orig/nbd-server.c nbd-2.9.9/nbd-server.c
+--- nbd-2.9.9.orig/nbd-server.c	2008-02-18 09:43:18.000000000 -0500
++++ nbd-2.9.9/nbd-server.c	2008-02-18 09:44:24.000000000 -0500
+@@ -239,6 +239,10 @@
+ 				  is PARAM_BOOL. */
+ } PARAM;
+ 
++#ifndef index
++    #define index(a,b) strchr(a,b)
++#endif
++
+ /**
+  * Check whether a client is allowed to connect. Works with an authorization
+  * file which contains one line per machine, no wildcards.

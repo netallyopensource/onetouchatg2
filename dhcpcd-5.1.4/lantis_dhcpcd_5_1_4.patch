@@ -1,0 +1,153 @@
+Common subdirectories: /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/compat and ./compat
+diff -cB /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/defs.h ./defs.h
+*** /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/defs.h	2009-12-23 01:22:32.000000000 -0700
+--- ./defs.h	2012-03-01 12:08:02.549187752 -0700
+***************
+*** 28,34 ****
+  #define CONFIG_H
+  
+  #define PACKAGE			"dhcpcd"
+! #define VERSION			"5.1.4"
+  
+  #ifndef CONFIG
+  # define CONFIG			SYSCONFDIR "/" PACKAGE ".conf"
+--- 28,34 ----
+  #define CONFIG_H
+  
+  #define PACKAGE			"dhcpcd"
+! #define VERSION			"lantis.5.1.4"
+  
+  #ifndef CONFIG
+  # define CONFIG			SYSCONFDIR "/" PACKAGE ".conf"
+Only in .: dhcp5_1_4_lantis.patch
+diff -cB /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/dhcpcd.h ./dhcpcd.h
+*** /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/dhcpcd.h	2009-12-23 01:22:32.000000000 -0700
+--- ./dhcpcd.h	2012-03-22 10:42:42.918145500 -0600
+***************
+*** 128,133 ****
+--- 128,134 ----
+      struct in_addr *, struct in_addr *, struct in_addr *);
+  void handle_exit_timeout(void *);
+  void start_interface(void *);
++ void stop_interface_arp(void *);
+  void start_discover(void *);
+  void start_request(void *);
+  void start_renew(void *);
+diff -cB /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/dhcpcd.c ./dhcpcd.c
+*** /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/dhcpcd.c	2009-12-23 01:22:32.000000000 -0700
+--- ./dhcpcd.c	2012-03-01 12:08:02.549187752 -0700
+***************
+*** 271,276 ****
+--- 271,297 ----
+  		exit(EXIT_FAILURE);
+  }
+  
++ void
++ stop_interface_arp(void *arg)
++ {
++ 	struct interface *iface, *ifl;
++ 	/* struct interface *iface = arg; */
++ 	/* As drop_config could re-arrange the order, we do it like this. */
++ 	for (;;) {
++ 		
++ 		ifl = NULL;
++ 		for (iface = ifaces; iface; iface = iface->next) {
++ 			if (iface->next == NULL)
++ 				break;
++ 			ifl = iface;
++ 		}
++ 		if (iface == NULL)
++ 			break;
++ 		stop_interface(iface);
++ 	}
++ 	exit(EXIT_FAILURE);
++ }
++ 
+  static void
+  send_message(struct interface *iface, int type,
+      void (*callback)(void *))
+***************
+*** 289,300 ****
+  		    iface->name, get_dhcp_op(type), state->xid);
+  	else {
+  		if (state->interval == 0)
+! 			state->interval = 4;
+  		else {
+  			state->interval *= 2;
+  			if (state->interval > 64)
+  				state->interval = 64;
+  		}
+  		tv.tv_sec = state->interval + DHCP_RAND_MIN;
+  		tv.tv_usec = arc4random() % (DHCP_RAND_MAX_U - DHCP_RAND_MIN_U);
+  		syslog(LOG_DEBUG,
+--- 310,323 ----
+  		    iface->name, get_dhcp_op(type), state->xid);
+  	else {
+  		if (state->interval == 0)
+! 			state->interval = 7;
+! /*
+  		else {
+  			state->interval *= 2;
+  			if (state->interval > 64)
+  				state->interval = 64;
+  		}
++ */
+  		tv.tv_sec = state->interval + DHCP_RAND_MIN;
+  		tv.tv_usec = arc4random() % (DHCP_RAND_MAX_U - DHCP_RAND_MIN_U);
+  		syslog(LOG_DEBUG,
+
+diff -cB /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/arp.h ./arp.h
+*** /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/arp.h	2009-12-23 01:22:32.000000000 -0700
+--- ./arp.h	2012-03-22 10:02:50.966144322 -0600
+***************
+*** 31,41 ****
+  /* These are for IPV4LL, RFC 3927.
+   * We put them here as we use the timings for all ARP foo. */
+  #define PROBE_WAIT		 1
+! #define PROBE_NUM		 3
+  #define PROBE_MIN		 1
+  #define PROBE_MAX		 2
+! #define ANNOUNCE_WAIT		 2
+! #define ANNOUNCE_NUM		 2
+  #define ANNOUNCE_INTERVAL	 2
+  #define MAX_CONFLICTS		10
+  #define RATE_LIMIT_INTERVAL	60
+--- 31,41 ----
+  /* These are for IPV4LL, RFC 3927.
+   * We put them here as we use the timings for all ARP foo. */
+  #define PROBE_WAIT		 1
+! #define PROBE_NUM		 1
+  #define PROBE_MIN		 1
+  #define PROBE_MAX		 2
+! #define ANNOUNCE_WAIT		 1
+! #define ANNOUNCE_NUM		 1
+  #define ANNOUNCE_INTERVAL	 2
+  #define MAX_CONFLICTS		10
+  #define RATE_LIMIT_INTERVAL	60
+
+diff -cB /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/arp.c ./arp.c
+*** /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/arp.c	2009-12-23 01:22:32.000000000 -0700
+--- ./arp.c	2012-03-22 10:02:50.966144322 -0600
+***************
+*** 88,96 ****
+  	close_sockets(iface);
+  	delete_timeout(NULL, iface);
+  	if (iface->state->lease.frominfo)
+! 		start_interface(iface);
+  	else
+! 		add_timeout_sec(DHCP_ARP_FAIL, start_interface, iface);
+  }
+  
+  static void
+--- 88,96 ----
+  	close_sockets(iface);
+  	delete_timeout(NULL, iface);
+  	if (iface->state->lease.frominfo)
+! 		stop_interface_arp(iface);
+  	else
+! 		stop_interface_arp(iface);
+  }
+  
+  static void
+Common subdirectories: /home/dmcdonald/lantisdev/lantis-top/factory/build_powerpc-timesys-linux-gnuspe/dhcpcd-5.1.4/dhcpcd-5.1.4/dhcpcd-hooks and ./dhcpcd-hooks
+Only in .: dhcpcd-lantis.patch

@@ -1,0 +1,21 @@
+Index: mtd-utils/ubi-utils/src/ubiformat.c
+===================================================================
+--- mtd-utils.orig/ubi-utils/src/ubiformat.c	2011-07-06 13:12:34.338129572 -0400
++++ mtd-utils/ubi-utils/src/ubiformat.c	2011-07-06 13:13:26.689405607 -0400
+@@ -365,14 +365,14 @@
+ 	while (len > 0) {
+ 		ssize_t l = read(fd, buf, len);
+ 		if (l == 0)
+-			return errmsg("eof reached; %zu bytes remaining", len);
++			return errmsg("eof reached; %zu bytes remaining", (int)len);
+ 		else if (l > 0) {
+ 			buf += l;
+ 			len -= l;
+ 		} else if (errno == EINTR || errno == EAGAIN)
+ 			continue;
+ 		else
+-			return sys_errmsg("reading failed; %zu bytes remaining", len);
++			return sys_errmsg("reading failed; %zu bytes remaining", (int)len);
+ 	}
+ 
+ 	return 0;

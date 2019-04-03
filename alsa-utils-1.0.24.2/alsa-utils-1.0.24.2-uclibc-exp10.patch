@@ -1,0 +1,13 @@
+--- alsa-utils-1.0.24.2/alsamixer/volume_mapping.c	2011-02-12 16:09:09.806019454 -0500
++++ alsa-utils-1.0.24.2/alsamixer/volume_mapping.c	2011-02-12 16:08:46.906019946 -0500
+@@ -39,6 +39,10 @@
+ 
+ #define MAX_LINEAR_DB_SCALE	24
+ 
++#if defined(__UCLIBC__)
++#define exp10(x) (pow(10.0, (x)))
++#endif
++
+ static inline bool use_linear_dB_scale(long dBmin, long dBmax)
+ {
+ 	return dBmax - dBmin <= MAX_LINEAR_DB_SCALE * 100;

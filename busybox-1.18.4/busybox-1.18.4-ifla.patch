@@ -1,0 +1,25 @@
+diff -Naur busybox-1.18.4.orig/networking/libiproute/iplink.c busybox-1.18.4/networking/libiproute/iplink.c
+--- busybox-1.18.4.orig/networking/libiproute/iplink.c	2011-03-14 16:43:44.000000000 -0400
++++ busybox-1.18.4/networking/libiproute/iplink.c	2011-03-14 16:47:22.000000000 -0400
+@@ -336,6 +336,21 @@
+ 	if (type_str) {
+ 		struct rtattr *linkinfo = NLMSG_TAIL(&req.n);
+ 
++#ifndef IFLA_LINKINFO
++	#define IFLA_LINKINFO 18
++#endif
++#ifndef IFLA_INFO_KIND
++	#define IFLA_INFO_KIND 1
++#endif
++
++#if defined(__nios2__) || defined(__sparc__)
++    #ifndef IFLA_LINKINFO
++        #define IFLA_LINKINFO 18
++    #endif
++    #ifndef IFLA_INFO_KIND
++        #define IFLA_INFO_KIND 1
++    #endif
++#endif
+ 		addattr_l(&req.n, sizeof(req), IFLA_LINKINFO, NULL, 0);
+ 		addattr_l(&req.n, sizeof(req), IFLA_INFO_KIND, type_str,
+ 				strlen(type_str));

@@ -1,0 +1,11 @@
+diff -Naur glib-2.26.1/glib/gatomic.c glib-2.26.1/glib/gatomic.c
+--- glib-2.26.1/glib/gatomic.c	2010-11-22 23:08:26.803789883 -0500
++++ glib-2.26.1/glib/gatomic.c	2010-11-22 23:23:15.392537164 -0500
+@@ -881,6 +881,7 @@
+ #endif /* DEFINE_WITH_WIN32_INTERLOCKED */
+ 
+ #ifdef DEFINE_WITH_MUTEXES
++#include "gthread.h"
+ /* We have to use the slow, but safe locking method */
+ static GMutex *g_atomic_mutex; 
+ 

@@ -1,0 +1,12 @@
+diff -Nuar libserial-0.6.0rc1-old//src/SerialStreamBuf.h libserial-0.6.0rc1/src/SerialStreamBuf.h
+--- libserial-0.6.0rc1-old//src/SerialStreamBuf.h	2011-07-14 09:50:38.299699008 -0400
++++ libserial-0.6.0rc1/src/SerialStreamBuf.h	2011-07-14 09:53:29.319699010 -0400
+@@ -82,7 +82,7 @@
+                 BAUD_460800 = SerialPort::BAUD_460800,
+ #endif
+                 BAUD_DEFAULT = SerialPort::BAUD_DEFAULT,
+-                BAUD_INVALID
++                BAUD_INVALID = -1 
+             } ;
+ 
+             /**

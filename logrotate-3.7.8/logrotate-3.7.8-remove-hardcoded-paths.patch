@@ -1,0 +1,25 @@
+--- logrotate-3.7.8/config.h	2011-10-06 15:42:49.846712482 -0400
++++ logrotate-3.7.8/config.h	2011-10-06 15:43:05.136711833 -0400
+@@ -20,11 +20,11 @@
+  * Default settings for Linux - leave these last.
+  */
+ #ifndef DEFAULT_MAIL_COMMAND
+-#define DEFAULT_MAIL_COMMAND "/bin/mail"
++#define DEFAULT_MAIL_COMMAND "mail"
+ #endif
+ 
+ #ifndef COMPRESS_COMMAND
+-#define COMPRESS_COMMAND "/bin/gzip"
++#define COMPRESS_COMMAND "gzip"
+ #endif
+ 
+ #ifndef COMPRESS_EXT
+@@ -32,7 +32,7 @@
+ #endif
+ 
+ #ifndef UNCOMPRESS_COMMAND
+-#define UNCOMPRESS_COMMAND "/bin/gunzip"
++#define UNCOMPRESS_COMMAND "gunzip"
+ #endif
+ 
+ #ifndef STATEFILE

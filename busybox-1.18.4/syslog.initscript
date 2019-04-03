@@ -1,0 +1,32 @@
+#!/bin/sh
+# chkconfig: 2345 10 90
+### BEGIN INIT INFO
+# Provides:          syslog
+# Required-Start:    $local_fs
+# Required-Stop:     
+# Should-Start:      $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start syslog at boot time
+# Description:       Enable service provided by syslog.
+# X-Start-Before:    
+# X-Stop-After:      
+# X-Timesys-Start-Number:  10
+# X-Timesys-Stop-Number:  90
+### END INIT INFO
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+case "$1" in
+	start)
+		echo "Starting system logging."
+		dmesg 2>/dev/null > /var/log/dmesg
+		syslogd
+
+		touch /var/log/wtmp 2>/dev/null
+		touch /var/run/utmp 2>/dev/null
+	;;
+	*)
+	;;
+esac
+

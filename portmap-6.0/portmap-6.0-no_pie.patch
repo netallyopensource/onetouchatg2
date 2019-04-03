@@ -1,0 +1,15 @@
+diff -Naurp portmap_6.0-orig//Makefile portmap_6.0/Makefile
+--- portmap_6.0-orig//Makefile	2007-05-10 23:02:10.000000000 -0400
++++ portmap_6.0/Makefile	2011-12-01 15:32:02.698931188 -0500
+@@ -125,9 +125,9 @@ CFLAGS   += -Wall -Wstrict-prototypes
+ all:	portmap pmap_dump pmap_set portmap.man
+ 
+ CPPFLAGS += $(HOSTS_ACCESS)
+-portmap: CFLAGS   += -fpie
++portmap: CFLAGS   +=
+ portmap: LDLIBS   += $(WRAP_LIB)
+-portmap: LDFLAGS  += -pie
++portmap: LDFLAGS  +=
+ portmap: portmap.o pmap_check.o from_local.o
+ 
+ from_local: CPPFLAGS += -DTEST

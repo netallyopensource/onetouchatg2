@@ -1,0 +1,13 @@
+#!/bin/sh
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+case "$1" in
+	start)
+		glib-compile-schemas /usr/share/glib-2.0/schemas >/dev/null 2>&1
+	;;
+	stop)
+	;;
+	*)
+		echo "$0 [start|stop]"
+	;;
+esac

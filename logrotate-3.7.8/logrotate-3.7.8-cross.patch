@@ -1,0 +1,35 @@
+--- logrotate-3.7.8/Makefile.orig	2009-09-11 14:58:19.000000000 -0400
++++ logrotate-3.7.8/Makefile	2009-09-11 15:00:01.000000000 -0400
+@@ -1,7 +1,7 @@
+ VERSION = $(shell awk '/Version:/ { print $$2 }' logrotate.spec)
+ OS_NAME = $(shell uname -s)
+ LFS = $(shell echo `getconf LFS_CFLAGS 2>/dev/null`)
+-CFLAGS = -Wall -D_GNU_SOURCE -D$(OS_NAME) -DVERSION=\"$(VERSION)\" $(RPM_OPT_FLAGS) $(LFS)
++CFLAGS += -Wall -D_GNU_SOURCE -D$(OS_NAME) -DVERSION=\"$(VERSION)\" $(RPM_OPT_FLAGS) $(LFS)
+ PROG = logrotate
+ MAN = logrotate.8
+ LOADLIBES = -lpopt
+@@ -96,16 +96,16 @@
+ 	(cd test; ./test)
+ 
+ install:
+-	[ -d $(PREFIX)/$(BINDIR) ] || mkdir -p $(PREFIX)/$(BINDIR)
+-	[ -d $(PREFIX)/$(MANDIR) ] || mkdir -p $(PREFIX)/$(MANDIR)
+-	[ -d $(PREFIX)/$(MANDIR)/man8 ] || mkdir -p $(PREFIX)/$(MANDIR)/man8
++	[ -d $(DESTDIR)/$(BINDIR) ] || mkdir -p $(DESTDIR)/$(BINDIR)
++	[ -d $(DESTDIR)/$(MANDIR) ] || mkdir -p $(DESTDIR)/$(MANDIR)
++	[ -d $(DESTDIR)/$(MANDIR)/man8 ] || mkdir -p $(DESTDIR)/$(MANDIR)/man8
+ 
+ 	if [ "$(OS_NAME)" = HP-UX ]; then \
+-	$(INSTALL) $(PROG) $(PREFIX)/$(BINDIR) 0755 bin bin; \
+-	$(INSTALL) $(MAN) $(PREFIX)/$(MANDIR)/man`echo $(MAN) | sed "s/.*\.//"` 0644 bin bin; \
++	$(INSTALL) $(PROG) $(DESTDIR)/$(BINDIR) 0755 bin bin; \
++	$(INSTALL) $(MAN) $(DESTDIR)/$(MANDIR)/man`echo $(MAN) | sed "s/.*\.//"` 0644 bin bin; \
+ 	else \
+-	$(INSTALL) -m 755 $(PROG) $(PREFIX)/$(BINDIR); \
+-	$(INSTALL) -m 644 $(MAN) $(PREFIX)/$(MANDIR)/man`echo $(MAN) | sed "s/.*\.//"`/$(MAN); \
++	$(INSTALL) -m 755 $(PROG) $(DESTDIR)/$(BINDIR); \
++	$(INSTALL) -m 644 $(MAN) $(DESTDIR)/$(MANDIR)/man`echo $(MAN) | sed "s/.*\.//"`/$(MAN); \
+ 	fi
+ 
+ co:

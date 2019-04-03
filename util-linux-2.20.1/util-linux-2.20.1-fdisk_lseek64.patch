@@ -1,0 +1,34 @@
+diff -Naur util-linux-2.20.1.orig/fdisk/cfdisk.c util-linux-2.20.1/fdisk/cfdisk.c
+--- util-linux-2.20.1.orig/fdisk/cfdisk.c	2011-12-12 12:27:26.000000000 -0500
++++ util-linux-2.20.1/fdisk/cfdisk.c	2011-12-12 12:29:37.000000000 -0500
+@@ -598,7 +598,7 @@
+ 
+ static void
+ read_sector(unsigned char *buffer, long long sect_num) {
+-    if (lseek(fd, sect_num*SECTOR_SIZE, SEEK_SET) < 0)
++    if (lseek64(fd, sect_num*SECTOR_SIZE, SEEK_SET) < 0)
+ 	fatal(_("Cannot seek on disk drive"), 2);
+     if (read(fd, buffer, SECTOR_SIZE) != SECTOR_SIZE)
+ 	fatal(_("Cannot read disk drive"), 2);
+@@ -606,7 +606,7 @@
+ 
+ static void
+ write_sector(unsigned char *buffer, long long sect_num) {
+-    if (lseek(fd, sect_num*SECTOR_SIZE, SEEK_SET) < 0)
++    if (lseek64(fd, sect_num*SECTOR_SIZE, SEEK_SET) < 0)
+ 	fatal(_("Cannot seek on disk drive"), 2);
+     if (write(fd, buffer, SECTOR_SIZE) != SECTOR_SIZE)
+ 	fatal(_("Cannot write disk drive"), 2);
+diff -Naur util-linux-2.20.1.orig/fdisk/fdisk.c util-linux-2.20.1/fdisk/fdisk.c
+--- util-linux-2.20.1.orig/fdisk/fdisk.c	2011-12-12 12:27:26.000000000 -0500
++++ util-linux-2.20.1/fdisk/fdisk.c	2011-12-12 12:29:37.000000000 -0500
+@@ -290,8 +290,7 @@
+ 
+ static void
+ seek_sector(int fd, unsigned long long secno) {
+-	off_t offset = (off_t) secno * sector_size;
+-	if (lseek(fd, offset, SEEK_SET) == (off_t) -1)
++	if (lseek64(fd, secno*sector_size, SEEK_SET) == (off64_t) -1)
+ 		fatal(unable_to_seek);
+ }
+ 

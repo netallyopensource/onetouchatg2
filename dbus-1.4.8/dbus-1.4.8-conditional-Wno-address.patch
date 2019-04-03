@@ -1,0 +1,15 @@
+diff -Naur dbus-1.4.8.orig/configure dbus-1.4.8/configure
+--- dbus-1.4.8.orig/configure	2011-04-11 10:48:22.000000000 -0400
++++ dbus-1.4.8/configure	2011-04-11 10:50:18.000000000 -0400
+@@ -19475,7 +19475,10 @@
+ 
+   case " $CFLAGS " in
+   *[\ \	]-Wno-address[\ \	]*) ;;
+-  *) CFLAGS="$CFLAGS -Wno-address" ;;
++  *) if cc_supports_flag -Wno-address; then
++        CFLAGS="$CFLAGS -Wno-address"
++     fi
++     ;;
+   esac
+ 
+   case " $CFLAGS " in

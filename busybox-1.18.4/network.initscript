@@ -1,0 +1,43 @@
+#!/bin/sh
+# chkconfig: 2345 20 80
+### BEGIN INIT INFO
+# Provides:          network
+# Required-Start:    modules $local_fs
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start network at boot time
+# Description:       Enable service provided by network.
+# X-Start-Before:    
+# X-Stop-After:      
+# X-Timesys-Start-Number:  20
+# X-Timesys-Stop-Number:  80
+### END INIT INFO
+
+
+IFUP=/sbin/ifup
+IFDOWN=/sbin/ifdown
+
+
+case "$1" in
+	start)
+		if [ -f /etc/hostname ]; then
+			hostname `cat /etc/hostname` >/dev/null 2>&1
+		fi
+
+		echo -n "Configuring network interfaces: "
+		$IFDOWN -a
+		if $IFUP -a; then
+        		echo "done"
+		else
+        		echo "failed"
+        		exit 1
+		fi
+	;;
+	stop)
+		$IFDOWN -a
+	;;
+	*)
+	;;
+esac
+

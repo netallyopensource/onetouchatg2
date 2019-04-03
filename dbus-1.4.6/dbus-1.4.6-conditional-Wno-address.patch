@@ -1,0 +1,14 @@
+--- dbus-1.4.6/configure	2011-03-04 10:15:22.290848939 -0500
++++ dbus-1.4.6/configure	2011-03-04 10:16:01.539909221 -0500
+@@ -19570,7 +19570,10 @@
+ 
+   case " $CFLAGS " in
+   *[\ \	]-Wno-address[\ \	]*) ;;
+-  *) CFLAGS="$CFLAGS -Wno-address" ;;
++  *) if cc_supports_flag -Wno-address; then
++        CFLAGS="$CFLAGS -Wno-address"
++     fi
++     ;;
+   esac
+ 
+   case " $CFLAGS " in

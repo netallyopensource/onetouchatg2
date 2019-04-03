@@ -1,0 +1,84 @@
+#!/bin/sh
+# chkconfig: 2345 21 79
+### BEGIN INIT INFO
+# Provides:          nfsd
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start nfsd at boot time
+# Description:       Enable service provided by nfsd.
+# X-Start-Before:    
+# X-Stop-After:      
+# X-Timesys-Start-Number:  21
+# X-Timesys-Stop-Number:  79
+### END INIT INFO
+
+
+PORTMAP=/sbin/portmap
+STATD=/usr/sbin/rpc.statd
+MOUNTD=/usr/sbin/rpc.mountd
+NFSD=/usr/sbin/rpc.nfsd
+#GSSD=/usr/sbin/rpc.gssd
+#SVCGSSD=/usr/sbin/rpc.svcgssd
+#IDMAPD=/usr/sbin/rpc.idmapd
+SERVICES="$PORTMAP $GSSD $SVCGSSD $IDMAPD $STATD $MOUNTD $NFSD"
+
+start()
+{
+  printf "Mounting proc/fs/nfsd: "
+  if mount -t nfsd nfsd /proc/fs/nfsd >/dev/null 2>&1  ; then
+    echo "[OK]"
+  else
+    echo "[FAIL]"
+    exit 1;
+  fi
+
+  exportfs -r
+
+	for service in $SERVICES
+	do
+    if [ -f "$service" ]; then
+		  printf "Starting $service: "
+		  if ! $service ; then
+			  echo "[FAIL]"
+			  exit 1
+		  fi
+		  echo "[OK]"
+    fi
+	done
+
+  sm-notify
+}
+
+stop()
+{
+	for service in $SERVICES
+	do
+    if [ -f $service ]; then
+      pid=`pidof $service`
+      if [ -n "$pid" ]; then
+		    echo "Stopping $service"
+		    kill $pid
+      fi
+    fi
+	done
+	umount /proc/fs/nfsd >/dev/null 2>&1
+}
+
+case "$1" in
+	start)
+		start
+	;;
+	stop)
+		stop
+	;;
+	restart)
+		$0 stop
+		$0 start
+	;;
+	*)
+		echo "Usage: $0 [start|stop|restart]"
+		exit 1
+	;;
+esac

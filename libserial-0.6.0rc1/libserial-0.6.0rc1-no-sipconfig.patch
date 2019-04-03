@@ -1,0 +1,12 @@
+diff -Naur libserial-0.6.0rc1.orig/Makefile.in libserial-0.6.0rc1/Makefile.in
+--- libserial-0.6.0rc1.orig/Makefile.in	2011-06-28 10:30:48.000000000 -0400
++++ libserial-0.6.0rc1/Makefile.in	2011-06-28 10:30:56.000000000 -0400
+@@ -197,7 +197,7 @@
+ target_alias = @target_alias@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-SUBDIRS = src doc examples sip
++SUBDIRS = src doc examples
+ EXTRA_DIST = doxygen.conf.in Makefile.dist libserial.spec libserial.pc
+ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = libserial.pc

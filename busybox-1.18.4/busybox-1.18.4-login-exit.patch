@@ -1,0 +1,10 @@
+diff -Naur busybox-1.18.4.orig/loginutils/login.c busybox-1.18.4/loginutils/login.c
+--- busybox-1.18.4.orig/loginutils/login.c	2011-03-14 16:43:44.000000000 -0400
++++ busybox-1.18.4/loginutils/login.c	2011-03-14 16:48:16.000000000 -0400
+@@ -436,5 +436,5 @@
+ 	/* Exec login shell with no additional parameters */
+ 	run_shell(shell, 1, NULL, NULL);
+ 
+-	/* return EXIT_FAILURE; - not reached */
++	return EXIT_FAILURE;
+ }

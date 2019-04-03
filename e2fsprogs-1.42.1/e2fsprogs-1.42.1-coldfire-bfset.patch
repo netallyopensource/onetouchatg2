@@ -1,0 +1,12 @@
+diff -Naur e2fsprogs-1.42.1.orig/lib/ext2fs/bitops.h e2fsprogs-1.42.1/lib/ext2fs/bitops.h
+--- e2fsprogs-1.42.1.orig/lib/ext2fs/bitops.h	2012-02-20 15:47:39.000000000 -0500
++++ e2fsprogs-1.42.1/lib/ext2fs/bitops.h	2012-02-20 15:48:27.000000000 -0500
+@@ -336,7 +336,7 @@
+ #endif	/* i386 */
+ 
+ #if ((defined __GNUC__) && !defined(_EXT2_USE_C_VERSIONS_) && \
+-     (defined(__mc68000__)))
++     (defined(__mc68000__) && !defined(__mcoldfire__)))
+ 
+ #define _EXT2_HAVE_ASM_BITOPS_
+ 

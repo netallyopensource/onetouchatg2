@@ -1,0 +1,11 @@
+diff -Naur dbus-1.5.8.orig/configure dbus-1.5.8/configure
+--- dbus-1.5.8.orig/configure	2011-09-28 12:38:10.000000000 -0400
++++ dbus-1.5.8/configure	2011-09-28 12:42:32.000000000 -0400
+@@ -21074,7 +21074,6 @@
+    unused-parameter \
+    sign-compare \
+    pointer-sign \
+-   type-limits \
+   ; do
+ 
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking to see if compiler understands -Wno-$tp_flag" >&5

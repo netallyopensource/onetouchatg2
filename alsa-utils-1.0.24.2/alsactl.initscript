@@ -1,0 +1,49 @@
+#!/bin/sh
+# chkconfig: 2345 20 80
+### BEGIN INIT INFO
+# Provides:          alsactl sound
+# Required-Start:    modules
+# Required-Stop:     modules
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start alsactl at boot time
+# Description:       Enable service provided by alsactl.
+# X-Start-Before:    x fb
+# X-Stop-After:      
+# X-Timesys-Start-Number:  20
+# X-Timesys-Stop-Number:  80
+### END INIT INFO
+
+# unmute the sound card at boot
+
+case $1 in
+
+'start')
+    if [ -e /etc/asound.state ]; then
+        echo -n "Restoring asound.state: "
+        OP=restore
+    else 
+        echo -n "Intializing sound to defaults: "
+        OP=init
+    fi
+    ;;
+'stop'|'restart')
+    echo -n "Storing asound.state: "
+    OP=store
+    ;;
+*)
+    echo "Usage: $0 [start|stop|restart]"
+    exit 1
+    ;;
+esac
+
+if alsactl $OP; then
+    echo "[ OK ]"
+else
+    if [ "$OP" == init -a $? == 99 ]; then
+        echo "[ OK ]"
+    else
+        echo "[ FAILED ]"
+    fi
+fi
+

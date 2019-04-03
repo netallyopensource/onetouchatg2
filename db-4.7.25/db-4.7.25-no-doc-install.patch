@@ -1,0 +1,15 @@
+diff -Naur db-4.7.25.orig/dist/Makefile.in db-4.7.25/dist/Makefile.in
+--- db-4.7.25.orig/dist/Makefile.in	2010-05-12 15:15:04.785096004 -0400
++++ db-4.7.25/dist/Makefile.in	2010-05-12 15:15:29.286346150 -0400
+@@ -866,9 +866,9 @@
+ # Library and standard utilities install.
+ ##################################################
+ library_install: install_setup
+-library_install: install_include install_lib install_utilities install_docs
++library_install: install_include install_lib install_utilities
+ 
+-uninstall: uninstall_include uninstall_lib uninstall_utilities uninstall_docs
++uninstall: uninstall_include uninstall_lib uninstall_utilities
+ 
+ install_setup:
+ 	@test -d $(DESTDIR)$(prefix) || \

@@ -1,0 +1,10 @@
+--- faac-1.28/common/mp4v2/mp4.h	2011-10-11 10:57:21.000000000 -0400
++++ faac-1.28/common/mp4v2/mp4.h	2011-10-11 10:57:29.000000000 -0400
+@@ -43,6 +43,7 @@
+ /* exploit C++ ability of default values for function parameters */
+ #define DEFAULT(x)	=x
+ #else
++#include <stdbool.h>
+ #define DEFAULT(x)
+ #endif
+ #endif

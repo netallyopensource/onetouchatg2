@@ -1,0 +1,1430 @@
+Index: tslib/plugins/input-raw.c
+===================================================================
+--- tslib/plugins/input-raw.c	(revision 49)
++++ tslib/plugins/input-raw.c	(revision 78)
+@@ -1,5 +1,5 @@
+ /*
+- *  tslib/src/ts_read_raw_module.c
++ *  tslib/plugins/input-raw.c
+  *
+  *  Original version:
+  *  Copyright (C) 2001 Russell King.
+@@ -18,6 +18,7 @@
+ 
+ #include <errno.h>
+ #include <stdio.h>
++#include <limits.h>
+ 
+ #include <stdlib.h>
+ #ifdef HAVE_UNISTD_H
+@@ -30,9 +31,21 @@
+ #ifndef EV_SYN /* 2.4 kernel headers */
+ # define EV_SYN 0x00
+ #endif
++#ifndef EV_CNT
++# define EV_CNT (EV_MAX+1)
++#endif
++#ifndef ABS_CNT
++# define ABS_CNT (ABS_MAX+1)
++#endif
++#ifndef KEY_CNT
++# define KEY_CNT (KEY_MAX+1)
++#endif
+ 
+ #include "tslib-private.h"
+ 
++#define GRAB_EVENTS_WANTED	1
++#define GRAB_EVENTS_ACTIVE	2
++
+ struct tslib_input {
+ 	struct tslib_module_info module;
+ 
+@@ -42,29 +55,75 @@
+ 
+ 	int	sane_fd;
+ 	int	using_syn;
++	int	grab_events;
+ };
+ 
++#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
++#define BIT(nr)                 (1UL << (nr))
++#define BIT_MASK(nr)            (1UL << ((nr) % BITS_PER_LONG))
++#define BIT_WORD(nr)            ((nr) / BITS_PER_LONG)
++#define BITS_PER_BYTE           8
++#define BITS_PER_LONG           (sizeof(long) * BITS_PER_BYTE)
++#define BITS_TO_LONGS(nr)       DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
++
+ static int check_fd(struct tslib_input *i)
+ {
+ 	struct tsdev *ts = i->module.dev;
+ 	int version;
+-	u_int32_t bit;
+-	u_int64_t absbit;
++	long evbit[BITS_TO_LONGS(EV_CNT)];
++	long absbit[BITS_TO_LONGS(ABS_CNT)];
++	long keybit[BITS_TO_LONGS(KEY_CNT)];
+ 
+-	if (! ((ioctl(ts->fd, EVIOCGVERSION, &version) >= 0) &&
+-		(version == EV_VERSION) &&
+-		(ioctl(ts->fd, EVIOCGBIT(0, sizeof(bit) * 8), &bit) >= 0) &&
+-		(bit & (1 << EV_ABS)) &&
+-		(ioctl(ts->fd, EVIOCGBIT(EV_ABS, sizeof(absbit) * 8), &absbit) >= 0) &&
+-		(absbit & (1 << ABS_X)) &&
+-		(absbit & (1 << ABS_Y)) && (absbit & (1 << ABS_PRESSURE)))) {
+-		fprintf(stderr, "selected device is not a touchscreen I understand\n");
++	if (ioctl(ts->fd, EVIOCGVERSION, &version) < 0) {
++		fprintf(stderr, "tslib: Selected device is not a Linux input event device\n");
+ 		return -1;
+ 	}
+ 
+-	if (bit & (1 << EV_SYN))
++	if (version != EV_VERSION) {
++		fprintf(stderr, "tslib: Selected device uses a different version of the event protocol than tslib was compiled for\n");
++		return -1;
++	}
++
++	if ( (ioctl(ts->fd, EVIOCGBIT(0, sizeof(evbit)), evbit) < 0) ||
++		!(evbit[BIT_WORD(EV_ABS)] & BIT_MASK(EV_ABS)) ||
++		!(evbit[BIT_WORD(EV_KEY)] & BIT_MASK(EV_KEY)) ) {
++		fprintf(stderr, "tslib: Selected device is not a touchscreen (must support ABS and KEY event types)\n");
++		return -1;
++	}
++
++	if ((ioctl(ts->fd, EVIOCGBIT(EV_ABS, sizeof(absbit)), absbit)) < 0 ||
++		!(absbit[BIT_WORD(ABS_X)] & BIT_MASK(ABS_X)) ||
++		!(absbit[BIT_WORD(ABS_Y)] & BIT_MASK(ABS_Y))) {
++		fprintf(stderr, "tslib: Selected device is not a touchscreen (must support ABS_X and ABS_Y events)\n");
++		return -1;
++	}
++
++	/* Since some touchscreens (eg. infrared) physically can't measure pressure,
++	the input system doesn't report it on those. Tslib relies on pressure, thus
++	we set it to constant 255. It's still controlled by BTN_TOUCH - when not
++	touched, the pressure is forced to 0. */
++
++	if (!(absbit[BIT_WORD(ABS_PRESSURE)] & BIT_MASK(ABS_PRESSURE))) {
++		i->current_p = 255;
++
++		if ((ioctl(ts->fd, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) < 0) ||
++			!(keybit[BIT_WORD(BTN_TOUCH)] & BIT_MASK(BTN_TOUCH)) ) {
++			fprintf(stderr, "tslib: Selected device is not a touchscreen (must support BTN_TOUCH events)\n");
++			return -1;
++		}
++	}
++
++	if (evbit[BIT_WORD(EV_SYN)] & BIT_MASK(EV_SYN))
+ 		i->using_syn = 1;
+ 
++	if (i->grab_events == GRAB_EVENTS_WANTED) {
++		if (ioctl(ts->fd, EVIOCGRAB, (void *)1)) {
++			fprintf(stderr, "tslib: Unable to grab selected input device\n");
++			return -1;
++		}
++		i->grab_events = GRAB_EVENTS_ACTIVE;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -90,19 +149,16 @@
+ 				total = -1;
+ 				break;
+ 			}
+-	
++
+ 			switch (ev.type) {
+ 			case EV_KEY:
+ 				switch (ev.code) {
+ 				case BTN_TOUCH:
+ 					if (ev.value == 0) {
+ 						/* pen up */
+-						samp->x = 0;
+-						samp->y = 0;
+-						samp->pressure = 0;
+-						samp->tv = ev.time;
+-						samp++;
+-						total++;
++						i->current_x = 0;
++						i->current_y = 0;
++						i->current_p = 0;
+ 					}
+ 					break;
+ 				}
+@@ -117,8 +173,8 @@
+ 				fprintf(stderr, "RAW---------------------> %d %d %d %d.%d\n",
+ 						samp->x, samp->y, samp->pressure, samp->tv.tv_sec,
+ 						samp->tv.tv_usec);
+-	#endif		 /*DEBUG*/
+-					samp++;
++	#endif /* DEBUG */
++				samp++;
+ 				total++;
+ 				break;
+ 			case EV_ABS:
+@@ -140,7 +196,7 @@
+ 	} else {
+ 		unsigned char *p = (unsigned char *) &ev;
+ 		int len = sizeof(struct input_event);
+-	
++
+ 		while (total < nr) {
+ 			ret = read(ts->fd, p, len);
+ 			if (ret == -1) {
+@@ -149,7 +205,7 @@
+ 				}
+ 				break;
+ 			}
+-	
++
+ 			if (ret < (int)sizeof(struct input_event)) {
+ 				/* short read
+ 				 * restart read to get the rest of the event
+@@ -159,7 +215,7 @@
+ 				continue;
+ 			}
+ 			/* successful read of a whole event */
+-	
++
+ 			if (ev.type == EV_ABS) {
+ 				switch (ev.code) {
+ 				case ABS_X:
+@@ -192,7 +248,7 @@
+ 	#ifdef DEBUG
+ 				fprintf(stderr, "RAW---------------------------> %d %d %d\n",
+ 					samp->x, samp->y, samp->pressure);
+-	#endif	 /*DEBUG*/
++	#endif /* DEBUG */
+ 				samp++;
+ 				total++;
+ 			} else if (ev.type == EV_KEY) {
+@@ -222,6 +278,15 @@
+ 
+ static int ts_input_fini(struct tslib_module_info *inf)
+ {
++	struct tslib_input *i = (struct tslib_input *)inf;
++	struct tsdev *ts = inf->dev;
++
++	if (i->grab_events == GRAB_EVENTS_ACTIVE) {
++		if (ioctl(ts->fd, EVIOCGRAB, (void *)0)) {
++			fprintf(stderr, "tslib: Unable to un-grab selected input device\n");
++		}
++	}
++
+ 	free(inf);
+ 	return 0;
+ }
+@@ -231,6 +296,36 @@
+ 	.fini	= ts_input_fini,
+ };
+ 
++static int parse_raw_grab(struct tslib_module_info *inf, char *str, void *data)
++{
++	struct tslib_input *i = (struct tslib_input *)inf;
++	unsigned long v;
++	int err = errno;
++
++	v = strtoul(str, NULL, 0);
++
++	if (v == ULONG_MAX && errno == ERANGE)
++		return -1;
++
++	errno = err;
++	switch ((int)data) {
++	case 1:
++		if (v)
++			i->grab_events = GRAB_EVENTS_WANTED;
++		break;
++	default:
++		return -1;
++	}
++	return 0;
++}
++
++static const struct tslib_vars raw_vars[] =
++{
++	{ "grab_events", (void *)1, parse_raw_grab },
++};
++
++#define NR_VARS (sizeof(raw_vars) / sizeof(raw_vars[0]))
++
+ TSAPI struct tslib_module_info *mod_init(struct tsdev *dev, const char *params)
+ {
+ 	struct tslib_input *i;
+@@ -245,5 +340,12 @@
+ 	i->current_p = 0;
+ 	i->sane_fd = 0;
+ 	i->using_syn = 0;
++	i->grab_events = 0;
++
++	if (tslib_parse_vars(&i->module, raw_vars, NR_VARS, params)) {
++		free(i);
++		return NULL;
++	}
++
+ 	return &(i->module);
+ }
+Index: tslib/plugins/Makefile.am
+===================================================================
+--- tslib/plugins/Makefile.am	(revision 49)
++++ tslib/plugins/Makefile.am	(revision 78)
+@@ -9,7 +9,7 @@
+ # $Id: Makefile.am,v 1.7 2005/02/28 23:44:12 kergoth Exp $
+ #
+ 
+-AM_CFLAGS		= $(DEBUGFLAGS) $(LIBFLAGS) $(VIS_CFLAGS)
++AM_CFLAGS		= -DTS_POINTERCAL=\"@TS_POINTERCAL@\" $(DEBUGFLAGS) $(LIBFLAGS) $(VIS_CFLAGS)
+ LDADD		= -rpath $(PLUGIN_DIR)
+ INCLUDES		= -I$(top_srcdir)/src
+   
+@@ -79,6 +79,12 @@
+ ARCTIC2_MODULE =
+ endif
+ 
++if ENABLE_TATUNG_MODULE
++TATUNG_MODULE = tatung.la
++else
++TATUNG_MODULE =
++endif
++
+ if ENABLE_INPUT_MODULE
+ INPUT_MODULE = input.la
+ else
+@@ -102,20 +108,25 @@
+ 	$(H3600_MODULE) \
+ 	$(MK712_MODULE) \
+ 	$(ARCTIC2_MODULE) \
++	$(TATUNG_MODULE) \
+ 	$(H2200_LINEAR_MODULE) \
+ 	$(INPUT_MODULE)
+   
+ variance_la_SOURCES	= variance.c
+ variance_la_LDFLAGS	= -module $(LTVSN)
++variance_la_LIBADD	= $(top_builddir)/src/libts.la
+   
+ dejitter_la_SOURCES	= dejitter.c
+ dejitter_la_LDFLAGS	= -module $(LTVSN)
++dejitter_la_LIBADD	= $(top_builddir)/src/libts.la
+   
+ linear_la_SOURCES	= linear.c
+ linear_la_LDFLAGS	= -module $(LTVSN)
++linear_la_LIBADD	= $(top_builddir)/src/libts.la
+ 
+ pthres_la_SOURCES	= pthres.c
+ pthres_la_LDFLAGS	= -module $(LTVSN)
++pthres_la_LIBADD	= $(top_builddir)/src/libts.la
+ 
+ # hw access
+ corgi_la_SOURCES	= corgi-raw.c
+@@ -136,8 +147,12 @@
+ arctic2_la_SOURCES	= arctic2-raw.c
+ arctic2_la_LDFLAGS	= -module $(LTVSN)
+ 
++tatung_la_SOURCES	= tatung-raw.c
++tatung_la_LDFLAGS	= -module $(LTVSN)
++
+ input_la_SOURCES	= input-raw.c
+ input_la_LDFLAGS	= -module $(LTVSN)
++input_la_LIBADD		= $(top_builddir)/src/libts.la
+ 
+ linear_h2200_la_SOURCES	= linear-h2200.c
+ linear_h2200_la_LDFLAGS	= -module $(LTVSN)
+Index: tslib/plugins/tatung-raw.c
+===================================================================
+--- tslib/plugins/tatung-raw.c	(revision 0)
++++ tslib/plugins/tatung-raw.c	(revision 78)
+@@ -0,0 +1,70 @@
++#include <stdlib.h>
++#include <stdio.h>
++#include <unistd.h>
++
++#include "config.h"
++#include "tslib-private.h"
++
++struct tatung_ts_event { /* Tatung touchscreen 4bytes protocol */
++	unsigned char x1;
++	unsigned char x2;
++	unsigned char y1;
++	unsigned char y2;
++};
++
++static int tatung_read(struct tslib_module_info *inf, struct ts_sample *samp, int nr)
++{
++	struct tsdev *ts = inf->dev;
++	struct tatung_ts_event *tatung_evt;
++	int ret;
++	int total = 0;
++	tatung_evt = alloca(sizeof(*tatung_evt) * nr);
++	ret = read(ts->fd, tatung_evt, sizeof(*tatung_evt) * nr);
++	if(ret > 0) {
++		int nr = ret / sizeof(*tatung_evt);
++		while(ret >= (int)sizeof(*tatung_evt)) {
++
++			if (tatung_evt->x1==240 || tatung_evt->x2==240 || tatung_evt->y1==240 || tatung_evt->y2==240)
++			{
++				ret = nr;
++				return ret;
++			}
++
++			samp->x = (tatung_evt->x1)*31 + (tatung_evt->x2)-64;
++			samp->y = (tatung_evt->y1)*31 + (tatung_evt->y2)-192;
++			samp->pressure=1;
++			//samp->pressure = tatung_evt->pressure;
++
++#ifdef DEBUG
++        fprintf(stderr,"RAW---------------------------> %d %d %d\n",samp->x,samp->y,samp->pressure);
++#endif /*DEBUG*/
++			gettimeofday(&samp->tv,NULL);
++			samp++;
++			tatung_evt++;
++			ret -= sizeof(*tatung_evt);
++		}
++	} else {
++		return -1;
++	}
++
++	samp->pressure=0;
++	ret = nr;
++	return ret;
++}
++
++static const struct tslib_ops tatung_ops =
++{
++	.read	= tatung_read,
++};
++
++TSAPI struct tslib_module_info *mod_init(struct tsdev *dev, const char *params)
++{
++	struct tslib_module_info *m;
++
++	m = malloc(sizeof(struct tslib_module_info));
++	if (m == NULL)
++		return NULL;
++
++	m->ops = &tatung_ops;
++	return m;
++}
+
+Property changes on: tslib/plugins/tatung-raw.c
+___________________________________________________________________
+Added: svn:eol-style
+   + native
+
+Index: tslib/plugins/linear.c
+===================================================================
+--- tslib/plugins/linear.c	(revision 49)
++++ tslib/plugins/linear.c	(revision 78)
+@@ -2,6 +2,7 @@
+  *  tslib/plugins/linear.c
+  *
+  *  Copyright (C) 2001 Russell King.
++ *  Copyright (C) 2005 Alberto Mardegan <mardy@sourceforge.net>
+  *
+  * This file is placed under the LGPL.  Please see the file
+  * COPYING for more details.
+@@ -19,7 +20,7 @@
+ 
+ #include <stdio.h>
+ 
+-#include "tslib.h"
++#include "tslib-private.h"
+ #include "tslib-filter.h"
+ 
+ struct tslib_linear {
+@@ -33,6 +34,10 @@
+ 
+ // Linear scaling and offset parameters for x,y (can include rotation)
+ 	int	a[7];
++
++// Screen resolution at the time when calibration was performed
++	unsigned int cal_res_x;
++	unsigned int cal_res_y;
+ };
+ 
+ static int
+@@ -57,6 +62,10 @@
+ 			samp->y =	( lin->a[5] +
+ 					lin->a[3]*xtemp +
+ 					lin->a[4]*ytemp ) / lin->a[6];
++			if (info->dev->res_x && lin->cal_res_x)
++				samp->x = samp->x * info->dev->res_x / lin->cal_res_x;
++			if (info->dev->res_y && lin->cal_res_y)
++				samp->y = samp->y * info->dev->res_y / lin->cal_res_y;
+ 
+ 			samp->pressure = ((samp->pressure + lin->p_offset)
+ 						 * lin->p_mult) / lin->p_div;
+@@ -103,12 +112,11 @@
+ 
+ 	struct tslib_linear *lin;
+ 	struct stat sbuf;
+-	int pcal_fd;
++	FILE *pcal_fd;
+ 	char pcalbuf[200];
+ 	int index;
+ 	char *tokptr;
+ 	char *calfile=NULL;
+-	char *defaultcalfile = "/etc/pointercal";
+ 
+ 	lin = malloc(sizeof(struct tslib_linear));
+ 	if (lin == NULL)
+@@ -132,24 +140,18 @@
+ 	/*
+ 	 * Check calibration file
+ 	 */
+-	if( (calfile = getenv("TSLIB_CALIBFILE")) == NULL) calfile = defaultcalfile;
+-	if(stat(calfile,&sbuf)==0) {
+-		pcal_fd = open(calfile,O_RDONLY);
+-		read(pcal_fd,pcalbuf,200);
+-		lin->a[0] = atoi(strtok(pcalbuf," "));
+-		index=1;
+-		while(index<7) {
+-			tokptr = strtok(NULL," ");
+-			if(*tokptr!='\0') {
+-				lin->a[index] = atoi(tokptr);
+-				index++;
+-			}
+-		}
++	if( (calfile = getenv("TSLIB_CALIBFILE")) == NULL) calfile = TS_POINTERCAL;
++	if (stat(calfile, &sbuf)==0) {
++		pcal_fd = fopen(calfile, "r");
++		for (index = 0; index < 7; index++)
++			if (fscanf(pcal_fd, "%d", &lin->a[index]) != 1) break;
++		fscanf(pcal_fd, "%d %d", &lin->cal_res_x, &lin->cal_res_y);
+ #ifdef DEBUG
+ 		printf("Linear calibration constants: ");
+ 		for(index=0;index<7;index++) printf("%d ",lin->a[index]);
+ 		printf("\n");
+ #endif /*DEBUG*/
++		fclose(pcal_fd);
+ 		close(pcal_fd);
+ 	}
+ 		
+Index: tslib/src/ts_read_raw_module.c
+===================================================================
+--- tslib/src/ts_read_raw_module.c	(revision 49)
++++ tslib/src/ts_read_raw_module.c	(revision 78)
+@@ -1,190 +0,0 @@
+-/*
+- *  tslib/src/ts_read_raw_module.c
+- *
+- *  Original version:
+- *  Copyright (C) 2001 Russell King.
+- *
+- *  Rewritten for the Linux input device API:
+- *  Copyright (C) 2002 Nicolas Pitre
+- *
+- * This file is placed under the LGPL.  Please see the file
+- * COPYING for more details.
+- *
+- * $Id: ts_read_raw_module.c,v 1.1 2004/07/21 19:17:18 dlowder Exp $
+- *
+- * Read raw pressure, x, y, and timestamp from a touchscreen device.
+- */
+-#include "config.h"
+-
+-#include <stdio.h>
+-
+-#include <stdlib.h>
+-#ifdef HAVE_UNISTD_H
+-#include <unistd.h>
+-#endif
+-#include <sys/time.h>
+-#include <sys/types.h>
+-
+-#ifdef USE_INPUT_API
+-#include <linux/input.h>
+-#else
+-#endif /* USE_INPUT_API */
+-
+-#include "tslib-private.h"
+-
+-static int __ts_read_raw(struct tslib_module_info *inf, struct ts_sample *samp, int nr)
+-{
+-	struct tsdev *ts = inf->dev;
+-#ifdef USE_INPUT_API
+-	struct input_event ev;
+-#endif /* USE_INPUT_API */
+-	int ret = nr;
+-	int total = 0;
+-
+-#ifdef USE_INPUT_API
+-#ifdef EV_SYN
+-        /* This version uses EV_SYN */
+-	while (total < nr) {
+-		ret = read(ts->fd, &ev, sizeof(struct input_event));
+-		if (ret < sizeof(struct input_event)) {
+-			total = -1;
+-			break;
+-		}
+-
+-		switch (ev.type) {
+-		case EV_SYN:
+-			/* Fill out a new complete event */
+-			samp->x = ts->current_x;
+-			samp->y = ts->current_y;
+-			samp->pressure = ts->current_p;
+-			samp->tv = ev.time;
+-#ifdef DEBUG
+-			fprintf(stderr,"RAW---------------------> %d %d %d %d.%d\n",
+-				samp->x, samp->y, samp->pressure, samp->tv.tv_sec, samp->tv.tv_usec);
+-#endif /*DEBUG*/
+-			samp++;
+-			total++;
+-			break;
+-		case EV_ABS:
+-			switch (ev.code) {
+-			case ABS_X:
+-				ts->current_x = ev.value;
+-				break;
+-			case ABS_Y:
+-				ts->current_y = ev.value;
+-				break;
+-			case ABS_PRESSURE:
+-				ts->current_p = ev.value;
+-				break;
+-			}
+-			break;
+-		}
+-	}
+-	ret = total;
+-#else   /* This version doesn't use EV_SYN */
+-	/* warning: maybe those static vars should be part of the tsdev struct? */
+-	static int curr_x = 0, curr_y = 0, curr_p = 0;
+-	static int got_curr_x = 0, got_curr_y = 0;
+-	int got_curr_p = 0;
+-	int next_x, next_y;
+-	int got_next_x = 0, got_next_y = 0;
+-	int got_tstamp = 0;
+-
+-	while (total < nr) {
+-		ret = read(ts->fd, &ev, sizeof(struct input_event));
+-		if (ret < sizeof(struct input_event)) break;
+-
+-		/*
+-		 * We must filter events here.  We need to look for
+-		 * a set of input events that will correspond to a
+-		 * complete ts event.  Also need to be aware that
+-		 * repeated input events are filtered out by the kernel.
+-		 * 
+-		 * We assume the normal sequence is: 
+-		 * ABS_X -> ABS_Y -> ABS_PRESSURE
+-		 * If that sequence goes backward then we got a different
+-		 * ts event.  If some are missing then they didn't change.
+-		 */
+-		if (ev.type == EV_ABS) switch (ev.code) {
+-		case ABS_X:
+-			if (!got_curr_x && !got_curr_y) {
+-				got_curr_x = 1;
+-				curr_x = ev.value;
+-			} else {
+-				got_next_x = 1;
+-				next_x = ev.value;
+-			}
+-			break;
+-		case ABS_Y:
+-			if (!got_curr_y) {
+-				got_curr_y = 1;
+-				curr_y = ev.value;
+-			} else {
+-				got_next_y = 1;
+-				next_y = ev.value;
+-			}
+-			break;
+-		case ABS_PRESSURE:
+-			got_curr_p = 1;
+-			curr_p = ev.value;
+-			break;
+-		}
+-
+-		/* go back if we just got irrelevant events so far */
+-		if (!got_curr_x && !got_curr_y && !got_curr_p) continue;
+-
+-		/* time stamp with the first valid event only */
+-		if (!got_tstamp) {
+-			got_tstamp = 1;
+-			samp->tv = ev.time;
+-		}
+-
+-		if ( (!got_curr_x || !got_curr_y) && !got_curr_p &&
+-		     !got_next_x && !got_next_y ) {
+-			/*
+-			 * The current event is not complete yet.
+-			 * Give the kernel a chance to feed us more.
+-			 */
+-			struct timeval tv = {0, 0};
+-			fd_set fdset;
+-			FD_ZERO(&fdset);
+-			FD_SET(ts->fd, &fdset);
+-			ret = select(ts->fd+1, &fdset, NULL, NULL, &tv);
+-		       	if (ret == 1) continue;
+-			if (ret == -1) break;
+-		}
+-
+-		/* We consider having a complete ts event */
+-		samp->x = curr_x;
+-		samp->y = curr_y;
+-		samp->pressure = curr_p;
+-#ifdef DEBUG
+-        fprintf(stderr,"RAW---------------------------> %d %d %d\n",samp->x,samp->y,samp->pressure);
+-#endif /*DEBUG*/
+-		samp++;
+-		total++;
+-        
+-		/* get ready for next event */
+-		if (got_next_x) curr_x = next_x; else got_curr_x = 0;
+-		if (got_next_y) curr_y = next_y; else got_curr_y = 0;
+-		got_next_x = got_next_y = got_tstamp = 0;
+-	}
+-
+-	if (ret) ret = -1;
+-	if (total) ret = total;
+-#endif
+-#endif /* USE_INPUT_API */
+-
+-	return ret;
+-}
+-
+-static const struct tslib_ops __ts_raw_ops =
+-{
+-	read:	__ts_read_raw,
+-};
+-
+-struct tslib_module_info __ts_raw =
+-{
+-	next:	NULL,
+-	ops:	&__ts_raw_ops,
+-};
+Index: tslib/src/ts_open.c
+===================================================================
+--- tslib/src/ts_open.c	(revision 49)
++++ tslib/src/ts_open.c	(revision 78)
+@@ -18,10 +18,6 @@
+ #endif
+ #include <sys/fcntl.h>
+ 
+-#ifdef USE_INPUT_API
+-#include <linux/input.h>
+-#endif /* USE_INPUT_API */
+-
+ #include "tslib-private.h"
+ 
+ extern struct tslib_module_info __ts_raw;
+Index: tslib/src/ts_parse_vars.c
+===================================================================
+--- tslib/src/ts_parse_vars.c	(revision 49)
++++ tslib/src/ts_parse_vars.c	(revision 78)
+@@ -33,7 +33,7 @@
+ 		return 0;
+ 
+ 	//s = alloca(strlen(str));
+-	bzero(s_holder,1024);
++	memset(s_holder, 0, 1024);
+ 	strncpy(s_holder,str,strlen(str));
+ 	s = s_holder;
+ 	while ((p = strsep(&s, " \t")) != NULL && ret == 0) {
+Index: tslib/src/ts_option.c
+===================================================================
+--- tslib/src/ts_option.c	(revision 0)
++++ tslib/src/ts_option.c	(revision 78)
+@@ -0,0 +1,42 @@
++/*
++ *  tslib/src/ts_option.c
++ *
++ *  Copyright (C) 2005 Alberto Mardegan <mardy@users.sourceforge.net>
++ *
++ * This file is placed under the LGPL.  Please see the file
++ * COPYING for more details.
++ *
++ * Read the configuration and load the appropriate drivers.
++ */
++#include "config.h"
++#include <stdarg.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++
++#include "tslib-private.h"
++
++
++int ts_option(struct tsdev *ts, enum ts_param param, ...)
++{
++       int ret;
++       va_list ap;
++    
++       va_start(ap, param);
++
++       switch (param) {
++               case TS_SCREEN_RES:
++                       ts->res_x = va_arg(ap, unsigned int);
++                       ts->res_y = va_arg(ap, unsigned int);
++                       ret = 0;
++                       break;
++               case TS_SCREEN_ROT:
++                       ts->rotation = va_arg(ap, int);
++                       ret = 0;
++                       break;
++       }
++       va_end(ap);
++
++       return ret;
++}
++
+
+Property changes on: tslib/src/ts_option.c
+___________________________________________________________________
+Added: svn:eol-style
+   + native
+
+Index: tslib/src/tslib.h
+===================================================================
+--- tslib/src/tslib.h	(revision 49)
++++ tslib/src/tslib.h	(revision 78)
+@@ -47,6 +47,11 @@
+ 	struct timeval	tv;
+ };
+ 
++enum ts_param {
++	TS_SCREEN_RES = 0,						/* 2 integer args, x and y */
++	TS_SCREEN_ROT,							/* 1 integer arg, 1 = rotate */
++};
++
+ /*
+  * Close the touchscreen device, free all resources.
+  */
+@@ -58,6 +63,11 @@
+ TSAPI int ts_config(struct tsdev *);
+ 
+ /*
++ * Changes a setting.
++ */
++TSAPI int ts_option(struct tsdev *, enum ts_param, ...);
++
++/*
+  * Change this hook to point to your custom error handling function.
+  */
+ extern TSAPI int (*ts_error_fn)(const char *fmt, va_list ap);
+Index: tslib/src/Makefile.am
+===================================================================
+--- tslib/src/Makefile.am	(revision 49)
++++ tslib/src/Makefile.am	(revision 78)
+@@ -18,7 +18,7 @@
+ lib_LTLIBRARIES  = libts.la
+ libts_la_SOURCES = ts_attach.c ts_close.c ts_config.c ts_error.c \
+ 		   ts_fd.c ts_load_module.c ts_open.c ts_parse_vars.c \
+-		   ts_read.c ts_read_raw.c
++		   ts_read.c ts_read_raw.c ts_option.c
+ libts_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
+ 		   -release $(LT_RELEASE) -export-dynamic
+ libts_la_LIBADD  = -ldl
+Index: tslib/src/tslib-private.h
+===================================================================
+--- tslib/src/tslib-private.h	(revision 49)
++++ tslib/src/tslib-private.h	(revision 78)
+@@ -24,6 +24,9 @@
+ 	struct tslib_module_info *list_raw; /* points to position in 'list' where raw reads
+ 					       come from.  default is the position of the
+ 					       ts_read_raw module. */
++	unsigned int res_x;
++	unsigned int res_y;
++	int rotation;
+ };
+ 
+ int __ts_attach(struct tsdev *ts, struct tslib_module_info *info);
+Index: tslib/src/ts_load_module.c
+===================================================================
+--- tslib/src/ts_load_module.c	(revision 49)
++++ tslib/src/ts_load_module.c	(revision 78)
+@@ -15,6 +15,7 @@
+ #ifdef HAVE_ALLOCA_H
+ #include <alloca.h>
+ #endif
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <dlfcn.h>
+@@ -46,17 +47,27 @@
+ 	printf ("Loading module %s\n", fn);
+ #endif
+ 	handle = dlopen(fn, RTLD_NOW);
+-	if (!handle)
++	if (!handle) {
++#ifdef DEBUG
++		fprintf (stderr, "%s dlopen() failed: %s\n", fn, dlerror());
++#endif
+ 		return -1;
++	}
+ 
+ 	init = dlsym(handle, "mod_init");
+ 	if (!init) {
++#ifdef DEBUG
++		fprintf (stderr, "%s dlsym() failed: %s\n", fn, dlerror());
++#endif
+ 		dlclose(handle);
+ 		return -1;
+ 	}
+ 
+ 	info = init(ts, params);
+ 	if (!info) {
++#ifdef DEBUG
++		fprintf (stderr, "Can't init %s\n", fn);
++#endif
+ 		dlclose(handle);
+ 		return -1;
+ 	}
+@@ -69,6 +80,9 @@
+ 		ret = __ts_attach(ts, info);
+ 	}
+ 	if (ret) {
++#ifdef DEBUG
++		fprintf (stderr, "Can't attach %s\n", fn);
++#endif
+ 		info->ops->fini(info);
+ 		dlclose(handle);
+ 	}
+Index: tslib/tests/ts_harvest.c
+===================================================================
+--- tslib/tests/ts_harvest.c	(revision 49)
++++ tslib/tests/ts_harvest.c	(revision 78)
+@@ -74,18 +74,15 @@
+ 	signal(SIGINT, sig);
+ 	signal(SIGTERM, sig);
+ 
+-	if ((tsdevice = getenv("TSLIB_TSDEVICE")) == NULL) {
+-#ifdef USE_INPUT_API
+-		tsdevice = strdup ("/dev/input/event0");
+-#else
+-		tsdevice = strdup ("/dev/touchscreen/ucb1x00");
+-#endif /* USE_INPUT_API */
+-        }
++	if( (tsdevice = getenv("TSLIB_TSDEVICE")) != NULL ) {
++		ts = ts_open(tsdevice,0);
++	} else {
++		if (!(ts = ts_open("/dev/input/event0", 0)))
++			ts = ts_open("/dev/touchscreen/ucb1x00", 0);
++	}
+ 
+-	ts = ts_open (tsdevice, 0);
+-
+ 	if (!ts) {
+-		perror (tsdevice);
++		perror("ts_open");
+ 		exit(1);
+ 	}
+ 
+Index: tslib/tests/ts_print.c
+===================================================================
+--- tslib/tests/ts_print.c	(revision 49)
++++ tslib/tests/ts_print.c	(revision 78)
+@@ -25,15 +25,12 @@
+ 	struct tsdev *ts;
+ 	char *tsdevice=NULL;
+ 
+-        if( (tsdevice = getenv("TSLIB_TSDEVICE")) != NULL ) {
+-                ts = ts_open(tsdevice,0);
+-        } else {
+-#ifdef USE_INPUT_API
+-                ts = ts_open("/dev/input/event0", 0);
+-#else
+-                ts = ts_open("/dev/touchscreen/ucb1x00", 0);
+-#endif /* USE_INPUT_API */
+-        }
++	if( (tsdevice = getenv("TSLIB_TSDEVICE")) != NULL ) {
++		ts = ts_open(tsdevice,0);
++	} else {
++		if (!(ts = ts_open("/dev/input/event0", 0)))
++			ts = ts_open("/dev/touchscreen/ucb1x00", 0);
++	}
+ 
+ 	if (!ts) {
+ 		perror("ts_open");
+Index: tslib/tests/ts_test.c
+===================================================================
+--- tslib/tests/ts_test.c	(revision 49)
++++ tslib/tests/ts_test.c	(revision 78)
+@@ -44,7 +44,7 @@
+ 	1, 5, 0
+ };
+ 
+-#define NR_BUTTONS 2
++#define NR_BUTTONS 3
+ static struct ts_button buttons [NR_BUTTONS];
+ 
+ static void sig(int sig)
+@@ -112,6 +112,7 @@
+ 	int x, y;
+ 	unsigned int i;
+ 	unsigned int mode = 0;
++	int quit_pressed = 0;
+ 
+ 	char *tsdevice=NULL;
+ 
+@@ -119,18 +120,15 @@
+ 	signal(SIGINT, sig);
+ 	signal(SIGTERM, sig);
+ 
+-	if ((tsdevice = getenv("TSLIB_TSDEVICE")) == NULL) {
+-#ifdef USE_INPUT_API
+-		tsdevice = strdup ("/dev/input/event0");
+-#else
+-		tsdevice = strdup ("/dev/touchscreen/ucb1x00");
+-#endif /* USE_INPUT_API */
+-        }
++	if( (tsdevice = getenv("TSLIB_TSDEVICE")) != NULL ) {
++		ts = ts_open(tsdevice,0);
++	} else {
++		if (!(ts = ts_open("/dev/input/event0", 0)))
++			ts = ts_open("/dev/touchscreen/ucb1x00", 0);
++	}
+ 
+-	ts = ts_open (tsdevice, 0);
+-
+ 	if (!ts) {
+-		perror (tsdevice);
++		perror("ts_open");
+ 		exit(1);
+ 	}
+ 
+@@ -152,13 +150,15 @@
+ 
+ 	/* Initialize buttons */
+ 	memset (&buttons, 0, sizeof (buttons));
+-	buttons [0].w = buttons [1].w = xres / 4;
+-	buttons [0].h = buttons [1].h = 20;
+-	buttons [0].x = xres / 4 - buttons [0].w / 2;
+-	buttons [1].x = (3 * xres) / 4 - buttons [0].w / 2;
+-	buttons [0].y = buttons [1].y = 10;
++	buttons [0].w = buttons [1].w = buttons [2].w = xres / 4;
++	buttons [0].h = buttons [1].h = buttons [2].h = 20;
++	buttons [0].x = 0;
++	buttons [1].x = (3 * xres) / 8;
++	buttons [2].x = (3 * xres) / 4;
++	buttons [0].y = buttons [1].y = buttons [2].y = 10;
+ 	buttons [0].text = "Drag";
+ 	buttons [1].text = "Draw";
++	buttons [2].text = "Quit";
+ 
+ 	refresh_screen ();
+ 
+@@ -196,6 +196,8 @@
+ 					mode = 1;
+ 					refresh_screen ();
+ 					break;
++				case 2:
++					quit_pressed = 1;
+ 				}
+ 
+ 		printf("%ld.%06ld: %6d %6d %6d\n", samp.tv.tv_sec, samp.tv.tv_usec,
+@@ -209,6 +211,8 @@
+ 			mode |= 0x80000000;
+ 		} else
+ 			mode &= ~0x80000000;
++		if (quit_pressed)
++			break;
+ 	}
+ 	close_framebuffer();
+ }
+Index: tslib/tests/Makefile.am
+===================================================================
+--- tslib/tests/Makefile.am	(revision 49)
++++ tslib/tests/Makefile.am	(revision 78)
+@@ -9,7 +9,7 @@
+ # $Id: Makefile.am,v 1.4 2004/07/21 19:12:59 dlowder Exp $
+ #
+ 
+-AM_CFLAGS               = $(DEBUGFLAGS)
++AM_CFLAGS               = -DTS_POINTERCAL=\"@TS_POINTERCAL@\" $(DEBUGFLAGS)
+ INCLUDES		= -I$(top_srcdir)/src
+ 
+ bin_PROGRAMS		= ts_test ts_calibrate ts_print ts_print_raw ts_harvest
+Index: tslib/tests/ts_print_raw.c
+===================================================================
+--- tslib/tests/ts_print_raw.c	(revision 49)
++++ tslib/tests/ts_print_raw.c	(revision 78)
+@@ -25,15 +25,12 @@
+ 	struct tsdev *ts;
+ 	char *tsdevice=NULL;
+ 
+-        if( (tsdevice = getenv("TSLIB_TSDEVICE")) != NULL ) {
+-                ts = ts_open(tsdevice,0);
+-        } else {
+-#ifdef USE_INPUT_API
+-                ts = ts_open("/dev/input/event0", 0);
+-#else
+-                ts = ts_open("/dev/touchscreen/ucb1x00", 0);
+-#endif /* USE_INPUT_API */
+-        }
++	if( (tsdevice = getenv("TSLIB_TSDEVICE")) != NULL ) {
++		ts = ts_open(tsdevice,0);
++	} else {
++		if (!(ts = ts_open("/dev/input/event0", 0)))
++			ts = ts_open("/dev/touchscreen/ucb1x00", 0);
++	}
+ 
+ 	if (!ts) {
+ 		perror("ts_open");
+Index: tslib/tests/ts_calibrate.c
+===================================================================
+--- tslib/tests/ts_calibrate.c	(revision 49)
++++ tslib/tests/ts_calibrate.c	(revision 78)
+@@ -21,6 +21,7 @@
+ #include <sys/ioctl.h>
+ #include <sys/mman.h>
+ #include <sys/time.h>
++#include <sys/stat.h>
+ #include <linux/kd.h>
+ #include <linux/vt.h>
+ #include <linux/fb.h>
+@@ -162,6 +163,31 @@
+ 	printf("%s : X = %4d Y = %4d\n", name, cal->x [index], cal->y [index]);
+ }
+ 
++static int clearbuf(struct tsdev *ts)
++{
++	int fd = ts_fd(ts);
++	fd_set fdset;
++	struct timeval tv;
++	int nfds;
++	struct ts_sample sample;
++
++	while (1) {
++		FD_ZERO(&fdset);
++		FD_SET(fd, &fdset);
++
++		tv.tv_sec = 0;
++		tv.tv_usec = 0;
++
++		nfds = select(fd + 1, &fdset, NULL, NULL, &tv);
++		if (nfds == 0) break;
++
++		if (ts_read_raw(ts, &sample, 1) < 0) {
++			perror("ts_read");
++			exit(1);
++		}
++	}
++}
++
+ int main()
+ {
+ 	struct tsdev *ts;
+@@ -170,7 +196,7 @@
+ 	char cal_buffer[256];
+ 	char *tsdevice = NULL;
+ 	char *calfile = NULL;
+-	unsigned int i;
++	unsigned int i, len;
+ 
+ 	signal(SIGSEGV, sig);
+ 	signal(SIGINT, sig);
+@@ -179,11 +205,8 @@
+ 	if( (tsdevice = getenv("TSLIB_TSDEVICE")) != NULL ) {
+ 		ts = ts_open(tsdevice,0);
+ 	} else {
+-#ifdef USE_INPUT_API
+-		ts = ts_open("/dev/input/event0", 0);
+-#else
+-		ts = ts_open("/dev/touchscreen/ucb1x00", 0);
+-#endif /* USE_INPUT_API */
++		if (!(ts = ts_open("/dev/input/event0", 0)))
++			ts = ts_open("/dev/touchscreen/ucb1x00", 0);
+ 	}
+ 
+ 	if (!ts) {
+@@ -210,13 +233,17 @@
+ 
+ 	printf("xres = %d, yres = %d\n", xres, yres);
+ 
+-// Read a touchscreen event to clear the buffer
+-	//getxy(ts, 0, 0);
++	// Clear the buffer
++	clearbuf(ts);
+ 
+ 	get_sample (ts, &cal, 0, 50,        50,        "Top left");
++	clearbuf(ts);
+ 	get_sample (ts, &cal, 1, xres - 50, 50,        "Top right");
++	clearbuf(ts);
+ 	get_sample (ts, &cal, 2, xres - 50, yres - 50, "Bot right");
++	clearbuf(ts);
+ 	get_sample (ts, &cal, 3, 50,        yres - 50, "Bot left");
++	clearbuf(ts);
+ 	get_sample (ts, &cal, 4, xres / 2,  yres / 2,  "Center");
+ 
+ 	if (perform_calibration (&cal)) {
+@@ -224,14 +251,17 @@
+ 		for (i = 0; i < 7; i++) printf("%d ", cal.a [i]);
+ 		printf("\n");
+ 		if ((calfile = getenv("TSLIB_CALIBFILE")) != NULL) {
+-			cal_fd = open (calfile, O_CREAT | O_RDWR);
++			cal_fd = open (calfile, O_CREAT | O_RDWR,
++			               S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+ 		} else {
+-			cal_fd = open ("/etc/pointercal", O_CREAT | O_RDWR);
++			cal_fd = open (TS_POINTERCAL, O_CREAT | O_RDWR,
++			               S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+ 		}
+-		sprintf (cal_buffer,"%d %d %d %d %d %d %d",
+-			 cal.a[1], cal.a[2], cal.a[0],
+-			 cal.a[4], cal.a[5], cal.a[3], cal.a[6]);
+-		write (cal_fd, cal_buffer, strlen (cal_buffer) + 1);
++		len = sprintf(cal_buffer,"%d %d %d %d %d %d %d %d %d",
++		              cal.a[1], cal.a[2], cal.a[0],
++		              cal.a[4], cal.a[5], cal.a[3], cal.a[6],
++		              xres, yres);
++		write (cal_fd, cal_buffer, len);
+ 		close (cal_fd);
+                 i = 0;
+ 	} else {
+Index: tslib/configure.ac
+===================================================================
+--- tslib/configure.ac	(revision 49)
++++ tslib/configure.ac	(revision 78)
+@@ -2,7 +2,7 @@
+ # Process this file with autoconf to produce a configure script.
+ 
+ AC_PREREQ(2.57)
+-AC_INIT(tslib, 0.0.2, kergoth@handhelds.org)
++AC_INIT(tslib, 1.0.0, kergoth@handhelds.org)
+ # AC_CONFIG_AUX_DIR(config)
+ AM_INIT_AUTOMAKE(dist-bzip2)
+ AC_CONFIG_SRCDIR([src/ts_close.c])
+@@ -43,13 +43,12 @@
+ 
+ # Checks for library functions.
+ AC_PROG_GCC_TRADITIONAL
+-AC_FUNC_MALLOC
+ AC_FUNC_MMAP
+ AC_FUNC_SELECT_ARGTYPES
+ AC_TYPE_SIGNAL
+ AC_FUNC_STAT
+ AC_FUNC_VPRINTF
+-AC_CHECK_FUNCS([bzero gettimeofday memmove memset munmap select strcasecmp strchr strdup strtoul])
++AC_CHECK_FUNCS([gettimeofday memmove memset munmap select strcasecmp strchr strdup strtoul])
+ 
+ # filters
+ AC_MSG_CHECKING([whether linear modules is requested])
+@@ -71,7 +70,7 @@
+ AM_CONDITIONAL(ENABLE_DEJITTER_MODULE, test "$dejitter_module" = "yes")
+ 
+ AC_MSG_CHECKING([whether linear-h2200 module is requested]) 
+-AC_ARG_ENABLE(dejitter,
++AC_ARG_ENABLE(linear-h2200,
+ 	AS_HELP_STRING([--enable-linear-h2200],
+ 		[Enable building of linearizing filter for iPAQ h2200 (default=yes)]),
+ 	[h2200_linear_module=$enableval],
+@@ -154,6 +153,15 @@
+ AC_MSG_RESULT($arctic2_module)
+ AM_CONDITIONAL(ENABLE_ARCTIC2_MODULE, test "$arctic2_module" = "yes")
+ 
++AC_MSG_CHECKING([whether tatung module is requested])
++AC_ARG_ENABLE(tatung,
++        AS_HELP_STRING([--enable-tatung],
++                [Enable building of tatung raw module (Tatung Webpad support) (default=yes)]),
++        [tatung_module=$enableval],
++        [tatung_module=yes])
++AC_MSG_RESULT($tatung_module)
++AM_CONDITIONAL(ENABLE_TATUNG_MODULE, test "$tatung_module" = "yes")
++
+ AC_MSG_CHECKING([whether input module is requested])
+ AC_ARG_ENABLE(input,
+         AS_HELP_STRING([--enable-input],
+@@ -168,7 +176,7 @@
+         AS_HELP_STRING([--with-plugindir=ARG],
+                 [Where to look for plugins (default=${libdir}/ts)]),
+         [PLUGIN_DIR=$withval],
+-        [PLUGIN_DIR='${libdir}/ts/'])
++        [PLUGIN_DIR='${libdir}/ts'])
+ AC_MSG_RESULT($PLUGIN_DIR)
+ AC_SUBST(PLUGIN_DIR)
+ 
+@@ -192,11 +200,14 @@
+ TS_CONF='${sysconfdir}/ts.conf'
+ AC_SUBST(TS_CONF)
+ 
++TS_POINTERCAL='${sysconfdir}/pointercal'
++AC_SUBST(TS_POINTERCAL)
++
+ # Library versioning
+-LT_RELEASE=0.0
+-LT_CURRENT=1
+-LT_REVISION=1
+-LT_AGE=1
++LT_RELEASE=1.0
++LT_CURRENT=0
++LT_REVISION=0
++LT_AGE=0
+ AC_SUBST(LT_RELEASE)
+ AC_SUBST(LT_CURRENT)
+ AC_SUBST(LT_REVISION)
+Index: tslib/TODO
+===================================================================
+--- tslib/TODO	(revision 0)
++++ tslib/TODO	(revision 78)
+@@ -0,0 +1,26 @@
++- Update README, remove the cvs keywords bits, update or remove the plugin
++  documentation.
++- select'ing on ts_fd() is a problem.  Our plugins can swallow entire events,
++  which means you could return from select and try to read non-existant events
++  from tslib.  We should probably set up an event queue w/ an asyncronous
++  interface, or just make a pipe and funnel actual events through that, and
++  have ts_fd() return that.
++- Give thought to what changes should be made going forward.  In my opinion,
++  the top priorities are moving path selection for device open out of the
++  hands of the library user.  Input knows it's to work with input devices, and
++  most other input_raw plugins have some idea of what devices they should be
++  working with.  Perhaps we should move that into a new callback in the raw
++  plugins.  Beyond that, one could consider making a generic filtering
++  mechanism for input events, injecting the filtered events into the input
++  layer as a new device via uinput, since most apps already support it, and
++  moving calibration into the library or a supplemental library, with user
++  selectable calibration algorithms.
++
++- Parse out the old cvs metadata in the commit log to rewrite the git repo
++  history using filter-branch.
++- Go through the history, using the original commit log message (minus
++  metadata) as the short log message, and use the notes added to the ChangeLog
++  in that commit as the long commit log message.  Hopefully the parsing of the
++  ChangeLog diffs won't be too terrible at least for the common case.
++- Produce a new, clean git branch, minus svn metadata, minus cvs metadata, and
++  minus a ChangeLog file (moved that info into the log messages).
+Index: tslib/INSTALL
+===================================================================
+--- tslib/INSTALL	(revision 49)
++++ tslib/INSTALL	(revision 78)
+@@ -1,8 +1,8 @@
+ Installation Instructions
+ *************************
+ 
+-Copyright (C) 1994, 1995, 1996, 1999, 2000, 2001, 2002, 2004 Free
+-Software Foundation, Inc.
++Copyright (C) 1994, 1995, 1996, 1999, 2000, 2001, 2002, 2004, 2005,
++2006 Free Software Foundation, Inc.
+ 
+ This file is free documentation; the Free Software Foundation gives
+ unlimited permission to copy, distribute and modify it.
+@@ -10,7 +10,10 @@
+ Basic Installation
+ ==================
+ 
+-These are generic installation instructions.
++Briefly, the shell commands `./configure; make; make install' should
++configure, build, and install this package.  The following
++more-detailed instructions are generic; see the `README' file for
++instructions specific to this package.
+ 
+    The `configure' shell script attempts to guess correct values for
+ various system-dependent variables used during compilation.  It uses
+@@ -23,9 +26,9 @@
+ 
+    It can also use an optional file (typically called `config.cache'
+ and enabled with `--cache-file=config.cache' or simply `-C') that saves
+-the results of its tests to speed up reconfiguring.  (Caching is
++the results of its tests to speed up reconfiguring.  Caching is
+ disabled by default to prevent problems with accidental use of stale
+-cache files.)
++cache files.
+ 
+    If you need to do unusual things to compile the package, please try
+ to figure out how `configure' could check whether to do them, and mail
+@@ -35,20 +38,17 @@
+ may remove or edit it.
+ 
+    The file `configure.ac' (or `configure.in') is used to create
+-`configure' by a program called `autoconf'.  You only need
+-`configure.ac' if you want to change it or regenerate `configure' using
+-a newer version of `autoconf'.
++`configure' by a program called `autoconf'.  You need `configure.ac' if
++you want to change it or regenerate `configure' using a newer version
++of `autoconf'.
+ 
+ The simplest way to compile this package is:
+ 
+   1. `cd' to the directory containing the package's source code and type
+-     `./configure' to configure the package for your system.  If you're
+-     using `csh' on an old version of System V, you might need to type
+-     `sh ./configure' instead to prevent `csh' from trying to execute
+-     `configure' itself.
++     `./configure' to configure the package for your system.
+ 
+-     Running `configure' takes awhile.  While running, it prints some
+-     messages telling which features it is checking for.
++     Running `configure' might take a while.  While running, it prints
++     some messages telling which features it is checking for.
+ 
+   2. Type `make' to compile the package.
+ 
+@@ -78,7 +78,7 @@
+ by setting variables in the command line or in the environment.  Here
+ is an example:
+ 
+-     ./configure CC=c89 CFLAGS=-O2 LIBS=-lposix
++     ./configure CC=c99 CFLAGS=-g LIBS=-lposix
+ 
+    *Note Defining Variables::, for more details.
+ 
+@@ -87,31 +87,29 @@
+ 
+ You can compile the package for more than one kind of computer at the
+ same time, by placing the object files for each architecture in their
+-own directory.  To do this, you must use a version of `make' that
+-supports the `VPATH' variable, such as GNU `make'.  `cd' to the
++own directory.  To do this, you can use GNU `make'.  `cd' to the
+ directory where you want the object files and executables to go and run
+ the `configure' script.  `configure' automatically checks for the
+ source code in the directory that `configure' is in and in `..'.
+ 
+-   If you have to use a `make' that does not support the `VPATH'
+-variable, you have to compile the package for one architecture at a
+-time in the source code directory.  After you have installed the
+-package for one architecture, use `make distclean' before reconfiguring
+-for another architecture.
++   With a non-GNU `make', it is safer to compile the package for one
++architecture at a time in the source code directory.  After you have
++installed the package for one architecture, use `make distclean' before
++reconfiguring for another architecture.
+ 
+ Installation Names
+ ==================
+ 
+-By default, `make install' will install the package's files in
+-`/usr/local/bin', `/usr/local/man', etc.  You can specify an
+-installation prefix other than `/usr/local' by giving `configure' the
+-option `--prefix=PREFIX'.
++By default, `make install' installs the package's commands under
++`/usr/local/bin', include files under `/usr/local/include', etc.  You
++can specify an installation prefix other than `/usr/local' by giving
++`configure' the option `--prefix=PREFIX'.
+ 
+    You can specify separate installation prefixes for
+ architecture-specific files and architecture-independent files.  If you
+-give `configure' the option `--exec-prefix=PREFIX', the package will
+-use PREFIX as the prefix for installing programs and libraries.
+-Documentation and other data files will still use the regular prefix.
++pass the option `--exec-prefix=PREFIX' to `configure', the package uses
++PREFIX as the prefix for installing programs and libraries.
++Documentation and other data files still use the regular prefix.
+ 
+    In addition, if you use an unusual directory layout you can give
+ options like `--bindir=DIR' to specify different values for particular
+@@ -159,7 +157,7 @@
+ need to know the machine type.
+ 
+    If you are _building_ compiler tools for cross-compiling, you should
+-use the `--target=TYPE' option to select the type of system they will
++use the option `--target=TYPE' to select the type of system they will
+ produce code for.
+ 
+    If you want to _use_ a cross compiler, that generates code for a
+@@ -189,9 +187,14 @@
+ 
+      ./configure CC=/usr/local2/bin/gcc
+ 
+-will cause the specified gcc to be used as the C compiler (unless it is
++causes the specified `gcc' to be used as the C compiler (unless it is
+ overridden in the site shell script).
+ 
++Unfortunately, this technique does not work for `CONFIG_SHELL' due to
++an Autoconf bug.  Until the bug is fixed you can use this workaround:
++
++     CONFIG_SHELL=/bin/bash /bin/bash ./configure CONFIG_SHELL=/bin/bash
++
+ `configure' Invocation
+ ======================
+ 

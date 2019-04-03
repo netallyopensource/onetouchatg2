@@ -1,0 +1,15 @@
+diff --git a/fips/incore b/fips/incore
+index 49e8b5a..b8f8338 100644
+--- a/fips/incore
++++ b/fips/incore
+@@ -56,6 +56,7 @@ if [ -z "$INCORE_ADJUST" ]; then
+   INCORE_ADJUST=4
+   case $TARGET in
+     elf64-x86-64) INCORE_ADJUST=4;;
++    elf32-i386) INCORE_ADJUST=8;;
+     #elf32-littlearm|elf32-little|elf32-bigarm) INCORE_ADJUST="-36";;
+     elf32-littlearm|elf32-little|elf32-bigarm) INCORE_ADJUST="-8";;
+     elf*mips*) INCORE_ADJUST="12";;
+-- 
+1.7.0.4
+

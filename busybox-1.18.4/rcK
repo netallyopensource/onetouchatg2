@@ -1,0 +1,17 @@
+#!/bin/sh
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+if [ -x /etc/init.d/rc.local ]; then
+	/etc/init.d/rc.local stop
+fi
+
+for k in /etc/init.d/K*; do
+	if [ -x $k ]; then
+		$k stop
+	fi
+done
+
+killall5
+swapoff -a >/dev/null 2>&1
+umount -a 2>/dev/null
+mount -o remount,ro /

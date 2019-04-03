@@ -1,0 +1,57 @@
+#!/bin/sh
+# calibrate the touchscreen at boot
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export HOME=/root
+TSDEV=
+
+find_device ()
+{
+    echo -n "Finding touchscreen:"
+
+    SHORTDEV=`dmesg | grep -i "ts \| touch[ ]*screen" | grep -o input[0-9] \
+    | sed s/input/event/`
+
+    if [ -z "$SHORTDEV" ]; then
+        SHORTDEV=`dmesg | grep -i "input: ts" |  grep -o input[0-9] \
+        | sed s/input/event/`
+    fi
+
+    if [ -z "$SHORTDEV" ]; then
+        TSDEV=
+    elif [ -e /dev/$SHORTDEV ]; then
+        TSDEV=/dev/$SHORTDEV
+    elif [ -e /dev/input/$SHORTDEV ]; then
+        TSDEV=/dev/input/$SHORTDEV
+    fi
+
+    if [ $TSDEV ]; then
+      echo -ne " $TSDEV "
+      export TSLIB_TSDEVICE=$TSDEV
+      echo $TSDEV > /etc/ts.dev
+      echo '[ OK ]'
+    else
+      rm -f /etc/ts.dev
+      echo '[FAIL]'
+      exit 1
+    fi
+}
+
+run_calibration ()
+{
+    if [ ! -s /etc/pointercal ]; then
+      echo -n "Calibrating touch screen: "
+      ts_calibrate > /tmp/`basename $0`.log 2>&1 && echo '[ OK ]' || echo '[FAIL]'
+    fi
+}
+
+case "$1" in
+    start)
+        find_device
+        run_calibration
+    ;;
+    stop)
+    ;;
+    *)
+        $0 start
+    ;;
+esac

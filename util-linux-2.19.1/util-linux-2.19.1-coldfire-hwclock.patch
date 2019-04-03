@@ -1,0 +1,21 @@
+diff -Naur util-linux-2.19.1.orig/hwclock/kd.c util-linux-2.19.1/hwclock/kd.c
+--- util-linux-2.19.1.orig/hwclock/kd.c	2011-05-09 15:15:33.000000000 -0400
++++ util-linux-2.19.1/hwclock/kd.c	2011-05-09 15:35:52.000000000 -0400
+@@ -2,7 +2,7 @@
+ 
+ #include "clock.h"
+ 
+-#ifdef __m68k__
++#if defined(__m68k__) && !defined(__mcoldfire__)
+ 
+ #include <unistd.h>		/* for close() */
+ #include <fcntl.h>		/* for O_RDONLY */
+@@ -19,7 +19,7 @@
+ 
+ #endif
+ 
+-#if !defined(__m68k__) || !defined(KDGHWCLK)
++#if !defined(__m68k__) || !defined(KDGHWCLK) || defined(__mcoldfire__)
+ 
+ struct clock_ops *
+ probe_for_kd_clock() {

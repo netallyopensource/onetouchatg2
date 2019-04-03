@@ -1,0 +1,11 @@
+--- httpd-2.2.21/build/mkdir.sh-old	2011-12-20 16:16:21.766999898 -0500
++++ httpd-2.2.21/build/mkdir.sh	2011-12-20 16:16:34.282999886 -0500
+@@ -39,7 +39,7 @@
+         esac
+         if test ! -d "$pathcomp"; then
+             echo "mkdir $pathcomp" 1>&2
+-            mkdir "$pathcomp" || errstatus=$?
++            mkdir -p "$pathcomp" || errstatus=$?
+         fi
+         pathcomp="$pathcomp/"
+     done
